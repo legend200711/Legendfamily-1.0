@@ -164,6 +164,7 @@ function reply(a,q){
  if(CR.test(q.replace(/[\u2019\u2018]/g,"'")))return "I\u2019m really glad you told me. I can\u2019t be your emergency help, but you deserve support right now. If you might act on these thoughts or you\u2019re in danger, contact your local emergency number now. In the US you can call or text 988; elsewhere, findahelpline.com lists crisis lines. Please also reach out to someone near you. I\u2019m here to keep talking.";
  const lm=q.match(/^learn:\s*(.+?)\s*\|\s*(.+?)(?:\s*\|\s*(.+))?$/i);
  if(lm)return learn(a.id,a.l,lm[1],lm[2],lm[3]||"Taught in chat by you")+"\n\nI can use this now. It joins shared knowledge once you approve it in Library.";
+ const mm=memAnswer(a,q);if(mm)return mm;
  if(EMO.test(q)&&!/^(what|how|why|explain|tell me about|define)/i.test(q.trim()))return FR[a.id];
  const h=search(a.id,q);
  if(!h.length)return smalltalk(a,q)||a.n+": that isn\u2019t in my approved knowledge yet. Add it in the Library tab and approve it, then ask again.";
@@ -173,7 +174,7 @@ function reply(a,q){
 let tab="panels",cur="legend",flt="pending",sq="",ed=null,rm=null,lastRes="",lastH="",exp="";
 const CA=()=>A.find(a=>a.id===cur);
 const v=document.getElementById("v"),nav=document.getElementById("nav");
-const TABS=[["voice","Assistant"],["lib","Library"],["vault","Vault"],["ctl","Control"]];
+const TABS=[["voice","Assistant"],["lib","Library"],["vault","Vault"],["ctl","Control"],["brain","Brain"]];
 function rec(r){return `<div class="box"><span class="tag ${r.status}">${r.status}</span><span class="tag">${libn(r.lib)}</span><b>${esc(r.title)}</b><p>${esc(r.text)}</p><p class="st">Source: ${esc(r.source)}. By ${nm(r.by)}. Version ${r.ver}.${r.conflict?" Possible conflict flagged.":""}</p>${r.status!=="approved"?`<button class="sm" data-a="ok" data-i="${r.id}">Approve</button>`:""}${r.status!=="rejected"?`<button class="sm" data-a="no" data-i="${r.id}">Reject</button>`:""}<button class="sm" data-a="edit" data-k="s" data-i="${r.id}">Edit</button></div>`}
 function editor(){if(!ed)return"";const r=(ed.k==="v"?vt:sh).find(x=>x.id===ed.id);if(!r)return"";
  const opts=ed.k==="s"?L.slice(1).map(l=>`<option value="${l[0]}"${l[0]===r.lib?" selected":""}>${l[1]}</option>`).join(""):VC.map(c=>`<option${c===r.cat?" selected":""}>${c}</option>`).join("");
@@ -262,7 +263,7 @@ V.chat=()=>{const a=CA(),h=br[a.id].hist;
  const intro=h.length?"":`<div class="m a">${esc(a.n)} online. “${esc(a.q||"")}” Ask me about anything I know, or teach me with: learn: title | text | source.</div>`;
  return `<div id="log">${intro}${h.map(m=>`<div class="m ${m.r}">${esc(m.t)}</div>`).join("")}</div><div class="row"><input id="q" placeholder="Ask ${a.n}" aria-label="Message"><button data-a="send">Send</button></div>`};
 V.voice=()=>{const a=CA();
- return `<div class="strip">Settings for ${a.n}. ${a.n} keeps its own chat history and its own knowledge. Use Library to teach it and approve what it learns.</div><h3>Voice</h3><div class="box"><div class="chips"><button data-a="vg" data-i="m" aria-pressed="${vgen(a)==="m"}">Man’s voice</button><button data-a="vg" data-i="f" aria-pressed="${vgen(a)==="f"}">Woman’s voice</button></div><button data-a="spk">Speak replies: ${gs.speak?"on":"off"}</button><p class="st">${esc(hmsg)}</p></div>`};
+ return `<div class="strip">Settings for ${a.n}. ${a.n} keeps its own chat history and its own knowledge. Use Library to teach it and approve what it learns.</div><h3>Voice</h3><div class="box"><div class="chips"><button data-a="vg" data-i="m" aria-pressed="${vgen(a)==="m"}">Man’s voice</button><button data-a="vg" data-i="f" aria-pressed="${vgen(a)==="f"}">Woman’s voice</button></div><button data-a="hf">Hands-free: ${hf?"on":"off"}</button> <button data-a="spk">Speak replies: ${gs.speak?"on":"off"}</button><p class="st">${esc(hmsg)}</p><p class="st">${wl?"Your screen stays on while this app is open.":"Screen stay-awake is not available in this browser."}</p></div>`};
 act.back=()=>{if(hf)act.hf();go("panels")};
 act.set=()=>go("voice");
 act.tochat=()=>go("chat");
@@ -280,14 +281,14 @@ function ping(a,t,pr){pr=pr||(t.startsWith("I’m really glad you told me")?"urg
 function post(w,t,pr){const m={w,t,ts:Date.now()};grp.push(m);grp=grp.slice(-100);sv("grp",grp);
  if(tab==="group"){const lg=document.getElementById("log");if(lg){lg.insertAdjacentHTML("beforeend",gm(m));lg.scrollTop=lg.scrollHeight}}
  if(w!=="u")ping(A.find(x=>x.id===w),t,pr)}
-async function gsend(t){const q=t.replace(/[’‘]/g,"'");
+async function gsend(t){remember(t,null);const q=t.replace(/[’‘]/g,"'");
  if(!SAMPLE||CR.test(q)||/^learn:/i.test(q)){gsendOff(t);return}
  post("u",t);
  const ms=A.filter(a=>new RegExp("(^|[^a-z])"+a.n+"(?![a-z])","i").test(q)).map(a=>a.id),
   know=[...new Set(A.map(a=>search(a.id,q)[0]).filter(Boolean).map(r=>r.t+": "+r.x))].slice(0,3).join("\n")||"none",
   hist=grp.slice(-10,-1).map(m=>(m.w==="u"?"USER":nm(m.w).toUpperCase())+": "+m.t).join("\n")||"(start)",
   roster=A.map(a=>a.id+" = "+a.n+", "+PERS[a.id]).join("\n");
- try{const o=await SAMPLE.json(`This is a group chat between the user and their 12 AI friends. They are close friends of the user, NOT therapists, doctors or psychiatrists.\nFRIENDS:\n${roster}\n\nRules: Choose 2 to 4 friends to reply${ms.length?" (the user mentioned: "+ms.join(", ")+", so those must reply)":""}. Each friend must sound clearly different, using their own personality and slang, and react to what the user said and sometimes to each other. Real friends texting: casual, warm, short (under 35 words each). If the user shares feelings, give emotional support: empathy first, relate, comfort, maybe one small idea or a joke if it fits. No clinical language, no diagnoses, no lists, no textbook definitions, no reciting facts unless asked. Never mention psychiatrists or being an AI. Use the background notes only quietly.\nBACKGROUND NOTES: ${know}\nWHAT THEY KNOW ABOUT THE USER: ${prof.map(p=>p.t).join("; ")||"nothing yet"}\nCHAT SO FAR:\n${hist}\nUSER: ${t}\n\nReply with JSON only: {"messages":[{"who":"friend id","text":"message"}]}`,{cache:false,modelTier:"quick"});
+ try{const o=await SAMPLE.json(`This is a group chat between the user and their 12 AI friends. They are close friends of the user, NOT therapists, doctors or psychiatrists.\nFRIENDS:\n${roster}\n\nRules: Choose 2 to 4 friends to reply${ms.length?" (the user mentioned: "+ms.join(", ")+", so those must reply)":""}. Each friend must sound clearly different, using their own personality and slang, and react to what the user said and sometimes to each other. Real friends texting: casual, warm, short (under 35 words each). If the user shares feelings, give emotional support: empathy first, relate, comfort, maybe one small idea or a joke if it fits. No clinical language, no diagnoses, no lists, no textbook definitions, no reciting facts unless asked. Never mention psychiatrists or being an AI. Use the background notes only quietly.\nBACKGROUND NOTES: ${know}\nWHAT THEY KNOW ABOUT THE USER: ${prof.map(p=>p.t).join("; ")||"nothing yet"}\nSHARED MEMORY: ${memNote()}\nCHAT SO FAR:\n${hist}\nUSER: ${t}\n\nReply with JSON only: {"messages":[{"who":"friend id","text":"message"}]}`,{cache:false,modelTier:"quick"});
   const list=((o&&o.messages)||[]).filter(m=>A.some(a=>a.id===m.who)&&typeof m.text==="string").slice(0,4);
   if(!list.length)throw 0;
   list.forEach((m,i)=>setTimeout(()=>post(m.who,m.text),900*(i+1)))
@@ -304,7 +305,7 @@ function gsendOff(t,skip){if(!skip)post("u",t);
  else if(emo&&!crisis)rs=A.slice().sort(()=>Math.random()-.5).slice(0,3);
  else if(gr)rs=A.slice().sort(()=>Math.random()-.5).slice(0,4);
  else{rs=A.map(a=>({a,s:search(a.id,q2)})).filter(x=>x.s.length).sort((x,y)=>y.s[0].sc-x.s[0].sc).slice(0,3).map(x=>x.a);if(!rs.length)rs=[A[0]]}
- msgs=rs.map(a=>[a,emo&&!crisis?FR[a.id]:gr&&!crisis?"Hey! "+(a.q||""):(crisis&&a.id==="legend"?"We’re here with you. Aurora has this one.":reply(a,/^learn:/i.test(q)?q:q2))]);
+ msgs=rs.map(a=>[a,emo&&!crisis?FR[a.id]:gr&&!crisis?"Hey"+(nameOf()?" "+nameOf():"")+"! "+(a.q||""):(crisis&&a.id==="legend"?"We’re here with you. Aurora has this one.":reply(a,/^learn:/i.test(q)?q:q2))]);
  const o=A.filter(a=>!rs.includes(a));
  if(!crisis&&!gr&&!emo&&o.length&&Math.random()<.6){const b=o[Math.random()*o.length|0];msgs.push([b,RX[b.id]])}
  msgs.forEach((m,i)=>setTimeout(()=>post(m[0].id,m[1]),700*(i+1)))}
@@ -415,6 +416,33 @@ act.goal=i=>{const t=entry();t.goals[+i]=!t.goals[+i];sv("ci",ci);draw()};
 act.breathe=()=>{let n=0;const step=()=>{const c=document.getElementById("bc"),t=document.getElementById("bt");if(!c||!t)return;
   if(n>=10){c.style.transition="transform 1s";c.style.transform="scale(1)";t.textContent="Nice. You did it.";return}
   const inh=n%2===0;c.style.transition="transform "+(inh?4:6)+"s ease-in-out";c.style.transform=inh?"scale(1.5)":"scale(1)";t.textContent=inh?"Breathe in…":"Breathe out…";n++;setTimeout(step,inh?4000:6000)};step()};
+let epi=ld("epi",[]),curEp=null;
+const cap=x=>x[0].toUpperCase()+x.slice(1);
+const nameOf=()=>{const p=prof.find(x=>/^Their name is /.test(x.t));return p?p.t.replace("Their name is ",""):""};
+function addFact(txt,by){txt=(txt||"").trim().slice(0,160);if(!txt||prof.some(p=>p.t.toLowerCase()===txt.toLowerCase()))return;prof.push({id:uid(),t:txt,by,ts:Date.now(),k:"fact"});prof=prof.slice(-80);sv("prof",prof)}
+function remember(t,a){const by=a?a.id:"group";curEp=null;if(CR.test(t.replace(/[\u2019\u2018]/g,"'")))return;let m;
+ if(m=t.match(/my name is ([a-z][a-z'-]{1,19})/i))addFact("Their name is "+cap(m[1]),by);
+ if(m=t.match(/(?:call me|i go by) ([a-z][a-z'-]{1,19})/i))addFact("Their name is "+cap(m[1]),by);
+ if((m=t.match(/\bi (?:really )?(love|like|enjoy|hate|dislike|prefer) ([^.!?,;]{2,40})/i))&&!/^(you|it|this|that|to)\b/i.test(m[2]))addFact((/hate|dislike/i.test(m[1])?"Dislikes ":"Likes ")+m[2].trim(),by);
+ if(m=t.match(/\bi live in ([^.!?,;]{2,30})/i))addFact("Lives in "+m[1].trim(),by);
+ if(m=t.match(/\bi (work|study) (as|at|in) ([^.!?,;]{2,30})/i))addFact((m[1].toLowerCase()==="study"?"Studies ":"Works ")+m[2]+" "+m[3].trim(),by);
+ if(m=t.match(/\bmy (dog|cat|car|brother|sister|mom|mother|dad|father|wife|husband|girlfriend|boyfriend|partner|friend|son|daughter|boss|job|birthday|favorite [a-z]+) (?:is|was|are|named|called) ([^.!?,;]{1,40})/i))addFact("Their "+m[1]+" is "+m[2].trim(),by);
+ if(m=t.match(/(?:^|[.!?]\s+|please\s+)remember(?: that)? ([^.!?]{3,120})/i))addFact(m[1],by);
+ if(t.length>=15&&!/^learn:/i.test(t)&&!/remember|know about me|did we (talk|chat)|last time we/i.test(t)){curEp=uid();epi.push({id:curEp,w:a?a.n:"the group",q:t.length>90?t.slice(0,87)+"...":t,ts:Date.now(),s:EMO.test(t)?1:0});epi=epi.slice(-800);sv("epi",epi)}}
+function lastEpisode(){const e=epi.filter(x=>x.id!==curEp).reverse().find(x=>!x.s&&Date.now()-x.ts<30*864e5);return e?"you were chatting with "+e.w+" about \u201c"+e.q+"\u201d.":""}
+function memNote(){return "facts: "+(prof.slice(-12).map(p=>p.t).join("; ")||"none")+". Recent chats: "+(epi.slice(-6).map(x=>x.w+" heard: "+x.q).join(" | ")||"none")}
+function memAnswer(a,q){const s=q.toLowerCase().replace(/[\u2019\u2018]/g,"'");
+ if(/what (do|did) you (remember|know) about me|do you remember me|what have i told you|what do you remember/.test(s)){
+  if(!prof.length&&!epi.length)return "Nothing yet, but I\u2019m listening. Tell me about yourself and all twelve of us will remember it.";
+  const l=lastEpisode();return "Here\u2019s what all of us remember: "+(prof.slice(-8).map(p=>p.t).join("; ")||"not much yet")+"."+(l?" And recently, "+l:"")}
+ if(/what (did|were) we (talk|chat|talking|chatting) about|last time we/.test(s)){const e=epi.filter(x=>x.id!==curEp).reverse().filter(x=>!x.s).slice(0,3);return e.length?"Recently: "+e.map(x=>x.w+": \u201c"+x.q+"\u201d").join("; "):"We haven\u2019t talked much yet."}
+ return null}
+const st0=smalltalk;
+smalltalk=(a,q)=>{const r=st0(a,q);if(/^(yo|hi|hello|hey|sup|howdy|good (morning|afternoon|evening)|what's up|whats up)(?![a-z])/.test(q.toLowerCase().replace(/[\u2019\u2018]/g,"'").trim())){const n=nameOf(),l=lastEpisode();return (n?"Hey "+n+"! ":"")+r+(l?" Last time, "+l:"")}return r};
+V.brain=()=>`<div class="strip">One shared brain for all 12. Every assistant remembers what you tell any of them. ${prof.length} facts, ${epi.length} memories.</div><h3>Add a memory</h3><div class="row"><input id="bm" placeholder="Something they should remember" aria-label="New memory"><button data-a="badd">Save</button></div><h3>Facts about you</h3>${prof.slice().reverse().map(p=>`<div class="box">${esc(p.t)}<p class="st">${p.by?"Learned via "+esc(nm(p.by))+". ":""}${p.ts?new Date(p.ts).toLocaleDateString():""}</p><button class="sm" data-a="pf" data-i="${p.id}">Forget</button></div>`).join("")||'<p class="st">No facts yet. Tell any assistant about yourself.</p>'}<h3>Recent memories</h3>${epi.slice(-20).reverse().map(e=>`<div class="box"><span class="tag">${esc(e.w)}</span> ${esc(e.q)}<p class="st">${new Date(e.ts).toLocaleString()}</p><button class="sm" data-a="ef" data-i="${e.id}">Forget</button></div>`).join("")||'<p class="st">Nothing yet.</p>'}`;
+act.badd=()=>{const el=document.getElementById("bm");if(el&&el.value.trim()){addFact(el.value,"you");}draw()};
+act.ef=i=>{epi=epi.filter(e=>e.id!==i);sv("epi",epi);draw()};
+setInterval(()=>{if(!wl&&document.visibilityState==="visible")lock()},30000);
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let hf=false,srec=null,wl=null,talking=false,hmsg="",gv=ld("gv",{});
 const vgen=a=>gv[a.id]||a.g;
@@ -426,7 +454,7 @@ function say(t,done){try{srec&&srec.abort()}catch(e){}
  if(!("speechSynthesis" in window)){done&&done();return}
  speechSynthesis.cancel();const g=vgen(CA()),p=pickV(g),u=new SpeechSynthesisUtterance(t);
  if(p){u.voice=p;u.lang=p.lang;u.pitch=1}else u.pitch=g==="f"?1.3:.85;
- u.onend=u.onerror=()=>{talking=false;done&&done()};talking=true;speechSynthesis.speak(u)}
+ u.onend=u.onerror=()=>{talking=false;done&&done()};talking=true;try{speechSynthesis.speak(u)}catch(e){talking=false;done&&done()}}
 function listen(){if(DICT||!hf||!SR||talking)return;try{srec=new SR()}catch(e){return}srec.lang="en-US";
  srec.onresult=e=>{let t=e.results[0][0].transcript;const m=t.match(/^\s*(?:hey\s+)?(\w+)[,.]?\s*(.*)$/i);
   if(m){const f=A.find(a=>a.n.toLowerCase()===m[1].toLowerCase());if(f){cur=f.id;t=m[2]}}
@@ -445,15 +473,16 @@ function sys(a){const fb=br[a.id].fb||[],good=fb.filter(x=>x.u).slice(-3).map(x=
 You are the user’s close friend, not a therapist, doctor or psychiatrist. Talk like a real friend texting: casual, warm, in your own personality and voice. When they share feelings, respond with empathy first, relate in your own style, and offer comfort or one small idea, not a lecture. Never use clinical language, diagnoses, lists or textbook definitions unless they ask what something means, and then explain it simply as a friend would. Keep replies under 60 words. Ask at most one gentle question. Use APPROVED KNOWLEDGE quietly to inform what you say; do not recite it or cite it unless asked. If unsure, say so. Only mention professional help briefly and kindly when things sound serious, never to brush them off. Never invent facts about the user; only use WHAT YOU KNOW ABOUT THE USER. Other assistants you can mention: ${A.filter(x=>x!==a).map(x=>x.n).join(", ")}.
 ADAPT TO THE USER. Replies they liked: ${good}. Replies they disliked: ${bad}. Do more of what they liked.
 WHAT YOU KNOW ABOUT THE USER: ${prof.map(p=>p.t).join("; ")||"nothing yet"}. ${moodNote()}
+SHARED MEMORY (all 12 friends share one brain): ${memNote()}
 Answer with JSON only, like {"reply":"text","facts":[],"taught":null}. facts: up to 2 lasting facts the user just told you about themselves or their preferences. taught: {"title":"...","text":"..."} only if the user explicitly taught you a reusable fact, otherwise null.`}
-async function ask(t){const a=CA(),b=br[a.id];if(busy)return;
+async function ask(t){const a=CA(),b=br[a.id];if(busy)return;remember(t,a);
  if(!SAMPLE||CR.test(t.replace(/[’‘]/g,"'"))||/^learn:/i.test(t)){askOff(t);return}
  b.hist.push({r:"u",t});tab="chat";busy=true;draw();let rp=null;
  try{const ctx=search(a.id,t).map(r=>"- "+r.t+": "+r.x+" (Source: "+r.s+")").join("\n")||"none",
   tr=b.hist.slice(-9,-1).map(m=>(m.r==="u"?"USER: ":a.n.toUpperCase()+": ")+m.t).join("\n")||"(start of chat)",
   o=await SAMPLE.json(sys(a)+"\n\nAPPROVED KNOWLEDGE:\n"+ctx+"\n\nCONVERSATION SO FAR:\n"+tr+"\n\nUSER: "+t+"\n\nJSON:",{cache:false,modelTier:"quick"});
   if(o&&typeof o.reply==="string"){rp=o.reply;
-   (o.facts||[]).slice(0,2).forEach(f=>{if(typeof f==="string"&&f.trim()&&!prof.some(p=>p.t.toLowerCase()===f.trim().toLowerCase()))prof.push({id:uid(),t:f.trim().slice(0,160)})});
+   (o.facts||[]).slice(0,2).forEach(f=>{if(typeof f==="string"&&f.trim()&&!prof.some(p=>p.t.toLowerCase()===f.trim().toLowerCase()))prof.push({id:uid(),t:f.trim().slice(0,160),by:a.id,ts:Date.now(),k:"fact"})});
    prof=prof.slice(-40);sv("prof",prof);
    if(o.taught&&o.taught.title&&o.taught.text){learn(a.id,a.l,String(o.taught.title).slice(0,80),String(o.taught.text).slice(0,500),"Taught in chat by you");rp+="\n\n(Saved to my own knowledge. It joins shared knowledge once you approve it in Library.)"}}
  }catch(e){if(e&&e.code==="not_granted")SAMPLE=null}
@@ -462,7 +491,7 @@ async function ask(t){const a=CA(),b=br[a.id];if(busy)return;
  if(hf)say(rp,listen);else if(gs.speak)say(rp)}
 V.chat=()=>{const a=CA(),h=br[a.id].hist;
  const intro=h.length?"":`<div class="m a">${esc(a.n)} online. “${esc(a.q||"")}” ${SAMPLE?"Talk to me about anything.":"Ask me about anything I know."} Teach me with: learn: title | text | source.</div>`;
- return `<div id="log">${intro}${h.map((m,i)=>m.r==="u"?`<div class="m u">${esc(m.t)}</div>`:`<div class="m a">${esc(m.t)}<div class="fbk"><button data-a="fb" data-i="${i}|1" aria-label="Helpful" aria-pressed="${m.f==="up"}">👍</button><button data-a="fb" data-i="${i}|0" aria-label="Not helpful" aria-pressed="${m.f==="down"}">👎</button></div></div>`).join("")}${busy?`<div class="m a">Thinking…</div>`:""}</div><div class="row"><input id="q" placeholder="Ask ${a.n}" aria-label="Message"><button data-a="send">Send</button></div>`};
+ return `<div id="log">${intro}${h.map((m,i)=>m.r==="u"?`<div class="m u">${esc(m.t)}</div>`:`<div class="m a">${esc(m.t)}<div class="fbk"><button data-a="fb" data-i="${i}|1" aria-label="Helpful" aria-pressed="${m.f==="up"}">👍</button><button data-a="fb" data-i="${i}|0" aria-label="Not helpful" aria-pressed="${m.f==="down"}">👎</button></div></div>`).join("")}${busy?`<div class="m a">Thinking…</div>`:""}</div><div class="row"><input id="q" placeholder="Ask ${a.n}" aria-label="Message"><button data-a="hf" aria-pressed="${hf}" aria-label="Hands-free voice">🎙</button><button data-a="send">Send</button></div>`};
 const v0=V.voice;
 V.voice=()=>{const a=CA();return v0()+`<h3>Real AI</h3><div class="box"><p class="st">${SAMPLE?"Replies come from a real AI, using this assistant’s personality, its approved knowledge, your chat and what it has learned about you.":"Real AI replies are unavailable here, so offline answers are used."}</p></div><h3>What I know about you</h3><div class="box">${prof.map(p=>`<div>${esc(p.t)} <button class="sm" data-a="pf" data-i="${p.id}">Forget</button></div>`).join("")||'<p class="st">Nothing yet. The assistants learn it from your chats, and you can remove anything.</p>'}</div>`};
 act.fb=i=>{const [k,x]=i.split("|"),b=br[cur],m=b.hist[+k];if(!m)return;m.f=x==="1"?"up":"down";b.fb=(b.fb||[]).concat({u:x==="1",t:m.t.slice(0,140)}).slice(-12);sv("b:"+cur,b);draw()};
@@ -483,7 +512,7 @@ draw();
 </script>
 <button id="inst" hidden>Install app</button>
 <script>
-if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>r.update()).catch(()=>{}));
 let dp=null;const ib=document.getElementById("inst");
 addEventListener("beforeinstallprompt",e=>{e.preventDefault();dp=e;ib.hidden=false});
 ib.onclick=async()=>{if(!dp)return;dp.prompt();await dp.userChoice;dp=null;ib.hidden=true};

@@ -1,24 +1,20 @@
-THE LEGENDARY TWELVE - install as an app (PWA)
+THE LEGENDARY TWELVE - update (version 2)
 
-A PWA needs its own web address. Free, phone-only way (GitHub Pages):
+You already have the app on GitHub Pages. To update it:
 
-1. On your phone, sign in at github.com (free account).
-2. Tap + then New repository. Name it legendary12. Set it to Public. Create it.
-3. Tap "uploading an existing file" (or Add file > Upload files).
-   Upload ALL files from this zip, keeping them in the top level:
-   index.html, manifest.webmanifest, sw.js, and the four .png icons.
-   Tap Commit changes.
-4. Go to Settings > Pages. Under Branch pick main and / (root). Save.
-5. Wait about a minute. Your app is at:
-   https://YOUR-USERNAME.github.io/legendary12/
+1. Open your repository on github.com in your phone browser.
+2. Tap Add file > Upload files.
+3. Upload these two files from this zip (they replace the old ones):
+   index.html   and   sw.js
+   (The icons and manifest.webmanifest did not change.)
+4. Tap Commit changes. Wait about a minute.
+5. Open the app, close it fully, and open it again. The new version loads
+   (sw.js was updated so the installed app refreshes itself).
 
-INSTALL
-- Android (Chrome): open the address. Tap "Install app" (bottom right)
-  or the menu (three dots) > Install app / Add to Home screen.
-- iPhone (Safari): tap Share > Add to Home Screen.
-
-Notes
-- It opens full screen like a real app and works offline after the first load.
-- Your chats, memory and knowledge are saved on that phone.
-- The real-AI replies only work inside Claude. In the installed app the
-  assistants use their built-in offline knowledge and friend-style replies.
+NEW IN THIS VERSION
+- One shared brain: every assistant remembers what you tell any of them.
+  Open an assistant > Settings > Brain to see, add or forget memories.
+- Hands-free is back: tap the mic button next to Send (or Settings > Assistant).
+  Say "Hey Nova" to switch assistants. Allow the microphone when Chrome asks.
+- Your phone screen stays on while the app is open.
+- Crisis messages are never saved as memories.
