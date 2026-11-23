@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Legendary Twelve</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0a2230">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Legendary 12">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+:root{color-scheme:dark;--bg:#040b12;--pn:rgba(14,48,70,.55);--ink:#d8f3ff;--mute:#86adc0;--b:#3fb6ff;--g:#38f2a6;--bad:#ff6b6b;--warn:#ffb347;--line:#1d5a78;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;height:100%;display:flex;flex-direction:column;background:radial-gradient(circle at 50% 0,#0b3a52 0,var(--bg) 60%) fixed,var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{text-align:center;padding:12px 16px;border-bottom:1px solid var(--b);background:linear-gradient(180deg,rgba(63,182,255,.18),transparent);box-shadow:0 1px 14px rgba(63,182,255,.25)}
+h1{margin:0;font:800 22px/1.1 "Arial Narrow",Impact,system-ui,sans-serif;letter-spacing:.3em;color:var(--ink)}
+header p{margin:4px 0 0;color:var(--mute);font-size:12px;letter-spacing:.3em}
+main{flex:1;overflow-y:auto;padding:14px 14px 20px}
+nav{display:flex;border-top:1px solid var(--line);background:rgba(4,11,18,.92)}
+nav button{flex:1;border:0;background:transparent;color:var(--mute);padding:13px 2px;font:600 13px system-ui,sans-serif}
+nav button[aria-pressed="true"]{color:var(--g);box-shadow:inset 0 2px 0 var(--g)}
+.strip,.box{border:1px solid var(--line);background:var(--pn);border-radius:6px;padding:10px 12px;margin-bottom:12px;font-size:14px}
+.strip b{color:var(--g)}
+.p{--c:var(--b);border:1px solid color-mix(in srgb,var(--c) 55%,transparent);background:linear-gradient(180deg,color-mix(in srgb,var(--c) 14%,transparent),transparent 75%);border-radius:6px;padding:14px;margin-bottom:14px;text-align:center;box-shadow:0 0 16px color-mix(in srgb,var(--c) 16%,transparent)}
+.p svg{width:110px;height:110px;overflow:visible;filter:drop-shadow(0 0 7px var(--c))}
+.p h2{margin:2px 0 0;font:800 20px/1 "Arial Narrow",Impact,sans-serif;letter-spacing:.2em;color:var(--c)}
+.p p{margin:4px 0}
+.st{color:var(--mute);font-size:13px}
+button{font:inherit}
+.p button,.box button,.row button{border:1px solid var(--g);background:rgba(56,242,166,.12);color:var(--g);border-radius:4px;padding:10px 14px;font-weight:700}
+.box button.sm{border-color:var(--line);background:transparent;color:var(--ink);padding:6px 10px;margin:6px 6px 0 0;font-weight:500}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px}
+.chips button{--c:var(--b);flex:none;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:8px 14px}
+.chips button[aria-pressed="true"]{border-color:var(--c);color:var(--c);background:color-mix(in srgb,var(--c) 16%,transparent)}
+#log{min-height:40vh}
+.m{max-width:88%;padding:9px 13px;border-radius:8px;margin:8px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.u{margin-left:auto;background:var(--g);color:#02150d}
+.a{background:var(--pn);border:1px solid var(--line);border-left:3px solid var(--b)}
+.row{display:flex;gap:8px;margin-top:8px}
+input,select,textarea{width:100%;border:1px solid var(--line);background:rgba(4,11,18,.85);color:var(--ink);border-radius:6px;padding:10px 12px;font:inherit;margin:4px 0}
+input[type=checkbox]{width:auto;margin:0 6px 0 0}
+.row input{margin:0}
+textarea{min-height:90px}
+label{display:block;color:var(--mute);font-size:13px;margin-top:6px}
+.tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:1px 9px;font-size:12px;margin-right:6px;color:var(--mute)}
+.tag.pending{color:var(--warn);border-color:var(--warn)}
+.tag.approved,.tag.shared{color:var(--g);border-color:var(--g)}
+.tag.rejected{color:var(--bad);border-color:var(--bad)}
+.wide{overflow-x:auto}
+table{border-collapse:collapse;font-size:12px;width:100%}
+td,th{border:1px solid var(--line);padding:4px;text-align:center}
+td:first-child{text-align:left}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;margin:6px 0 0}
+h3{margin:14px 0 6px;color:var(--b);font-size:16px}
+input:focus,button:focus-visible,select:focus,textarea:focus{outline:2px solid var(--g);outline-offset:1px}
+.sw{transform-box:fill-box;transform-origin:center;animation:spin 16s linear infinite}
+.sw2{transform-box:fill-box;transform-origin:center;animation:spin 22s linear infinite reverse}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:700px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (min-width:1000px){.grid{grid-template-columns:repeat(6,minmax(0,1fr))}}
+.p2{--c:var(--b);display:flex;flex-direction:column;border:1px solid color-mix(in srgb,var(--c) 55%,transparent);border-radius:4px;padding:10px 8px 12px;text-align:center;background:linear-gradient(180deg,color-mix(in srgb,var(--c) 10%,#050d14),#050d14 70%);box-shadow:0 0 14px color-mix(in srgb,var(--c) 16%,transparent)}
+.p2 svg{width:100%;max-width:140px;height:auto;margin:0 auto;overflow:visible;filter:drop-shadow(0 0 7px var(--c))}
+.nn{margin:2px 0 0;font:800 17px/1 "Arial Narrow",Impact,sans-serif;letter-spacing:.18em;color:var(--c)}
+.rl{margin:6px 0 0;font-size:12px;font-weight:700}
+.qt{margin:4px 0;font-size:11px;font-style:italic;color:var(--mute);flex:1}
+.wk{margin:4px 0 8px;font-size:10px;color:var(--mute);letter-spacing:.06em}
+.p2 button{border:1px solid var(--c);background:color-mix(in srgb,var(--c) 14%,transparent);color:var(--c);border-radius:3px;padding:9px 4px;font:700 12px system-ui,sans-serif;letter-spacing:.04em}
+.foot{text-align:center;margin:14px 0 0;font-size:12px;color:var(--mute)}
+.hb{display:flex;align-items:center;gap:10px;text-align:left}
+.hb>div{flex:1;min-width:0}
+.hb h1{font-size:20px;letter-spacing:.18em}
+.hb p{letter-spacing:.06em}
+.hb button{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:4px;padding:8px 12px;font:600 13px system-ui,sans-serif}
+.hb button[aria-label]{border:0;padding:0 6px;color:var(--g);font:700 32px/1 system-ui,sans-serif}
+#v.cm{display:flex;flex-direction:column;overflow:hidden}
+#v.cm #log{flex:1;min-height:0;overflow-y:auto}
+.gbtn{width:100%;margin-bottom:12px;border:1px solid var(--g);background:rgba(56,242,166,.12);color:var(--g);border-radius:4px;padding:13px;font:700 15px system-ui,sans-serif;letter-spacing:.06em}
+.gc{margin-top:8px;padding-bottom:0}
+.fbk{margin-top:6px}
+.fbk button{border:0;background:transparent;font-size:16px;opacity:.55;padding:2px 8px}
+.fbk button[aria-pressed="true"]{opacity:1}
+.row button[aria-pressed="true"]{background:var(--g);color:#02150d}
+#nn{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.5}
+header,main,nav{position:relative;z-index:1}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.sw,.sw2{animation:none}}
+#inst{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:5;border:1px solid var(--g);background:#042a22;color:var(--g);border-radius:999px;padding:12px 18px;font:700 14px system-ui,sans-serif;box-shadow:0 0 16px rgba(56,242,166,.35)}
+</style>
+</head>
+<body>
+<canvas id="nn" aria-hidden="true"></canvas>
+<header id="hd"></header>
+<main id="v"></main>
+<nav id="nav"></nav>
+<script>
+const A=[
+{id:"legend",n:"Legend",r:"Leader and strategist",c:"#3fb6ff",o:"Strategic view: "},
+{id:"nova",n:"Nova",r:"Science and discovery",c:"#38f2a6",o:"Here\u2019s what the evidence says: "},
+{id:"titan",n:"Titan",r:"Computers and engineering",c:"#6f8bff",o:"Diagnostic: "},
+{id:"aurora",n:"Aurora",r:"Emotional intelligence",c:"#5ef0c8",o:"Gently, here\u2019s what I know: "},
+{id:"vex",n:"Vex",r:"Music and creativity",c:"#c4f542",o:"Turn it up: "},
+{id:"oracle",n:"Oracle",r:"History and wisdom",c:"#9ad0ff",o:"From the record: "}];
+const XX={legend:{l:"gen",g:"m",q:"Twelve minds. One legend."},nova:{l:"sci",g:"f"},titan:{l:"tech",g:"m"},aurora:{l:"mh",g:"f"},vex:{l:"music",g:"m"},oracle:{l:"human",g:"m"}};
+A.forEach(a=>Object.assign(a,XX[a.id]));
+A.push(
+{id:"elite",n:"Elite",r:"The secret millionaire",q:"Quietly loaded. Strategically patient.",c:"#f2c230",o:"Strategic answer: ",x:" Patience pays.",l:"gen",g:"m"},
+{id:"pepper",n:"Pepper",r:"The computer tech genius",q:"What broke? Let me fix your disaster.",c:"#b57bff",o:"Okay, here\u2019s the fix. ",l:"tech",g:"f"},
+{id:"midnight",n:"Midnight",r:"The lone wolf",q:"I don\u2019t need a crowd. I need results.",c:"#ff5a5a",o:"",t:2,l:"human",g:"m"},
+{id:"luna",n:"Luna",r:"The jock",q:"Let\u2019s GO. You ready or are we just talking?",c:"#3da0ff",o:"Let\u2019s go! ",x:" You ready?",l:"gen",g:"f"},
+{id:"simba",n:"Simba",r:"The chaos maker",q:"In my defense, nobody told me NOT to do that.",c:"#39e66b",o:"Chaos report: ",x:" Nobody told me not to.",l:"music",g:"m"},
+{id:"panther",n:"Panther",r:"Cars and black cats",q:"Four wheels or four paws, I\u2019ve got you.",c:"#ff8a3d",o:"Here\u2019s the rundown: ",l:"auto",g:"m"});
+const L=[["vault","Personal Knowledge Vault"],["auto","Cars and Black Cats"],["mh","Mental Health Education"],["sci","Science and Research"],["tech","Technology and Engineering"],["music","Music and Creativity"],["human","History, Psychology and Human Knowledge"],["gen","General Knowledge and Education"]];
+const VC=["Personal background","Life experiences","Family and relationships","Interests and hobbies","Music and artistic development","Technology projects","Goals and aspirations","Personal achievements","Challenges and experiences","Communication preferences","Approved mental health experiences"];
+const mem={};
+const ld=(k,d)=>{try{const x=localStorage.getItem("ls6:"+k);return x?JSON.parse(x):d}catch(e){return k in mem?mem[k]:d}};
+const sv=(k,x)=>{try{localStorage.setItem("ls6:"+k,JSON.stringify(x))}catch(e){mem[k]=x}};
+const uid=()=>Math.random().toString(36).slice(2,9);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const nm=i=>(A.find(a=>a.id===i)||{n:i}).n, libn=k=>L.find(l=>l[0]===k)[1];
+const val=i=>document.getElementById(i).value;
+const SEED=[
+["mh","Depression basics","Depression is more than sadness. It can bring lasting low mood, loss of interest, tiredness and changes in sleep or appetite. It is common and treatable. A licensed professional can assess it; this library offers education only."],
+["mh","Anxiety basics","Anxiety is the body\u2019s alarm system. It becomes a problem when worry is constant or hard to control. Slow breathing, regular sleep, less caffeine and talking to a professional can all help."],
+["mh","Overthinking","Overthinking is looping on the same worries. Try writing the thought down, naming what you can control, and setting a short time to decide or let go."],
+["mh","Grief","Grief has no fixed timeline or order. Sadness, anger, numbness and relief can all appear. Support from others and gentle routines help; ongoing difficulty functioning is a reason to seek professional support."],
+["mh","Boundaries","A boundary is a clear statement of what you will and won\u2019t accept. Say it calmly, keep it short and follow through."],
+["mh","Recognizing a crisis","Warning signs include talk of wanting to die, hopelessness, giving belongings away, or sudden calm after deep despair. Take it seriously, stay with the person, and contact local emergency services or a crisis line. In the US, call or text 988."],
+["mh","How to support someone","Listen without fixing, ask open questions, avoid judging, and encourage professional help. You are not their therapist, and caring for yourself matters too."],
+["sci","Scientific method","Observe, ask a question, form a testable hypothesis, run an experiment, analyze the results and share them so others can check."],
+["tech","RAM and storage","RAM is short-term working memory that clears when power is off. Storage, such as an SSD or hard drive, keeps files long term."],
+["tech","Basic troubleshooting","Restart, check cables and power, update drivers, change one thing at a time and note what you changed."],
+["music","Song structure","Most songs use verse, chorus and bridge. The verse tells the story, the chorus is the hook, and the bridge adds contrast before the final chorus."],
+["human","Why history matters","History explains how present institutions, borders and beliefs formed. Comparing sources helps separate evidence from legend."],
+["gen","Study technique","Spaced repetition and self-testing beat rereading. Short sessions spread over days stick better than one long cram."]];
+SEED.push(
+["auto","Oil changes","Most modern cars need an oil change every 5,000 to 10,000 miles with synthetic oil. Check your owner\u2019s manual for the exact interval and grade."],
+["auto","Tire pressure","Check tire pressure monthly when the tires are cold. The correct number is on the sticker inside the driver\u2019s door, not on the tire."],
+["auto","Dead battery","Car batteries last about 3 to 5 years. To jump-start, connect red to red and black to bare metal on the dead car, not the battery. Start the donor car first."],
+["auto","Squealing brakes","Squealing usually means worn brake pads. Grinding means they are gone and are damaging the rotors, so get it checked right away."],
+["auto","Black cat facts","Black coats come from extra melanin. In sunlight a black cat can look rusty brown. Black cats are often overlooked in shelters, so they wait longer for homes."],
+["auto","Black cat luck","A black cat crossing your path is bad luck in the US and parts of Europe, but lucky in Britain, Japan and Scotland. The bad reputation grew from medieval fear."],
+["auto","Cats and cars","Never leave a cat in a parked car; interiors become deadly hot within minutes. Travel with a belted carrier. In cold weather, bang the hood before starting, since cats sleep near warm engines."]);
+let sh=ld("shared",null),vt=ld("vault",[]),pm=ld("perm",null),au=ld("audit",[]),bk=ld("bk",[]);
+const br={};A.forEach(a=>br[a.id]=ld("b:"+a.id,{hist:[],learned:[]}));
+if(!sh){sh=SEED.map(s=>({id:uid(),lib:s[0],title:s[1],text:s[2],source:"Built-in starter notes",by:"legend",status:"approved",ver:1,hist:[{v:1,text:s[2],ts:Date.now()}],ts:Date.now(),conflict:null}));sv("shared",sh)}
+if(!pm){pm={};A.forEach(a=>{pm[a.id]={};L.forEach(l=>pm[a.id][l[0]]=true)});sv("perm",pm)}
+const aud=(w,a,d)=>{au.unshift({ts:Date.now(),w,a,d});au=au.slice(0,200);sv("audit",au)};
+const persist=()=>{sv("shared",sh);sv("vault",vt);sv("perm",pm);sv("audit",au);A.forEach(a=>sv("b:"+a.id,br[a.id]))};
+const SW=new Set("the and for you are what how can does about with that this have from your".split(" "));
+const tk=s=>(s.toLowerCase().replace(/[\u2019\u2018]/g,"'").match(/[a-z0-9']{3,}/g)||[]).map(w=>w.replace(/s$/,""));
+const jac=(a,b)=>{let i=0;a.forEach(x=>{if(b.has(x))i++});const u=a.size+b.size-i;return u?i/u:0};
+function search(aid,q){const t=tk(q).filter(w=>!SW.has(w));if(!t.length)return[];const p=pm[aid]||{},pool=[];
+ sh.filter(r=>r.status==="approved"&&p[r.lib]).forEach(r=>pool.push({t:r.title,x:r.text,s:r.source,b:r.by}));
+ br[aid].learned.forEach(r=>pool.push({t:r.title,x:r.text,s:r.source}));
+ if(p.vault)vt.filter(r=>r.approved).forEach(r=>pool.push({t:r.title,x:r.text,s:"Personal vault"}));
+ return pool.map(r=>{const T=new Set(tk(r.t)),X=new Set(tk(r.x));let sc=0;t.forEach(w=>{if(T.has(w))sc+=3;if(X.has(w))sc++});if(sc&&r.b===aid)sc+=2;return{...r,sc}}).filter(r=>r.sc>0).sort((a,b)=>b.sc-a.sc).slice(0,2)}
+const CR=/suicid|kill myself|end my life|want to die|self.?harm|hurt myself|don't want to live/i;
+function reply(a,q){
+ if(CR.test(q.replace(/[\u2019\u2018]/g,"'")))return "I\u2019m really glad you told me. I can\u2019t be your emergency help, but you deserve support right now. If you might act on these thoughts or you\u2019re in danger, contact your local emergency number now. In the US you can call or text 988; elsewhere, findahelpline.com lists crisis lines. Please also reach out to someone near you. I\u2019m here to keep talking.";
+ const lm=q.match(/^learn:\s*(.+?)\s*\|\s*(.+?)(?:\s*\|\s*(.+))?$/i);
+ if(lm)return learn(a.id,a.l,lm[1],lm[2],lm[3]||"Taught in chat by you")+"\n\nI can use this now. It joins shared knowledge once you approve it in Library.";
+ if(EMO.test(q)&&!/^(what|how|why|explain|tell me about|define)/i.test(q.trim()))return FR[a.id];
+ const h=search(a.id,q);
+ if(!h.length)return smalltalk(a,q)||a.n+": that isn\u2019t in my approved knowledge yet. Add it in the Library tab and approve it, then ask again.";
+ let body=h.map(r=>r.x+" (Source: "+r.s+")").join("\n\n");
+ if(a.t)body=h[0].x.split(/(?<=[.!?])\s/).slice(0,a.t).join(" ")+" (Source: "+h[0].s+")";
+ return a.o+body+(a.x||"")}
+let tab="panels",cur="legend",flt="pending",sq="",ed=null,rm=null,lastRes="",lastH="",exp="";
+const CA=()=>A.find(a=>a.id===cur);
+const v=document.getElementById("v"),nav=document.getElementById("nav");
+const TABS=[["voice","Assistant"],["lib","Library"],["vault","Vault"],["ctl","Control"]];
+function rec(r){return `<div class="box"><span class="tag ${r.status}">${r.status}</span><span class="tag">${libn(r.lib)}</span><b>${esc(r.title)}</b><p>${esc(r.text)}</p><p class="st">Source: ${esc(r.source)}. By ${nm(r.by)}. Version ${r.ver}.${r.conflict?" Possible conflict flagged.":""}</p>${r.status!=="approved"?`<button class="sm" data-a="ok" data-i="${r.id}">Approve</button>`:""}${r.status!=="rejected"?`<button class="sm" data-a="no" data-i="${r.id}">Reject</button>`:""}<button class="sm" data-a="edit" data-k="s" data-i="${r.id}">Edit</button></div>`}
+function editor(){if(!ed)return"";const r=(ed.k==="v"?vt:sh).find(x=>x.id===ed.id);if(!r)return"";
+ const opts=ed.k==="s"?L.slice(1).map(l=>`<option value="${l[0]}"${l[0]===r.lib?" selected":""}>${l[1]}</option>`).join(""):VC.map(c=>`<option${c===r.cat?" selected":""}>${c}</option>`).join("");
+ return `<div class="box"><h3>Edit record</h3><label>Title</label><input id="et" value="${esc(r.title)}"><label>Text</label><textarea id="ex">${esc(r.text)}</textarea><label>${ed.k==="s"?"Library":"Category"}</label><select id="el">${opts}</select><button data-a="esave">Save</button> <button class="sm" data-a="eclose">Cancel</button></div>`}
+const V={
+panels(){const ap=sh.filter(r=>r.status==="approved").length,pe=sh.filter(r=>r.status==="pending").length;
+ return `<div class="strip"><b>${ap}</b> approved shared records, <b>${pe}</b> pending review, <b>${vt.filter(r=>r.approved).length}</b> vault records shared. Sync: ${pe?pe+" awaiting review":"all in sync"}. Last backup: ${bk[0]?new Date(bk[0].ts).toLocaleString():"never"}.</div>`+
+ A.map(a=>{const b=br[a.id],n=Object.values(pm[a.id]).filter(Boolean).length;
+ return `<article class="p" style="--c:${a.c}"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="sw" cx="60" cy="60" r="54" style="fill:none;stroke:var(--c);stroke-width:2;stroke-dasharray:12 6"/><circle cx="60" cy="60" r="42" style="fill:none;stroke:var(--c)"/><text x="60" y="65" text-anchor="middle" style="fill:#fff;font:800 13px system-ui">${a.n}</text></svg><h2>${a.n}</h2><p>${a.r}</p><p class="st">${a.q||""}</p><p class="st">${b.learned.length} learned, ${b.hist.length/2|0} chats, ${n} of ${L.length} libraries</p><p class="st">${b.learned[0]?"Latest: "+esc(b.learned[0].title):"No learning yet"}</p><button data-a="chat" data-i="${a.id}">Open chat</button></article>`}).join("")},
+chat(){const a=CA(),h=br[a.id].hist;
+ return `<div class="chips">${A.map(x=>`<button data-a="pick" data-i="${x.id}" aria-pressed="${x.id===cur}" style="--c:${x.c}">${x.n}</button>`).join("")}</div><p class="st">${a.n}: ${a.r}. Own history, own memory. Teach it with: learn: title | text | source.${hmsg}</p><div class="chips"><button data-a="vg" data-i="m" aria-pressed="${vgen(a)==="m"}">Man\u2019s voice</button><button data-a="vg" data-i="f" aria-pressed="${vgen(a)==="f"}">Woman\u2019s voice</button><button data-a="hf" aria-pressed="${hf}">Hands-free: ${hf?"on":"off"}</button></div><div id="log">${h.map(m=>`<div class="m ${m.r}">${esc(m.t)}</div>`).join("")}</div><div class="row"><input id="q" placeholder="Ask ${a.n}" aria-label="Message"><button data-a="send">Send</button></div>`},
+lib(){const list=sh.filter(r=>flt==="all"||r.status===flt).slice(0,40);let s="";
+ if(sq){const t=new Set(tk(sq).filter(w=>!SW.has(w)));const hits=[...sh.map(r=>({...r,k:r.status})),...vt.filter(r=>r.approved).map(r=>({...r,lib:"vault",source:"Personal vault",k:"shared"}))].map(r=>{let sc=0;tk(r.title+" "+r.text).forEach(w=>{if(t.has(w))sc++});return{...r,sc}}).filter(r=>r.sc).sort((x,y)=>y.sc-x.sc).slice(0,6);
+  s=hits.map(r=>`<div class="box"><span class="tag ${r.k}">${r.k}</span><span class="tag">${libn(r.lib)}</span><b>${esc(r.title)}</b><p>${esc(r.text)}</p><p class="st">Source: ${esc(r.source)}</p></div>`).join("")||'<p class="st">No matches.</p>'}
+ return editor()+`<h3>Teach an assistant</h3><div class="box"><label>Assistant</label><select id="ta">${A.map(a=>`<option value="${a.id}"${a.id===cur?" selected":""}>${a.n}</option>`).join("")}</select><label>Library</label><select id="tl">${L.slice(1).map(l=>`<option value="${l[0]}">${l[1]}</option>`).join("")}</select><input id="tt" placeholder="Title"><textarea id="tx" placeholder="What was learned"></textarea><input id="ts" placeholder="Source (book, site, your own notes)"><button data-a="teach">Run learning pipeline</button><pre id="res" class="st">${esc(lastRes)}</pre></div><h3>Search all libraries</h3><div class="row"><input id="sq" placeholder="Search records" value="${esc(sq)}"><button data-a="srch">Search</button></div>${s}<h3>Records</h3><div class="chips">${["pending","approved","rejected","all"].map(f=>`<button data-a="flt" data-i="${f}" aria-pressed="${f===flt}">${f}</button>`).join("")}</div>${list.map(rec).join("")||'<p class="st">Nothing here.</p>'}`},
+vault(){return editor()+`<div class="strip">Only records marked shared are visible to the assistants. They quote these records and never invent facts about you.</div><div class="box"><label>Category</label><select id="vc">${VC.map(c=>`<option>${c}</option>`).join("")}</select><input id="vt" placeholder="Title"><textarea id="vx" placeholder="Your approved personal record"></textarea><label><input type="checkbox" id="vs"> Approved for all six assistants</label><button data-a="vadd">Add to vault</button></div>`+
+ vt.map(r=>`<div class="box"><span class="tag ${r.approved?"shared":""}">${r.approved?"shared":"private"}</span><span class="tag">${esc(r.cat)}</span><b>${esc(r.title)}</b><p>${esc(r.text)}</p><button class="sm" data-a="vtog" data-i="${r.id}">${r.approved?"Make private":"Share"}</button><button class="sm" data-a="edit" data-k="v" data-i="${r.id}">Edit</button><button class="sm" data-a="vrm" data-i="${r.id}">${rm===r.id?"Tap again to remove":"Remove"}</button></div>`).join("")},
+ctl(){return `<h3>Access permissions</h3><div class="box wide"><table><tr><th></th>${L.map(l=>`<th>${l[1].split(" ")[0]}</th>`).join("")}</tr>${A.map(a=>`<tr><td>${a.n}</td>${L.map(l=>`<td><input type="checkbox" aria-label="${a.n} ${l[1]}" data-a="perm" data-i="${a.id}|${l[0]}"${pm[a.id][l[0]]?" checked":""}></td>`).join("")}</tr>`).join("")}</table></div>
+ <h3>Library statistics</h3><div class="box">${L.slice(1).map(l=>{const x=sh.filter(r=>r.lib===l[0]);return `${l[1]}: ${x.filter(r=>r.status==="approved").length} approved, ${x.filter(r=>r.status==="pending").length} pending`}).join("<br>")}<br>${L[0][1]}: ${vt.length} records</div>
+ <h3>Database health</h3><div class="box"><button data-a="health">Run integrity check</button><pre>${esc(lastH)}</pre></div>
+ <h3>Backup and recovery</h3><div class="box"><button data-a="bkp">Create backup</button> <button class="sm" data-a="rest">Restore latest</button><p class="st">${bk.length?bk.map(b=>new Date(b.ts).toLocaleString()).join("<br>"):"No backups yet."}</p><button class="sm" data-a="exp">Export all</button><button class="sm" data-a="imp">Import</button><textarea id="io" placeholder="Export appears here. Paste a backup here to import it.">${esc(exp)}</textarea></div>
+ <h3>Audit history</h3><div class="box st">${au.slice(0,15).map(x=>`${new Date(x.ts).toLocaleString()}: ${esc(x.w)} ${esc(x.a)} ${esc(x.d)}`).join("<br>")||"Nothing yet."}</div>`}};
+const snap=()=>JSON.stringify({sh,vt,pm,au,br});
+function apply(o){sh=o.sh;vt=o.vt;pm=o.pm;au=o.au||[];A.forEach(a=>br[a.id]=o.br[a.id]||{hist:[],learned:[]});persist()}
+function teach(){lastRes=learn(val("ta"),val("tl"),val("tt").trim(),val("tx").trim(),val("ts").trim()||"Unverified (no source given)");draw()}
+function learn(a,lib,title,text,src){
+ if(!title||!text)return "Add a title and some text.";
+ const out=["1 Captured.","2 Origin recorded: "+nm(a)+"."];
+ br[a].learned.unshift({id:uid(),lib,title,text,source:src,ts:Date.now()});sv("b:"+a,br[a]);
+ out.push("3 Source: "+src+(src.startsWith("Unverified")?" (flagged for review).":"."));
+ const nt=new Set(tk(text)),dup=sh.find(r=>r.status!=="rejected"&&jac(nt,new Set(tk(r.text)))>.8);
+ if(dup){out.push("4 Duplicate of \u201c"+dup.title+"\u201d. Kept only in "+nm(a)+"\u2019s own record.");aud(a,"duplicate",title)}
+ else if(!pm[a][lib]){out.push("4 "+nm(a)+" has no access to this library. Kept only in its own record.");aud(a,"blocked",title)}
+ else{const con=sh.find(r=>r.status==="approved"&&tk(r.title).join()===tk(title).join()&&jac(nt,new Set(tk(r.text)))<.5);
+  out.push("4 No duplicate found.",con?"5 Conflict with approved record \u201c"+con.title+"\u201d. Flagged for review.":"5 No conflict found.","6 Categorized: "+libn(lib)+".");
+  sh.unshift({id:uid(),lib,title,text,source:src,by:a,status:"pending",ver:1,hist:[{v:1,text,ts:Date.now()}],ts:Date.now(),conflict:con?con.id:null});sv("shared",sh);
+  out.push("7 Stored as pending. Approve it below to index and share it.");aud(a,"contribute",title)}
+ return out.join("\n")}
+const act={
+chat(i){cur=i;go("chat")},
+pick(i){cur=i;draw()},
+send(){const el=document.getElementById("q"),t=el.value.trim();if(!t)return;if(tab==="group"){el.value="";gsend(t)}else ask(t)},
+teach,
+srch(){sq=val("sq");draw()},
+flt(i){flt=i;draw()},
+ok(i){const r=sh.find(x=>x.id===i);r.status="approved";sv("shared",sh);aud("you","approve",r.title);draw()},
+no(i){const r=sh.find(x=>x.id===i);r.status="rejected";sv("shared",sh);aud("you","reject",r.title);draw()},
+edit(i,b){ed={k:b.dataset.k,id:i};draw();v.scrollTop=0},
+eclose(){ed=null;draw()},
+esave(){const r=(ed.k==="v"?vt:sh).find(x=>x.id===ed.id),t=val("et").trim(),x=val("ex").trim(),l=val("el");if(!t||!x)return;
+ if(ed.k==="s"){if(x!==r.text){r.ver++;r.hist.push({v:r.ver,text:x,ts:Date.now()})}r.lib=l}else r.cat=l;
+ r.title=t;r.text=x;persist();aud("you","edit",t);ed=null;draw()},
+vadd(){const t=val("vt").trim(),x=val("vx").trim();if(!t||!x)return;vt.unshift({id:uid(),cat:val("vc"),title:t,text:x,approved:document.getElementById("vs").checked});sv("vault",vt);aud("you","vault add",t);draw()},
+vtog(i){const r=vt.find(x=>x.id===i);r.approved=!r.approved;sv("vault",vt);aud("you","vault sharing "+(r.approved?"on":"off"),r.title);draw()},
+vrm(i){if(rm===i){const r=vt.find(x=>x.id===i);vt=vt.filter(x=>x.id!==i);rm=null;sv("vault",vt);aud("you","vault remove",r.title)}else rm=i;draw()},
+perm(i){const [a,l]=i.split("|");pm[a][l]=!pm[a][l];sv("perm",pm);aud("you","permission",nm(a)+" "+l+" "+(pm[a][l]?"on":"off"));draw()},
+health(){const ids=sh.map(r=>r.id),d=ids.length-new Set(ids).size,ns=sh.filter(r=>r.status==="approved"&&!r.source).length;let ok="working";try{localStorage.setItem("ls6:t","1");localStorage.removeItem("ls6:t")}catch(e){ok="unavailable (using memory only)"}
+ lastH=["Shared records: "+sh.length,"Duplicate ids: "+d,"Approved without source: "+ns,"Vault records: "+vt.length,...A.map(a=>a.n+": "+br[a.id].learned.length+" learned, "+(br[a.id].hist.length/2|0)+" chats"),"Browser storage: "+ok,d||ns?"Result: attention needed":"Result: healthy"].join("\n");aud("you","health check","");draw()},
+bkp(){bk.unshift({ts:Date.now(),data:snap()});bk=bk.slice(0,3);sv("bk",bk);aud("you","backup","");draw()},
+rest(){if(!bk.length)return;apply(JSON.parse(bk[0].data));aud("you","restore","latest backup");draw()},
+exp(){exp=snap();draw();try{navigator.clipboard.writeText(exp)}catch(e){}},
+imp(){try{const o=JSON.parse(val("io"));if(!Array.isArray(o.sh)||!Array.isArray(o.vt)||!o.pm||!o.br)throw 0;bk.unshift({ts:Date.now(),data:snap()});bk=bk.slice(0,3);sv("bk",bk);apply(o);aud("you","import","");exp="";draw()}catch(e){exp="That isn\u2019t a valid Legendary Six export.";draw()}}};
+function draw(){const inSet=TABS.some(t=>t[0]===tab);nav.style.display=inSet?"flex":"none";
+ nav.innerHTML=TABS.map(t=>`<button data-t="${t[0]}" aria-pressed="${t[0]===tab}">${t[1]}</button>`).join("");
+ hd();v.className=tab==="chat"||tab==="group"?"cm":"";v.innerHTML=V[tab]();
+ const lg=document.getElementById("log");if(lg)lg.scrollTop=lg.scrollHeight}
+function go(t){tab=t;ed=null;draw();if(!document.getElementById("log"))v.scrollTop=0}
+v.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(b)act[b.dataset.a](b.dataset.i,b)});
+v.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="q")act.send()});
+nav.addEventListener("click",e=>{const b=e.target.closest("[data-t]");if(b)go(b.dataset.t)});
+const QS={nova:"Let’s test it and find out.",titan:"Show me the logs.",aurora:"Take a breath. We’ll go step by step.",vex:"Make some noise. Make it yours.",oracle:"The past is the best teacher."};
+A.forEach(a=>{if(QS[a.id])a.q=QS[a.id]});
+const wc=s=>(s.match(/\S+/g)||[]).length;
+function words(a){const p=pm[a.id];let n=0;sh.forEach(r=>{if(r.status==="approved"&&p[r.lib])n+=wc(r.text)});br[a.id].learned.forEach(r=>n+=wc(r.text));if(p.vault)vt.forEach(r=>{if(r.approved)n+=wc(r.text)});return n}
+const fk=n=>n>=1000?(n/1000).toFixed(1)+"K":String(n);
+V.panels=()=>{const ap=sh.filter(r=>r.status==="approved").length,pe=sh.filter(r=>r.status==="pending").length;
+ return `<button class="gbtn" data-a="grp">Group chat with all 12${unread?" ("+unread+" new)":""}</button><div class="grid">`+A.map(a=>`<article class="p2" style="--c:${a.c}"><svg viewBox="0 0 120 140" aria-hidden="true"><ellipse cx="60" cy="122" rx="46" ry="10" style="fill:color-mix(in srgb,var(--c) 18%,transparent);stroke:var(--c);stroke-width:2"/><path d="M30 120 L90 120 L78 96 L42 96 Z" style="fill:color-mix(in srgb,var(--c) 22%,transparent)"/><circle class="sw" cx="60" cy="60" r="52" style="fill:none;stroke:var(--c);stroke-width:3;stroke-dasharray:22 8"/><circle class="sw2" cx="60" cy="60" r="43" style="fill:none;stroke:var(--c);stroke-width:2;stroke-dasharray:4 6"/><circle cx="60" cy="60" r="34" style="fill:color-mix(in srgb,var(--c) 12%,transparent);stroke:var(--c)"/><polygon points="60,32 84,46 84,74 60,88 36,74 36,46" style="fill:none;stroke:var(--c)"/><text x="60" y="65" text-anchor="middle" style="fill:#fff;font:800 12px system-ui">${a.n}</text></svg><h3 class="nn">${a.n}</h3><p class="rl">${a.r}</p><p class="qt">“${a.q||""}”</p><p class="wk">${fk(words(a))} words of knowledge</p><p class="wk">Bond level ${bond(a)}</p><button data-a="chat" data-i="${a.id}">Open command center</button></article>`).join("")+`</div><div class="strip foot">Engine: built-in offline knowledge search. Admin: no. ${ap} approved records, ${pe} pending. Last backup: ${bk[0]?new Date(bk[0].ts).toLocaleString():"never"}.</div>`};
+function hd(){const a=CA(),h=document.getElementById("hd");
+ if(tab==="panels")h.innerHTML="<h1>Legendary Twelve</h1><p>Command center</p>";
+ else if(tab==="ci")h.innerHTML=`<div class="hb"><button data-a="back" aria-label="Back to panels">‹</button><div><h1>Daily check-in</h1><p>Small steps count</p></div><span></span></div>`;
+ else if(tab==="nfc")h.innerHTML=`<div class="hb"><button data-a="grp" aria-label="Back to group chat">‹</button><div><h1>Notifications</h1><p>History and preferences</p></div><span></span></div>`;
+ else if(tab==="group")h.innerHTML=`<div class="hb"><button data-a="back" aria-label="Back to panels">‹</button><div><h1>Group chat</h1><p>All 12 assistants</p></div><span></span></div>`;
+ else if(tab==="chat")h.innerHTML=`<div class="hb"><button data-a="back" aria-label="Back to panels">‹</button><div><h1 style="color:${a.c}">${a.n}</h1><p>${a.r}</p></div><button data-a="set">Settings</button></div>`;
+ else h.innerHTML=`<div class="hb"><button data-a="tochat" aria-label="Back to chat">‹</button><div><h1 style="color:${a.c}">Settings</h1><p>${a.n}</p></div><span></span></div>`}
+V.chat=()=>{const a=CA(),h=br[a.id].hist;
+ const intro=h.length?"":`<div class="m a">${esc(a.n)} online. “${esc(a.q||"")}” Ask me about anything I know, or teach me with: learn: title | text | source.</div>`;
+ return `<div id="log">${intro}${h.map(m=>`<div class="m ${m.r}">${esc(m.t)}</div>`).join("")}</div><div class="row"><input id="q" placeholder="Ask ${a.n}" aria-label="Message"><button data-a="send">Send</button></div>`};
+V.voice=()=>{const a=CA();
+ return `<div class="strip">Settings for ${a.n}. ${a.n} keeps its own chat history and its own knowledge. Use Library to teach it and approve what it learns.</div><h3>Voice</h3><div class="box"><div class="chips"><button data-a="vg" data-i="m" aria-pressed="${vgen(a)==="m"}">Man’s voice</button><button data-a="vg" data-i="f" aria-pressed="${vgen(a)==="f"}">Woman’s voice</button></div><button data-a="spk">Speak replies: ${gs.speak?"on":"off"}</button><p class="st">${esc(hmsg)}</p></div>`};
+act.back=()=>{if(hf)act.hf();go("panels")};
+act.set=()=>go("voice");
+act.tochat=()=>go("chat");
+document.getElementById("hd").addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(b)act[b.dataset.a](b.dataset.i,b)});
+let grp=ld("grp",[]),gs=ld("gs",{alerts:false,auto:0}),gmsg="",gt=null,unread=0;
+const RX={legend:"Good input, team. Let’s stay coordinated.",nova:"Fascinating. I’d love more data.",titan:"Logs look clean on my end.",aurora:"Thanks for sharing that. Take it easy on yourself.",vex:"Love the energy in here.",oracle:"History agrees with that.",elite:"Patience. The details matter.",pepper:"I can fix that if it breaks.",midnight:"Noted.",luna:"Let’s GO!",simba:"Chaos approved.",panther:"Four paws up."};
+const gm=m=>{const a=A.find(x=>x.id===m.w);return m.w==="u"?`<div class="m u">${esc(m.t)}</div>`:`<div class="m a" style="border-left-color:${a.c}"><b style="color:${a.c}">${a.n}</b><br>${esc(m.t)}</div>`};
+function ping(a,t,pr){pr=pr||(t.startsWith("I’m really glad you told me")?"urgent":Object.values(RX).includes(t)?"low":"normal");if(document.visibilityState==="visible"&&tab==="group")return;nf.unshift({ts:Date.now(),w:a.id,t,p:pr});nf=nf.slice(0,100);sv("nf",nf);
+ unread++;document.title="("+unread+") Legendary Twelve";
+ if(gs.alerts&&allowed(pr)){
+  try{navigator.vibrate&&navigator.vibrate([120,60,120])}catch(e){}
+  try{const c=new (window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.frequency.value=880;g.gain.value=.08;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.15)}catch(e){}
+  try{if("Notification" in window&&Notification.permission==="granted")new Notification(a.n+" in the group",{body:t.slice(0,140)})}catch(e){}}
+ if(tab==="panels")draw()}
+function post(w,t,pr){const m={w,t,ts:Date.now()};grp.push(m);grp=grp.slice(-100);sv("grp",grp);
+ if(tab==="group"){const lg=document.getElementById("log");if(lg){lg.insertAdjacentHTML("beforeend",gm(m));lg.scrollTop=lg.scrollHeight}}
+ if(w!=="u")ping(A.find(x=>x.id===w),t,pr)}
+async function gsend(t){const q=t.replace(/[’‘]/g,"'");
+ if(!SAMPLE||CR.test(q)||/^learn:/i.test(q)){gsendOff(t);return}
+ post("u",t);
+ const ms=A.filter(a=>new RegExp("(^|[^a-z])"+a.n+"(?![a-z])","i").test(q)).map(a=>a.id),
+  know=[...new Set(A.map(a=>search(a.id,q)[0]).filter(Boolean).map(r=>r.t+": "+r.x))].slice(0,3).join("\n")||"none",
+  hist=grp.slice(-10,-1).map(m=>(m.w==="u"?"USER":nm(m.w).toUpperCase())+": "+m.t).join("\n")||"(start)",
+  roster=A.map(a=>a.id+" = "+a.n+", "+PERS[a.id]).join("\n");
+ try{const o=await SAMPLE.json(`This is a group chat between the user and their 12 AI friends. They are close friends of the user, NOT therapists, doctors or psychiatrists.\nFRIENDS:\n${roster}\n\nRules: Choose 2 to 4 friends to reply${ms.length?" (the user mentioned: "+ms.join(", ")+", so those must reply)":""}. Each friend must sound clearly different, using their own personality and slang, and react to what the user said and sometimes to each other. Real friends texting: casual, warm, short (under 35 words each). If the user shares feelings, give emotional support: empathy first, relate, comfort, maybe one small idea or a joke if it fits. No clinical language, no diagnoses, no lists, no textbook definitions, no reciting facts unless asked. Never mention psychiatrists or being an AI. Use the background notes only quietly.\nBACKGROUND NOTES: ${know}\nWHAT THEY KNOW ABOUT THE USER: ${prof.map(p=>p.t).join("; ")||"nothing yet"}\nCHAT SO FAR:\n${hist}\nUSER: ${t}\n\nReply with JSON only: {"messages":[{"who":"friend id","text":"message"}]}`,{cache:false,modelTier:"quick"});
+  const list=((o&&o.messages)||[]).filter(m=>A.some(a=>a.id===m.who)&&typeof m.text==="string").slice(0,4);
+  if(!list.length)throw 0;
+  list.forEach((m,i)=>setTimeout(()=>post(m.who,m.text),900*(i+1)))
+ }catch(e){if(e&&e.code==="not_granted")SAMPLE=null;gsendOff(t,true)}}
+function gsendOff(t,skip){if(!skip)post("u",t);
+ const q=t.replace(/[’‘]/g,"'"),crisis=CR.test(q),names=A.map(a=>a.n).join("|"),
+  q2=q.replace(new RegExp("@?("+names+")(?![a-z])","gi"),"").trim()||q,
+  ms=A.filter(a=>new RegExp("(^|[^a-z])"+a.n+"(?![a-z])","i").test(q)),
+  gr=/^(hi|hello|hey|yo|sup|good (morning|evening))(?![a-z])/i.test(q2);
+ const emo=EMO.test(q);let rs,msgs;
+ if(/^learn:/i.test(q))rs=[A[0]];
+ else if(crisis)rs=[A.find(a=>a.id==="aurora"),A[0]];
+ else if(ms.length)rs=ms;
+ else if(emo&&!crisis)rs=A.slice().sort(()=>Math.random()-.5).slice(0,3);
+ else if(gr)rs=A.slice().sort(()=>Math.random()-.5).slice(0,4);
+ else{rs=A.map(a=>({a,s:search(a.id,q2)})).filter(x=>x.s.length).sort((x,y)=>y.s[0].sc-x.s[0].sc).slice(0,3).map(x=>x.a);if(!rs.length)rs=[A[0]]}
+ msgs=rs.map(a=>[a,emo&&!crisis?FR[a.id]:gr&&!crisis?"Hey! "+(a.q||""):(crisis&&a.id==="legend"?"We’re here with you. Aurora has this one.":reply(a,/^learn:/i.test(q)?q:q2))]);
+ const o=A.filter(a=>!rs.includes(a));
+ if(!crisis&&!gr&&!emo&&o.length&&Math.random()<.6){const b=o[Math.random()*o.length|0];msgs.push([b,RX[b.id]])}
+ msgs.forEach((m,i)=>setTimeout(()=>post(m[0].id,m[1]),700*(i+1)))}
+function tick(){const a=A[Math.random()*A.length|0],p=pm[a.id],pool=[...sh.filter(r=>r.status==="approved"&&p[r.lib]&&(r.lib!=="mh"||a.id==="aurora")).map(r=>r.text),...br[a.id].learned.map(r=>r.text)];
+ if(!pool.length)return;let x=pool[Math.random()*pool.length|0];
+ if(a.t)x=x.split(/(?<=[.!?])\s/).slice(0,a.t).join(" ");
+ post(a.id,a.o+x+(a.x||""),"low");
+ if(Math.random()<.5){const o=A.filter(z=>z!==a),b=o[Math.random()*o.length|0];setTimeout(()=>post(b.id,RX[b.id]),1500)}}
+function setAuto(){clearInterval(gt);gt=null;if(gs.auto)gt=setInterval(tick,gs.auto*60000)}
+setAuto();
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&tab==="group"){unread=0;document.title="Legendary Twelve"}});
+V.group=()=>{unread=0;document.title="Legendary Twelve";
+ return `<div id="log">${grp.map(gm).join("")||`<div class="m a">The whole team is here. Ask anything, or mention someone like @Nova. Type learn: title | text | source and Legend will record it.</div>`}</div><div class="chips gc"><button data-a="galerts" aria-pressed="${gs.alerts}">Alerts: ${gs.alerts?"on":"off"}</button><button data-a="gauto" aria-pressed="${!!gs.auto}">They chat on their own: ${gs.auto?gs.auto+" min":"off"}</button><button data-a="nfc">Notifications${nf.length?" ("+nf.length+")":""}</button></div><p class="st">${esc(gmsg)}</p><div class="row"><input id="q" placeholder="Message the group" aria-label="Group message"><button data-a="send">Send</button></div>`};
+act.grp=()=>go("group");
+act.galerts=()=>{gs.alerts=!gs.alerts;sv("gs",gs);
+ if(gs.alerts){gmsg="Alerts on. You’ll get a buzz, a beep and a notification when they text while this page is open.";
+  if("Notification" in window&&Notification.permission==="default"){try{Notification.requestPermission().then(p=>{gmsg=p==="granted"?"Alerts on. Notifications allowed.":"Notifications blocked, so you’ll get a buzz and a beep instead.";if(tab==="group")draw()})}catch(e){}}}
+ else gmsg="";draw()};
+act.gauto=()=>{const o=[0,1,5,15];gs.auto=o[(o.indexOf(gs.auto)+1)%o.length];sv("gs",gs);setAuto();gmsg=gs.auto?"They’ll chat on their own every "+gs.auto+" min while this page is open.":"";draw()};
+let nf=ld("nf",[]);gs=Object.assign({min:"low",q:false,qs:22,qe:7},gs);
+function quiet(){if(!gs.q)return false;const h=new Date().getHours(),s=gs.qs,e=gs.qe;return s<e?h>=s&&h<e:h>=s||h<e}
+function allowed(pr){if(quiet()&&pr!=="urgent")return false;const r={low:0,normal:1,urgent:2};return r[pr]>=r[gs.min||"low"]}
+V.nfc=()=>`<div class="strip">Alerts only fire while this page is open. Urgent messages, like a crisis reply from Aurora, ignore quiet hours.</div><h3>Preferences</h3><div class="box"><button data-a="nmin">Minimum priority: ${gs.min}</button> <button class="sm" data-a="nq">Quiet hours: ${gs.q?"on":"off"}</button><div class="row"><input id="qs" type="number" min="0" max="23" value="${gs.qs}" aria-label="Quiet hours start (0 to 23)"><input id="qe" type="number" min="0" max="23" value="${gs.qe}" aria-label="Quiet hours end (0 to 23)"></div><p class="st">Quiet from ${gs.qs}:00 to ${gs.qe}:00 (24-hour clock).</p><button class="sm" data-a="nsave">Save hours</button></div><h3>History</h3>${nf.slice(0,30).map(n=>`<div class="box"><span class="tag ${n.p==="urgent"?"rejected":n.p==="low"?"":"approved"}">${n.p}</span><b style="color:${A.find(a=>a.id===n.w).c}">${nm(n.w)}</b> <span class="st">${new Date(n.ts).toLocaleString()}</span><p>${esc(n.t)}</p></div>`).join("")||'<p class="st">No alerts yet. They appear here when an assistant texts while you are away from the group chat.</p>'}`;
+act.nfc=()=>go("nfc");
+act.nmin=()=>{const o=["low","normal","urgent"];gs.min=o[(o.indexOf(gs.min)+1)%3];sv("gs",gs);draw()};
+act.nq=()=>{gs.q=!gs.q;sv("gs",gs);draw()};
+act.nsave=()=>{const s=+val("qs"),e=+val("qe");if(s>=0&&s<24&&e>=0&&e<24){gs.qs=s;gs.qe=e;sv("gs",gs)}draw()};
+(function(){const c=document.getElementById("nn");if(!c||!c.getContext)return;const x=c.getContext("2d");let W,H,P=[],raf;
+ const rm=window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches;
+ function size(){const d=Math.min(window.devicePixelRatio||1,2);W=c.width=innerWidth*d;H=c.height=innerHeight*d;
+  P=Array.from({length:Math.min(55,Math.round(innerWidth*innerHeight/14000))},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.4*d,vy:(Math.random()-.5)*.4*d,g:Math.random()<.4}))}
+ function frame(){x.clearRect(0,0,W,H);const R=Math.min(W,H)*.28;
+  if(!rm)for(const p of P){p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1}
+  for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++){const a=P[i],b=P[j],d=Math.hypot(a.x-b.x,a.y-b.y);
+   if(d<R){x.globalAlpha=(1-d/R)*.5;x.strokeStyle=a.g?"#38f2a6":"#3fb6ff";x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke()}}
+  x.globalAlpha=1;for(const p of P){x.fillStyle=p.g?"#38f2a6":"#3fb6ff";x.beginPath();x.arc(p.x,p.y,2,0,6.3);x.fill()}
+  if(!rm&&!document.hidden)raf=requestAnimationFrame(frame)}
+ size();frame();addEventListener("resize",()=>{size();if(rm)frame()});
+ document.addEventListener("visibilitychange",()=>{cancelAnimationFrame(raf);if(!document.hidden&&!rm)raf=requestAnimationFrame(frame)})})();
+act.spk=()=>{gs.speak=!gs.speak;sv("gs",gs);draw();if(gs.speak)say("Voice replies on.")};
+function smalltalk(a,q){const s=q.toLowerCase().replace(/[’‘]/g,"'").trim();
+ const titles=()=>{const t=sh.filter(r=>r.status==="approved"&&r.lib===a.l&&pm[a.id][r.lib]).map(r=>r.title).concat(br[a.id].learned.map(r=>r.title)).slice(0,4);return t.length?t.join(", "):"nothing yet"};
+ if(/^(yo|hi|hello|hey|sup|howdy|good (morning|afternoon|evening)|what's up|whats up)(?![a-z])/.test(s))return a.n+" here. “"+(a.q||"Ready when you are.")+"” What do you want to know?";
+ if(/^(thanks|thank you|thx|ty)(?![a-z])/.test(s))return "Any time.";
+ if(/(who are you|what are you|what can you|what do you know|^help)/.test(s))return "I’m "+a.n+", "+a.r.toLowerCase()+". I know about: "+titles()+". Teach me more with: learn: title | text | source.";
+ return a.n+": I don’t have that yet. I know about: "+titles()+". To teach me, open Settings, then Library, or type: learn: title | text | source."}
+const EMR=`aurora|Depression: types and signs|Depression includes major depression, persistent low-grade depression and seasonal patterns. Signs include low mood or emptiness, lost interest, changes in sleep and appetite, fatigue, guilt and trouble concentrating. If it lasts two weeks or more, see a clinician. It is treatable with therapy, medication or both.
+aurora|Anxiety disorders|Anxiety disorders include generalized anxiety (constant worry), social anxiety, panic disorder and phobias. Signs include restlessness, a racing heart, muscle tension and avoiding feared situations. Therapy such as CBT works well, and some people also benefit from medication. A clinician can assess what fits.
+aurora|Panic attacks|A panic attack is a sudden surge of fear with a pounding heart, short breath and dizziness that peaks within minutes. It feels dangerous but passes. Slow breathing, naming what is happening and grounding with the five senses help. Get chest pain checked to be safe.
+aurora|Trauma and PTSD|Trauma can leave the nervous system stuck on alert. PTSD may involve flashbacks, nightmares, avoidance, jumpiness and harsh beliefs after a frightening event. Trauma-focused therapy helps a great deal. Go gently, and work with a trained professional.
+aurora|Social anxiety|Social anxiety is intense fear of being judged in social situations. It is more than shyness. It often improves with gradual practice, CBT and swapping thoughts like everyone is watching me for realistic ones.
+nova|Bipolar disorder|Bipolar disorder involves mood episodes: mania or hypomania (high energy, little sleep, racing thoughts, risky choices) and depression. Bipolar I includes full mania, bipolar II includes hypomania and depression. It is a medical condition treated with mood stabilizing medication and therapy. Only a clinician can diagnose it.
+nova|The stress response|Stress triggers fight, flight or freeze. Adrenaline and cortisol raise heart rate and sharpen focus. Short bursts help, but long-term stress wears on sleep, mood and health. Slow breathing, movement and rest let the body switch the alarm off.
+nova|Sleep and mood|Sleep and mood affect each other. Poor sleep raises irritability and anxiety and can worsen depression. A steady schedule, a dark cool room, less late caffeine and screens off before bed help. Ongoing insomnia deserves a doctor’s attention.
+oracle|Paranoia|Paranoia is persistent suspicion that others mean harm without enough evidence. It can come from stress, lack of sleep, substances, trauma, or conditions such as paranoid personality disorder or psychosis. Mild suspicion is common. If the thoughts feel convincing, frightening or disrupt life, talk to a clinician. Checking facts gently with someone you trust helps.
+oracle|Stoic view of emotions|Stoic philosophy separates what you control, like your judgments and actions, from what you do not. Feelings are not wrong, but you can examine the thought behind them. Epictetus taught that we are disturbed more by our views of events than by the events themselves.
+oracle|Hope and meaning|Viktor Frankl, a psychiatrist who survived the Nazi camps, argued that meaning helps people endure suffering. Small purposes, relationships and values can support hope in dark times. Hope grows through small steps, not only through feeling.
+oracle|How treatment of mental illness changed|For centuries people with mental illness were hidden or mistreated in asylums. Modern care grew from 19th century reforms, medications from the 1950s, community care and talk therapy. Stigma has fallen but remains. Today treatment is evidence-based and recovery is expected.
+legend|Burnout|Burnout is long-term exhaustion from chronic stress, with cynicism and a sense of being ineffective. It is not laziness. Recovery needs rest, boundaries, a lighter workload, support and sometimes changing the situation. If it deepens into hopelessness, see a professional.
+legend|Decision fatigue|Making many decisions drains mental energy and leads to worse or avoided choices. Reduce it by deciding important things early in the day, using routines, limiting options and setting rules ahead of time.
+legend|Resilience|Resilience is adapting well after stress. It grows from supportive relationships, realistic optimism, flexible thinking, healthy habits and learning from setbacks. It is built, not inborn, and asking for help is part of it.
+titan|Doomscrolling and screen time|Doomscrolling is compulsively reading bad news, which can raise anxiety and hurt sleep. Set time limits, turn off non-essential notifications, pick fixed times for news and keep phones out of the bedroom.
+titan|Mood tracking|Tracking mood, sleep and activity in a notes app can reveal patterns, like poor sleep before low days. Keep it simple: a score from 1 to 10 and a few words. Share the log with a clinician if you see one.
+titan|Social media comparison|People post highlights, so comparing your life to feeds can fuel envy and low self-worth. Curate who you follow, take breaks and remember that what you see is edited.
+pepper|Imposter syndrome|Imposter syndrome is feeling like a fraud despite real achievements, and it is common in high performers. Keep a record of wins, share the feeling with peers and treat mistakes as data. Skills are built, not just proven.
+pepper|Perfectionism|Perfectionism sets standards so high that nothing feels good enough, and it often causes procrastination and anxiety. Aim for good enough, set time limits and judge effort as well as results.
+pepper|OCD basics|Obsessive-compulsive disorder involves unwanted intrusive thoughts and repeated rituals done to ease distress. It is far more than being neat. Exposure and response prevention is the leading therapy, sometimes with medication.
+vex|Music and mood|Music can change mood, release tension and help people process feelings. Upbeat tracks lift energy, slow tempos calm, and lyrics you relate to can help you feel understood. Music therapy is used alongside treatment.
+vex|Stage fright|Performance anxiety causes shaking, a dry mouth and racing thoughts. Prepare well, practice in front of friends, breathe slowly and reframe nerves as excitement. Many great performers feel it every time.
+vex|Creative blocks|Creative blocks often come from fear of judgment, perfectionism or exhaustion. Try small daily sessions, make bad drafts on purpose, change your setting and rest. A long block with low mood is worth talking about with someone.
+vex|Sad songs and nostalgia|Sad songs can comfort by validating feelings. Nostalgia is a mix of warmth and longing that often boosts connection. If music keeps you stuck replaying the same worries, balance it with other activities.
+elite|Financial anxiety|Money worry is a leading cause of stress. Helpful steps are knowing your numbers, making a simple budget, building a small emergency fund and paying the highest-interest debt first. Free credit counseling exists.
+elite|Emotional spending|Buying to soothe stress gives a short lift and often regret. Wait 24 hours before non-essential purchases, notice the feeling behind the urge and find other comforts.
+elite|Gratitude|Writing down three things you appreciate each day modestly improves mood over time. It works best as a habit with specific details, not forced positivity.
+midnight|Loneliness and solitude|Loneliness is wanting more connection than you have, while solitude is chosen time alone. Loneliness affects health, so small steps help: one message, one shared activity. Quality of connection matters more than quantity.
+midnight|Anger|Anger is a normal signal that a boundary was crossed. It becomes a problem when it explodes or is bottled up. Pause, breathe, name what is underneath it and act after the heat passes.
+midnight|Emotional numbness|Feeling nothing can follow stress, trauma or depression as the mind protects itself. Gentle routines, movement and talking to someone help. If numbness lasts, a clinician can help.
+luna|Exercise and mood|Regular movement reduces symptoms of anxiety and depression and improves sleep. Even a 10 minute walk helps. Pick something you enjoy and build gradually.
+luna|Motivation and procrastination|Procrastination is usually avoiding a feeling, not laziness. Start with a two-minute step, remove friction and reward progress. Low energy that lasts for weeks may point to depression.
+luna|Self-talk and confidence|Harsh self-talk drains confidence. Notice the voice, ask what you would say to a friend and swap in fair, specific statements. Confidence grows from keeping small promises to yourself.
+simba|Mania and hypomania|Mania is an extreme high with little need for sleep, fast speech, grand ideas and risky choices. Hypomania is milder. Both can be part of bipolar disorder. Seek urgent help if safety is at risk.
+simba|ADHD and impulsivity|ADHD involves differences in attention, restlessness and impulse control that start in childhood and can last into adulthood. Routines, timers, breaking tasks into steps and sometimes medication help. A professional evaluation is needed.
+simba|Humor as coping|Humor can reduce stress and help people bond. It helps most when it is kind and not used to dodge feelings that need attention.
+panther|Pets and wellbeing|Pets can ease loneliness, add routine and lower stress. Caring for a cat or dog gives structure and affection, though pets do not replace professional care.
+panther|Pet loss grief|Grief after losing a pet is real and can be intense. Allow yourself to mourn, make a ritual or keepsake and talk with people who understand. Pet loss support groups exist.
+panther|Driving anxiety and road rage|Driving anxiety can follow an accident or a fear of losing control, and gradual practice in quiet places helps. Road rage is anger behind the wheel: leave early, breathe and do not engage with aggressive drivers.`;
+EMR.split("\n").forEach((ln,i)=>{const [o,t,x]=ln.split("|"),id="emo"+i;if(!sh.some(r=>r.id===id))sh.push({id,lib:"mh",title:t,text:x,source:"Built-in emotional health notes (educational)",by:o,status:"approved",ver:1,hist:[{v:1,text:x,ts:Date.now()}],ts:Date.now(),conflict:null})});
+sv("shared",sh);
+const v1=V.voice;
+V.voice=()=>{const a=CA(),mine=sh.filter(r=>r.id.startsWith("emo")&&r.by===a.id);return v1()+`<h3>${a.n}’s emotional specialties</h3><div class="box">${mine.map(r=>esc(r.title)).join(", ")||"None"}</div>`};
+const EMO=/(^|[^a-z])(sad|anxious|anxiety|stress|tired|lonely|scared|angry|worried|depress|panic|overwhelm|upset|crying|hurt|rough|not ok|bad day|exhausted|afraid|hopeless|numb|stuck)/i;
+const FR={legend:"Hey, I’m right here. You don’t have to carry that alone. Want to tell me what’s going on?",nova:"Aw, that sounds heavy. I’m here, and I’m really glad you told us.",titan:"Rough one. No fixing needed right now. I’ve got your back if you just want to vent.",aurora:"I’m so sorry you’re feeling that. Take a breath with me. I’m listening whenever you’re ready.",vex:"Come here, that’s a lot. Want me to hype you up or just sit with you for a bit?",oracle:"Hard days pass, my friend, even when it doesn’t feel like it. I’m with you.",elite:"I’ve got you. Whatever it is, we’ll handle it together, one step at a time.",pepper:"Hey, okay, that sounds awful. I’m here. Tell me everything, no judgment.",midnight:"I’m here. Say what you need to say.",luna:"Hey, you’re not alone in this, okay? We’re your team. What do you need right now?",simba:"Ugh, that stinks. Come here. I’m bringing snacks and zero judgment.",panther:"Sending you a big warm purr. I’m here with you."};
+let ci=ld("ci",[]);
+const MOODS=[["😞","Rough"],["🙁","Low"],["😐","Okay"],["🙂","Good"],["😄","Great"]];
+const GOALS=["Drink a glass of water","Step outside for 5 minutes","Text someone you like","Stretch for one minute","Eat something kind to your body","Write down one thing that went okay","Take 5 slow breaths","Tidy one small thing","Listen to a song you love","Put your phone down for 10 minutes","Say one nice thing to yourself","Look up at the sky"];
+const dk=d=>{d=d||new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const ciToday=()=>ci.find(c=>c.d===dk()),ciDone=()=>{const t=ciToday();return !!(t&&t.mood)};
+const bond=a=>1+Math.floor((br[a.id].hist.length/2+br[a.id].learned.length)/5);
+function moodNote(){return ""}
+function goals3(){const d=new Date(),day=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5);return [0,1,2].map(i=>GOALS[(day*3+i)%GOALS.length])}
+function streak(){const s=new Set(ci.filter(c=>c.mood||c.goals.some(Boolean)).map(c=>c.d));let n=0,d=new Date();if(!s.has(dk(d)))d.setDate(d.getDate()-1);while(s.has(dk(d))){n++;d.setDate(d.getDate()-1)}return n}
+function entry(){let t=ciToday();if(!t){t={d:dk(),mood:0,goals:[false,false,false]};ci.push(t)}return t}
+V.ci=()=>{const t=ciToday(),g=goals3(),st=streak();
+ return `<div class="strip">Small steps count. Your streak: <b>${st}</b> day${st===1?"":"s"}.</div><h3>How are you feeling today?</h3><div class="chips">${MOODS.map((m,i)=>`<button data-a="mood" data-i="${i+1}" aria-pressed="${!!(t&&t.mood===i+1)}">${m[0]} ${m[1]}</button>`).join("")}</div>${t&&t.reply?`<div class="box"><b style="color:${A.find(a=>a.id===t.w).c}">${nm(t.w)}</b><p>${esc(t.reply)}</p></div>`:""}<h3>Three tiny goals</h3>${g.map((x,i)=>`<div class="box"><label><input type="checkbox" data-a="goal" data-i="${i}"${t&&t.goals[i]?" checked":""}> ${esc(x)}</label></div>`).join("")}<h3>Breathe</h3><div class="box"><div style="text-align:center;padding:14px"><div id="bc" style="width:90px;height:90px;border-radius:50%;margin:0 auto 10px;border:2px solid var(--g);box-shadow:0 0 18px var(--g)"></div><span id="bt" class="st">Tap start. In for 4, out for 6.</span></div><button data-a="breathe">Start breathing</button></div><h3>Last 7 check-ins</h3><div class="box">${ci.slice(-7).map(c=>`<div class="st">${c.d}: ${"\u25cf".repeat(c.mood)} ${c.mood?MOODS[c.mood-1][1]:"goals only"}, goals ${c.goals.filter(Boolean).length}/3</div>`).join("")||"No check-ins yet."}</div>`};
+act.ci=()=>go("ci");
+act.mood=i=>{const t=entry(),f=A[Math.random()*A.length|0];t.mood=+i;t.w=f.id;t.reply=+i<=2?FR[f.id]:+i===3?"Okay is a perfectly fine day. Want to try one tiny goal with me?":"Love that for you! Let’s keep it going.";ci=ci.slice(-90);sv("ci",ci);draw()};
+act.goal=i=>{const t=entry();t.goals[+i]=!t.goals[+i];sv("ci",ci);draw()};
+act.breathe=()=>{let n=0;const step=()=>{const c=document.getElementById("bc"),t=document.getElementById("bt");if(!c||!t)return;
+  if(n>=10){c.style.transition="transform 1s";c.style.transform="scale(1)";t.textContent="Nice. You did it.";return}
+  const inh=n%2===0;c.style.transition="transform "+(inh?4:6)+"s ease-in-out";c.style.transform=inh?"scale(1.5)":"scale(1)";t.textContent=inh?"Breathe in…":"Breathe out…";n++;setTimeout(step,inh?4000:6000)};step()};
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let hf=false,srec=null,wl=null,talking=false,hmsg="",gv=ld("gv",{});
+const vgen=a=>gv[a.id]||a.g;
+async function lock(){try{if("wakeLock" in navigator){wl=await navigator.wakeLock.request("screen");wl.addEventListener("release",()=>{wl=null})}}catch(e){}}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&!wl)lock()});
+document.addEventListener("click",()=>{if(!wl)lock()},{once:true});lock();
+function pickV(g){if(!("speechSynthesis" in window))return null;const f=/female|woman|samantha|victoria|karen|moira|tessa|fiona|zira|hazel|susan|aria|jenny|serena|allison|\bava\b|nicky|google us english/i,m=/\bmale\b|daniel|\balex\b|\bfred\b|david|\bmark\b|george|\bguy\b|oliver|\btom\b|aaron|arthur|rishi|ryan/i;return speechSynthesis.getVoices().filter(x=>/^en/i.test(x.lang)).find(x=>(g==="f"?f:m).test(x.name))||null}
+function say(t,done){try{srec&&srec.abort()}catch(e){}
+ if(!("speechSynthesis" in window)){done&&done();return}
+ speechSynthesis.cancel();const g=vgen(CA()),p=pickV(g),u=new SpeechSynthesisUtterance(t);
+ if(p){u.voice=p;u.lang=p.lang;u.pitch=1}else u.pitch=g==="f"?1.3:.85;
+ u.onend=u.onerror=()=>{talking=false;done&&done()};talking=true;speechSynthesis.speak(u)}
+function listen(){if(DICT||!hf||!SR||talking)return;try{srec=new SR()}catch(e){return}srec.lang="en-US";
+ srec.onresult=e=>{let t=e.results[0][0].transcript;const m=t.match(/^\s*(?:hey\s+)?(\w+)[,.]?\s*(.*)$/i);
+  if(m){const f=A.find(a=>a.n.toLowerCase()===m[1].toLowerCase());if(f){cur=f.id;t=m[2]}}
+  if(t.trim())ask(t)};
+ srec.onerror=e=>{if(e.error==="not-allowed"||e.error==="service-not-allowed"){hf=false;hmsg=" Microphone blocked here. Open this page in Chrome and allow the mic, or tap the mic on your keyboard to dictate.";draw()}};
+ srec.onend=()=>{if(hf&&!talking)setTimeout(listen,300)};
+ try{srec.start()}catch(e){}}
+function askOff(t){const a=CA(),b=br[a.id],rp=reply(a,t);b.hist.push({r:"u",t},{r:"a",t:rp});b.hist=b.hist.slice(-60);sv("b:"+a.id,b);tab="chat";draw();if(hf)say(rp,listen);else if(gs.speak)say(rp)}
+act.hf=()=>{if(hf){hf=false;try{srec&&srec.abort()}catch(e){}if(window.speechSynthesis)speechSynthesis.cancel();talking=false;hmsg=""}
+ else if(!SR){hmsg=" Voice input isn\u2019t supported here. Try Chrome."}
+ else{hf=true;hmsg=" Say a name, like \u201cHey Nova,\u201d to switch.";lock();say("Hands-free on. I\u2019m listening.",listen)}draw()};
+const PERS={legend:"calm leader, strategic, coordinates the team",nova:"curious and excited about science",titan:"practical engineer, concise and technical",aurora:"gentle, empathetic and emotionally intelligent",vex:"creative, energetic, music-obsessed",oracle:"wise and reflective with a historical view",elite:"the secret millionaire, quietly confident, strategic and patient",pepper:"the computer tech genius, quick, helpful and a little sassy",midnight:"the lone wolf, terse and results-focused",luna:"the jock, high-energy and motivating",simba:"the chaos maker, playful, mischievous and funny",panther:"friendly expert on cars and black cats"};
+let prof=ld("prof",[]),SAMPLE=null,DICT=null,busy=false,dictOn=false;
+function sys(a){const fb=br[a.id].fb||[],good=fb.filter(x=>x.u).slice(-3).map(x=>x.t).join(" | ")||"none yet",bad=fb.filter(x=>!x.u).slice(-3).map(x=>x.t).join(" | ")||"none yet";
+ return `You are ${a.n}, ${a.r}, one of twelve AI assistants in The Legendary Twelve. Each has its own personality, memory and knowledge. Your personality: ${PERS[a.id]}. Your signature line: ${a.q||"none"}. Your specialty: ${libn(a.l)}, but you can discuss anything.
+You are the user’s close friend, not a therapist, doctor or psychiatrist. Talk like a real friend texting: casual, warm, in your own personality and voice. When they share feelings, respond with empathy first, relate in your own style, and offer comfort or one small idea, not a lecture. Never use clinical language, diagnoses, lists or textbook definitions unless they ask what something means, and then explain it simply as a friend would. Keep replies under 60 words. Ask at most one gentle question. Use APPROVED KNOWLEDGE quietly to inform what you say; do not recite it or cite it unless asked. If unsure, say so. Only mention professional help briefly and kindly when things sound serious, never to brush them off. Never invent facts about the user; only use WHAT YOU KNOW ABOUT THE USER. Other assistants you can mention: ${A.filter(x=>x!==a).map(x=>x.n).join(", ")}.
+ADAPT TO THE USER. Replies they liked: ${good}. Replies they disliked: ${bad}. Do more of what they liked.
+WHAT YOU KNOW ABOUT THE USER: ${prof.map(p=>p.t).join("; ")||"nothing yet"}. ${moodNote()}
+Answer with JSON only, like {"reply":"text","facts":[],"taught":null}. facts: up to 2 lasting facts the user just told you about themselves or their preferences. taught: {"title":"...","text":"..."} only if the user explicitly taught you a reusable fact, otherwise null.`}
+async function ask(t){const a=CA(),b=br[a.id];if(busy)return;
+ if(!SAMPLE||CR.test(t.replace(/[’‘]/g,"'"))||/^learn:/i.test(t)){askOff(t);return}
+ b.hist.push({r:"u",t});tab="chat";busy=true;draw();let rp=null;
+ try{const ctx=search(a.id,t).map(r=>"- "+r.t+": "+r.x+" (Source: "+r.s+")").join("\n")||"none",
+  tr=b.hist.slice(-9,-1).map(m=>(m.r==="u"?"USER: ":a.n.toUpperCase()+": ")+m.t).join("\n")||"(start of chat)",
+  o=await SAMPLE.json(sys(a)+"\n\nAPPROVED KNOWLEDGE:\n"+ctx+"\n\nCONVERSATION SO FAR:\n"+tr+"\n\nUSER: "+t+"\n\nJSON:",{cache:false,modelTier:"quick"});
+  if(o&&typeof o.reply==="string"){rp=o.reply;
+   (o.facts||[]).slice(0,2).forEach(f=>{if(typeof f==="string"&&f.trim()&&!prof.some(p=>p.t.toLowerCase()===f.trim().toLowerCase()))prof.push({id:uid(),t:f.trim().slice(0,160)})});
+   prof=prof.slice(-40);sv("prof",prof);
+   if(o.taught&&o.taught.title&&o.taught.text){learn(a.id,a.l,String(o.taught.title).slice(0,80),String(o.taught.text).slice(0,500),"Taught in chat by you");rp+="\n\n(Saved to my own knowledge. It joins shared knowledge once you approve it in Library.)"}}
+ }catch(e){if(e&&e.code==="not_granted")SAMPLE=null}
+ if(rp===null)rp=reply(a,t);
+ b.hist.push({r:"a",t:rp});b.hist=b.hist.slice(-60);sv("b:"+a.id,b);busy=false;draw();
+ if(hf)say(rp,listen);else if(gs.speak)say(rp)}
+V.chat=()=>{const a=CA(),h=br[a.id].hist;
+ const intro=h.length?"":`<div class="m a">${esc(a.n)} online. “${esc(a.q||"")}” ${SAMPLE?"Talk to me about anything.":"Ask me about anything I know."} Teach me with: learn: title | text | source.</div>`;
+ return `<div id="log">${intro}${h.map((m,i)=>m.r==="u"?`<div class="m u">${esc(m.t)}</div>`:`<div class="m a">${esc(m.t)}<div class="fbk"><button data-a="fb" data-i="${i}|1" aria-label="Helpful" aria-pressed="${m.f==="up"}">👍</button><button data-a="fb" data-i="${i}|0" aria-label="Not helpful" aria-pressed="${m.f==="down"}">👎</button></div></div>`).join("")}${busy?`<div class="m a">Thinking…</div>`:""}</div><div class="row"><input id="q" placeholder="Ask ${a.n}" aria-label="Message"><button data-a="send">Send</button></div>`};
+const v0=V.voice;
+V.voice=()=>{const a=CA();return v0()+`<h3>Real AI</h3><div class="box"><p class="st">${SAMPLE?"Replies come from a real AI, using this assistant’s personality, its approved knowledge, your chat and what it has learned about you.":"Real AI replies are unavailable here, so offline answers are used."}</p></div><h3>What I know about you</h3><div class="box">${prof.map(p=>`<div>${esc(p.t)} <button class="sm" data-a="pf" data-i="${p.id}">Forget</button></div>`).join("")||'<p class="st">Nothing yet. The assistants learn it from your chats, and you can remove anything.</p>'}</div>`};
+act.fb=i=>{const [k,x]=i.split("|"),b=br[cur],m=b.hist[+k];if(!m)return;m.f=x==="1"?"up":"down";b.fb=(b.fb||[]).concat({u:x==="1",t:m.t.slice(0,140)}).slice(-12);sv("b:"+cur,b);draw()};
+act.pf=i=>{prof=prof.filter(p=>p.id!==i);sv("prof",prof);draw()};
+act.dict=()=>{if(!DICT)return;if(dictOn)DICT.stop().catch(()=>{});else DICT.start().catch(()=>{})};
+const hf0=act.hf;
+act.hf=()=>{if(!DICT){hf0();return}
+ if(hf){hf=false;DICT.stop().catch(()=>{});if(window.speechSynthesis)speechSynthesis.cancel();talking=false;hmsg="";draw()}
+ else{hf=true;hmsg=" Listening. Speak, then pause. Say a name like “Hey Nova” to switch.";lock();DICT.start().catch(()=>{hf=false;hmsg=" Dictation was declined. Type, or use your keyboard mic.";draw()});draw()}};
+function wire(){if(!DICT)return;
+ DICT.onFinal(({text})=>{text=(text||"").trim();if(!text)return;
+  if(hf){if(talking)return;let t=text;const m=text.match(/^(?:hey\s+)?(\w+)[,.]?\s*(.*)$/i);if(m){const f=A.find(a=>a.n.toLowerCase()===m[1].toLowerCase());if(f){cur=f.id;t=m[2]}}if(t.trim())ask(t)}
+  else{const q=document.getElementById("q");if(q)q.value=(q.value+" "+text).trim()}});
+ DICT.onState(({state})=>{dictOn=state==="listening";const b=document.querySelector('[data-a="dict"]');if(b)b.setAttribute("aria-pressed",String(dictOn))})}
+(async()=>{try{if(window.claude){SAMPLE=await claude.use("sample")}}catch(e){}if(tab==="chat"||tab==="voice")draw()})();
+act.vg=i=>{gv[cur]=i;sv("gv",gv);draw();say("Hi, I\u2019m "+CA().n+".")};
+draw();
+</script>
+<button id="inst" hidden>Install app</button>
+<script>
+if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+let dp=null;const ib=document.getElementById("inst");
+addEventListener("beforeinstallprompt",e=>{e.preventDefault();dp=e;ib.hidden=false});
+ib.onclick=async()=>{if(!dp)return;dp.prompt();await dp.userChoice;dp=null;ib.hidden=true};
+addEventListener("appinstalled",()=>{ib.hidden=true});
+</script>
+</body>
+</html>
