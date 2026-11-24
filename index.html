@@ -787,12 +787,13 @@ function flair(a,res,q){
   if(a.x&&r2.endsWith(a.x))r2=r2.slice(0,-a.x.length);
   res=r2.trim()}
  const m=mm(a.id);
+ if(m.care>0)return res;
  let out=res;
  const emo=SERIOUS()&&(EMO.test(q)||CR.test(q.replace(/[’‘]/g,"'")));
  if(emo)return out; /* serious moments: the existing caring reply stays untouched */
  const isFact=wasFact,isUnknown=/isn.t in my approved knowledge/.test(res);
  const n=m.n;
- if(n%3!==2)out=pk(p.pre)+out;
+ if(n%3!==2){const pr=pk(p.pre);const names=A.map(x=>x.n);const fw=out.split(/[\s,.!?]/)[0];out=pr+((/, $/.test(pr)&&!/^I$/.test(fw)&&!names.includes(fw)&&!/^[A-Z]{2,}/.test(fw)&&/^[A-Z][a-z]/.test(out))?out.charAt(0).toLowerCase()+out.slice(1):out)}
  const post=pk(p.post);if(post&&n%2===0)out+=post;
  if(a.id==="oracle"){if(isFact&&!/assumption/.test(out))out+=" (Fact: straight from the notes. No assumptions added.)";else if(isUnknown)out=out.replace(/that isn.t in my approved knowledge yet\./,"I won’t guess. That would be an assumption, not a fact, and it isn’t in my notes yet.")}
  if(a.id==="panther"&&out.length>260)out=out.split(/(?<=[.!?])\s/).slice(0,3).join(" ");
@@ -978,6 +979,20 @@ function chat2(a,q){
  if(/^(good ?night|gn|night night|sleep well|going to bed|heading to bed)\b/.test(s))return pk(["Night. Sleep well. Come tell me about tomorrow.","Goodnight. I’ll be here when you’re back.","Night. Get some real rest, okay?"]);
  if(/^(good ?morning|gm|morning)\b/.test(s))return pk(["Morning. You sleep okay?","Morning! What’s the plan for today?","Hey, morning. Coffee first, then talk?"]);
  return null}
+
+/* LOSS AND HARD NEWS: gentle, no jokes, no stock replies. Applies to everyone, in each assistant's own voice. */
+const GR={legend:"Man. I’m so sorry. I’m not going to say something dumb to fix it. I’m just here. Do you want to tell me about them?",nova:"Oh no. I’m so sorry. I’m right here with you. Do you want to tell me about them?",titan:"Damn. I’m really sorry. No music, no jokes, I’m just here. Want to tell me about them?",aurora:"Oh, come here. I’m so sorry. You don’t have to be okay right now. Tell me about them, if you want to.",vex:"Ah, kid. I’m so sorry. No jokes right now. I’m here. Tell me about them if you want to.",oracle:"I’m so sorry. There’s nothing to correct or explain here. I’m listening, if you want to tell me about them.",elite:"I’m sorry. Nothing else matters right now. Take your time. Tell me about them, if you want to.",pepper:"Hey, no jokes. I’m really sorry. I’m here. Want to tell me about them?",midnight:"I’m really sorry. I don’t have a fix for this one. I’m here, though. Tell me about them?",luna:"I’m so sorry. Grief doesn’t keep a schedule. I’m here. Would you like to tell me about them?",simba:"I’m so sorry. No plans, no dares, just me being here. Want to tell me about them?",panther:"...I’m so sorry. I’m here. Take your time."};
+const CAREF=["I’m here.","Take your time. I’m listening.","That sounds really hard. Say whatever you want to.","I’m so sorry. I’m not going anywhere."];
+function loss(a,q){
+ const s=q.toLowerCase().replace(/[’‘]/g,"'");
+ if(/\b(lost|losing) (my|a|an|our|his|her|the) (best |close |good |old )?(friend|mom|mother|dad|father|brother|sister|grandma|grandpa|grandmother|grandfather|uncle|aunt|cousin|wife|husband|girlfriend|boyfriend|baby|son|daughter|teacher|mentor|roommate)\b/.test(s)||/\b(passed away|died|is dead|was killed|funeral|my .{2,20} (is|was) gone)\b/.test(s)&&!/\b(game|battery|phone|plant|character|you died)\b/.test(s))return GR[a.id];
+ if(/\b(lost|losing) (my|our) (dog|cat|pet|puppy|kitten)\b|\bmy (dog|cat|pet) (died|passed)/.test(s))return pk(["I’m so sorry. They were family. What was their name?","Oh, I’m really sorry. They were part of your family. Tell me about them."]);
+ if(/\b(got (fired|laid off|dumped|evicted)|lost my (job|home|house|apartment)|broke up with me|(she|he|they) (left|broke up with) me|my (girlfriend|boyfriend|wife|husband) left)\b/.test(s))return pk(["Ugh, that’s a gut punch. I’m really sorry. Do you want to talk it through, or just vent first?","That’s rough. I’m sorry. Want to tell me what happened?"]);
+ return null}
+function ok2(a,q){
+ const s=q.toLowerCase().replace(/[’‘]/g,"'").replace(/[.!]+$/,"").trim();
+ if(/^(i'?m|im) (ok|okay|alright|all right|so-so|so so)$/.test(s))return pk(["Okay’s okay. Want to talk about anything, or just hang out?","Just okay, or okay okay? I’m here either way.","Okay. That’s allowed. Anything on your mind?"]);
+ return null}
 const pick2=l=>l[Math.random()*l.length|0];
 const ROB=[
 [/Ask me a question, or tell me something new and I’ll remember it\./,"I’m around. What’s going on?"],
@@ -994,8 +1009,11 @@ const _r=reply;
 reply=function(a,q){
  const clean=q.replace(/[’‘]/g,"'"),serious=typeof EMO!=="undefined"&&(EMO.test(q)||CR.test(clean));
  const m=PX.mm(a.id),prevTs=m.ts||0,prevT=m.t.slice(-1)[0],prevN=m.n;
+ if(!CR.test(clean)){const lz=loss(a,q);if(lz){m.care=5;m.n++;m.ts=Date.now();PX.save();return lz}}
+ if(m.care>0&&!/\?$/.test(q)&&!(typeof isQ==="function"&&isQ(q))&&!(typeof pendQ!=="undefined"&&pendQ[a.id])&&!CR.test(clean)){m.care--;PX.save();return CAREF[m.n++%CAREF.length]}
+ if(m.care>0)m.care--;
  if(!serious&&!(typeof pendQ!=="undefined"&&pendQ[a.id])){
-  const pr=personal(a,q)||chat2(a,q);if(pr){m.n++;m.ts=Date.now();PX.save();return pr}
+  const pr=personal(a,q)||ok2(a,q)||chat2(a,q);if(pr){m.n++;m.ts=Date.now();PX.save();return pr}
   const st=statement(a,q);
   if(st){try{_r(a,q)}catch(e){}; m.t.push(q);m.t=m.t.slice(-6);m.n++;m.ts=Date.now();PX.save();return st}
  }
