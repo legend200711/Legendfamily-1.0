@@ -165,13 +165,42 @@ function search(aid,q){const t=tk(q).filter(w=>!SW.has(w));if(!t.length)return[]
  br[aid].learned.forEach(r=>pool.push({t:r.title,x:r.text,s:r.source,lib:r.lib}));
  if(p.vault)vt.filter(r=>r.approved).forEach(r=>pool.push({t:r.title,x:r.text,s:"Personal vault"}));
  return pool.map(r=>{const T=new Set(tk(r.t)),X=new Set(tk(r.x));let sc=0;t.forEach(w=>{if(T.has(w))sc+=3;if(X.has(w))sc++});if(sc&&r.b===aid)sc+=2;if(sc&&r.lib&&r.lib===(A.find(z=>z.id===aid)||{}).l)sc+=3;return{...r,sc}}).filter(r=>r.sc>0).sort((a,b)=>b.sc-a.sc).slice(0,2)}
+
+const pk=a=>a[Math.random()*a.length|0];
+let pendQ={},lastFact=null,lastQL=null;
+const QW=/^(what|who|whom|whose|when|where|why|how|which|is|are|am|was|were|do|does|did|can|could|will|would|should|shall|may|might|have|has|had|tell me|explain|define|describe|give me|show me)\b/i;
+const isQ=t=>/\?\s*$/.test(t)||QW.test(t.trim());
+const PRON=/^(i|i'm|im|i've|my|me|you|your|you're|it|its|it's|this|that|there|here|he|she|we|they|his|her|their|our|what|who|how|why|when|where|which|today|tonight|tomorrow|yesterday|life|everything|nothing|something|anything|everyone|nobody|someone|people|things|work|school|time)\b/i;
+function bestLib(text,d){const t=new Set(tk(text).filter(w=>!SW.has(w)));let best=d,bs=0;L.slice(1).forEach(l=>{let sc=0;sh.forEach(r=>{if(r.lib!==l[0]||r.status!=="approved")return;tk(r.title+" "+r.text).forEach(w=>{if(t.has(w))sc++})});if(sc>bs){bs=sc;best=l[0]}});return bs>=3?best:d}
+function quickLearn(a,title,text,src){title=title.trim().replace(/^(the|a|an)\s+/i,"");title=(title.charAt(0).toUpperCase()+title.slice(1)).slice(0,60);text=text.trim().slice(0,500);
+ const nt=new Set(tk(text)),dup=sh.find(r=>r.status==="approved"&&jac(nt,new Set(tk(r.text)))>.8);if(dup)return{dup};
+ const con=sh.find(r=>r.status==="approved"&&tk(r.title).join()===tk(title).join()&&jac(nt,new Set(tk(r.text)))<.5);
+ const lib=bestLib(title+" "+text,"gen"),rec={id:uid(),lib,title,text,source:src||"Told by you",by:a.id,status:"approved",ver:1,hist:[{v:1,text,ts:Date.now()}],ts:Date.now(),conflict:con?con.id:null};
+ sh.unshift(rec);sv("shared",sh);lastQL=rec.id;aud(a.id,"learned from chat",title);return{rec,con}}
+function learned(r){if(r.dup)return pk(["I already know that one.","Yep, I’ve got that already."])+" It’s under “"+r.dup.title+"”.";
+ return pk(["Got it.","Noted.","Good to know.","Learned it."])+" I saved that under “"+r.rec.title+"” and all twelve of us can use it now."+(r.con?" It differs from something I had, so I kept both.":"")+" Say “forget that” to undo."}
+function autoLearn(a,t){const s=t.trim();let m;
+ if(/^(forget|undo|delete)( that| it| this)?[.! ]*$/i.test(s)){if(lastQL){const r=sh.find(x=>x.id===lastQL);sh=sh.filter(x=>x.id!==lastQL);sv("shared",sh);lastQL=null;return r?"Done. I forgot “"+r.title+"”.":"Done."}return "I don’t have anything recent to forget."}
+ const pq=pendQ[a.id];
+ if(pq){delete pendQ[a.id];
+  if(/^(never ?mind|nvm|skip|forget it|no|nope|nothing|idk|i don'?t know|dunno)\b/i.test(s))return "No worries. Ask me anything else.";
+  if(!isQ(s)&&wc(s)>=2&&!/^(lol|haha|ok|okay|yes|yeah|thanks|thank you)\b/i.test(s))return learned(quickLearn(a,pq,s))}
+ if(m=s.match(/^(?:remember|note|fyi|did you know|just so you know|keep in mind)[,:]?\s+(?:that\s+)?(.{6,400})$/i)){const x=m[1].trim();if(/^(i|i'm|im|i've|my|me)\b/i.test(x))return null;
+  const mm=x.match(/^(.{2,50}?)\s+(?:is|are|was|were|means|stands for|can|has|have|does)\s+/i);return learned(quickLearn(a,mm?mm[1]:x.split(/\s+/).slice(0,5).join(" "),x))}
+ if(!isQ(s)&&!/\?/.test(s)&&wc(s)>=5&&(m=s.match(/^([a-z0-9][a-z0-9 '\-]{1,45}?)\s+(?:is|are|was|were|means|stands for)\s+(.{6,300})$/i))&&!PRON.test(m[1])&&wc(m[1])<=6)return learned(quickLearn(a,m[1],s));
+ return null}
+const JOKES=["Why do programmers prefer dark mode? Because light attracts bugs.","I told my computer I needed a break. Now it won’t stop sending me Kit Kat ads.","Why did the scarecrow win an award? He was outstanding in his field.","What do you call a fake noodle? An impasta.","Why don’t skeletons fight each other? They don’t have the guts.","I would tell you a UDP joke, but you might not get it."];
 const CR=/suicid|kill myself|end my life|want to die|self.?harm|hurt myself|don't want to live/i;
 function reply(a,q){
  if(CR.test(q.replace(/[\u2019\u2018]/g,"'")))return "I\u2019m really glad you told me. I can\u2019t be your emergency help, but you deserve support right now. If you might act on these thoughts or you\u2019re in danger, contact your local emergency number now. In the US you can call or text 988; elsewhere, findahelpline.com lists crisis lines. Please also reach out to someone near you. I\u2019m here to keep talking.";
  const lm=q.match(/^learn:\s*(.+?)\s*\|\s*(.+?)(?:\s*\|\s*(.+))?$/i);
- if(lm)return learn(a.id,a.l,lm[1],lm[2],lm[3]||"Taught in chat by you")+"\n\nI can use this now. It joins shared knowledge once you approve it in Library.";
+ if(lm)return learned(quickLearn(a,lm[1],lm[2],lm[3]||"Told by you"));
  const mm=memAnswer(a,q);if(mm)return mm;
  if(EMO.test(q)&&!/^(what|how|why|explain|tell me about|define)/i.test(q.trim()))return FR[a.id];
+ const al=autoLearn(a,q);if(al)return al;
+ if(lastFact){const f=lastFact;lastFact=null;return pk(["Got it, I’ll remember that.","Good to know. I’ve got that saved.","Noted. All of us will remember that."])+" ("+f+")"}
+ if(!isQ(q)&&wc(q)>3)return smalltalk(a,q);
+ {const pre=smalltalk(a,q,true);if(pre)return pre}
  const h=search(a.id,q);
  if(!h.length)return smalltalk(a,q)||a.n+": that isn\u2019t in my approved knowledge yet. Add it in the Library tab and approve it, then ask again.";
  let body=h.map(r=>r.x+" (Source: "+r.s+")").join("\n\n");
@@ -192,7 +221,7 @@ panels(){const ap=sh.filter(r=>r.status==="approved").length,pe=sh.filter(r=>r.s
  A.map(a=>{const b=br[a.id],n=Object.values(pm[a.id]).filter(Boolean).length;
  return `<article class="p" style="--c:${a.c}"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="sw" cx="60" cy="60" r="54" style="fill:none;stroke:var(--c);stroke-width:2;stroke-dasharray:12 6"/><circle cx="60" cy="60" r="42" style="fill:none;stroke:var(--c)"/><text x="60" y="65" text-anchor="middle" style="fill:#fff;font:800 13px system-ui">${a.n}</text></svg><h2>${a.n}</h2><p>${a.r}</p><p class="st">${a.q||""}</p><p class="st"><b>Specialty:</b> ${a.tp}</p><p class="st">${b.learned.length} learned, ${b.hist.length/2|0} chats, ${n} of ${L.length} libraries</p><p class="st">${b.learned[0]?"Latest: "+esc(b.learned[0].title):"No learning yet"}</p><button data-a="chat" data-i="${a.id}">Open chat</button></article>`}).join("")},
 chat(){const a=CA(),h=br[a.id].hist;
- return `<div class="chips">${A.map(x=>`<button data-a="pick" data-i="${x.id}" aria-pressed="${x.id===cur}" style="--c:${x.c}">${x.n}</button>`).join("")}</div><p class="st">${a.n}: ${a.r}. Own history, own memory. Teach it with: learn: title | text | source.${hmsg}</p><div class="chips"><button data-a="vg" data-i="m" aria-pressed="${vgen(a)==="m"}">Man\u2019s voice</button><button data-a="vg" data-i="f" aria-pressed="${vgen(a)==="f"}">Woman\u2019s voice</button><button data-a="hf" aria-pressed="${hf}">Hands-free: ${hf?"on":"off"}</button></div><div id="log">${h.map(m=>`<div class="m ${m.r}">${esc(m.t)}</div>`).join("")}</div><div class="row"><input id="q" placeholder="Ask ${a.n}" aria-label="Message"><button data-a="send">Send</button></div>`},
+ return `<div class="chips">${A.map(x=>`<button data-a="pick" data-i="${x.id}" aria-pressed="${x.id===cur}" style="--c:${x.c}">${x.n}</button>`).join("")}</div><p class="st">${a.n}: ${a.r}. Own history, own memory. Just talk. It learns from what you tell it.${hmsg}</p><div class="chips"><button data-a="vg" data-i="m" aria-pressed="${vgen(a)==="m"}">Man\u2019s voice</button><button data-a="vg" data-i="f" aria-pressed="${vgen(a)==="f"}">Woman\u2019s voice</button><button data-a="hf" aria-pressed="${hf}">Hands-free: ${hf?"on":"off"}</button></div><div id="log">${h.map(m=>`<div class="m ${m.r}">${esc(m.t)}</div>`).join("")}</div><div class="row"><input id="q" placeholder="Ask ${a.n}" aria-label="Message"><button data-a="send">Send</button></div>`},
 lib(){const list=sh.filter(r=>flt==="all"||r.status===flt).slice(0,40);let s="";
  if(sq){const t=new Set(tk(sq).filter(w=>!SW.has(w)));const hits=[...sh.map(r=>({...r,k:r.status})),...vt.filter(r=>r.approved).map(r=>({...r,lib:"vault",source:"Personal vault",k:"shared"}))].map(r=>{let sc=0;tk(r.title+" "+r.text).forEach(w=>{if(t.has(w))sc++});return{...r,sc}}).filter(r=>r.sc).sort((x,y)=>y.sc-x.sc).slice(0,6);
   s=hits.map(r=>`<div class="box"><span class="tag ${r.k}">${r.k}</span><span class="tag">${libn(r.lib)}</span><b>${esc(r.title)}</b><p>${esc(r.text)}</p><p class="st">Source: ${esc(r.source)}</p></div>`).join("")||'<p class="st">No matches.</p>'}
@@ -378,13 +407,34 @@ act.nsave=()=>{const s=+val("qs"),e=+val("qe");if(s>=0&&s<24&&e>=0&&e<24){gs.qs=
  document.addEventListener("visibilitychange",()=>{cancelAnimationFrame(raf);if(!document.hidden&&!rm)raf=requestAnimationFrame(frame)})})();
 act.spk=()=>{gs.speak=!gs.speak;sv("gs",gs);if(gs.speak){draw();testVoice()}else{if(window.speechSynthesis)speechSynthesis.cancel();draw()}};
 act.vtest=()=>testVoice();
-function smalltalk(a,q){const s=q.toLowerCase().replace(/[’‘]/g,"'").trim();
+function smalltalk(a,q,pre){const s=q.toLowerCase().replace(/[’‘]/g,"'").trim();
  const titles=()=>{const t=sh.filter(r=>r.status==="approved"&&r.lib===a.l&&pm[a.id][r.lib]).map(r=>r.title).concat(br[a.id].learned.map(r=>r.title)).slice(0,4);return t.length?t.join(", "):"nothing yet"};
- if(/^(yo|hi|hello|hey|sup|howdy|good (morning|afternoon|evening)|what's up|whats up)(?![a-z])/.test(s)){const g=br[a.id].hist.filter(m=>m.r==="a").length,t=titles(),T=t==="nothing yet"?"Teach me something with: learn: title | text | source.":"Try asking me about: "+t+".";
+ if(/^(yo|hi|hello|hey|sup|howdy|good (morning|afternoon|evening)|what's up|whats up)(?![a-z])/.test(s)){const g=br[a.id].hist.filter(m=>m.r==="a").length,t=titles(),T=t==="nothing yet"?"Tell me something and I’ll remember it.":"Try asking me about: "+t+".";
   const L2=[a.n+" here. “"+(a.q||"Ready when you are.")+"” "+T,"Hey. "+T,"Still here. Ask me a question, or teach me with: learn: title | text | source.","Yo! Pick a topic and I’ll tell you what I’ve got. "+T];return L2[g%L2.length]}
  if(/^(thanks|thank you|thx|ty)(?![a-z])/.test(s))return "Any time.";
- if(/(who are you|what are you|what can you|what do you know|^help)/.test(s))return "I’m "+a.n+", "+a.r.toLowerCase()+". My specialty is "+a.tp.toLowerCase()+". I know about: "+titles()+". Teach me more with: learn: title | text | source.";
- return a.n+": I don’t have that yet. I know about: "+titles()+". To teach me, open Settings, then Library, or type: learn: title | text | source."}
+ if(/(who are you|what are you|what can you|what do you know|^help)/.test(s))return "I’m "+a.n+", "+a.r.toLowerCase()+". My specialty is "+a.tp.toLowerCase()+". I know about: "+titles()+". Just tell me more and I’ll remember it.";
+ const n=nameOf();
+ if(/^(how are you|how'?s it going|how you doing|how are ya|how'?s life|how do you feel|you good)/.test(s))return pk(["Doing good. Better now that you’re here. How about you?","Can’t complain. What’s up with you?","All systems good. How’s your day going?"]);
+ if(/^(i'?m|im|i am) (good|fine|great|ok|okay|alright|doing well|not bad|pretty good)/.test(s))return pk(["Glad to hear it.","Nice. Anything fun going on?","Good. Want to talk, or learn something?"]);
+ if(/^(bye|goodbye|see ya|see you|later|ttyl|talk to you later|gtg|gotta go)/.test(s))return pk(["Later! I’ll be here.","See you. Come back anytime.","Take care. I’m not going anywhere."]);
+ if(/^(good ?night|gn|night night|going to bed|heading to bed)/.test(s))return "Good night"+(n?", "+n:"")+". Sleep well.";
+ if(/(tell me a joke|got any jokes|know any jokes|make me laugh|^joke)/.test(s))return pk(JOKES);
+ if(/(you'?re|youre|ur|you are) (awesome|great|amazing|cool|the best|funny|smart|nice|good|the man|a legend)/.test(s))return pk(["Thanks, that means a lot. You’re pretty great yourself.","Appreciate it. Right back at you.","Ha, thanks. You’re making me blush."]);
+ if(/^(lol|lmao|rofl|haha+|hehe+)/.test(s))return pk(["Ha, glad I got you.","Right? Classic.","Okay, that’s a good laugh."]);
+ if(/^(ok|okay|cool|nice|alright|k|sure|word|bet|true|fair|right)[.! ]*$/.test(s))return pk(["👍 What else is on your mind?","Cool. Want to keep talking or ask me something?","Alright. I’m here."]);
+ if(/^(yes|yeah|yep|yup|no|nope|nah)[.! ]*$/.test(s))return pk(["Gotcha. Tell me more?","Okay. What’s on your mind?"]);
+ if(/(i'?m bored|so bored|i am bored|nothing to do)/.test(s))return "Bored, huh. Want a fun fact, a joke, or to teach me something new?";
+ if(/what'?s my name|who am i|do you know my name|do you remember my name/.test(s))return n?"Your name is "+n+".":"You haven’t told me yet. What should I call you?";
+ if(/what'?s your name|your name/.test(s))return "I’m "+a.n+", "+a.r.toLowerCase()+".";
+ if(/who (made|created|built) you/.test(s))return "You did, with some help. I live on your phone and I don’t need the internet.";
+ if(/(what time is it|what'?s the time|current time|time is it)/.test(s))return "It’s "+new Date().toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})+".";
+ if(/(what'?s the date|what day is it|today'?s date|what is today)/.test(s))return "Today is "+new Date().toLocaleDateString([],{weekday:"long",month:"long",day:"numeric",year:"numeric"})+".";
+ if(/(fun fact|tell me something|surprise me|teach me something|random fact)/.test(s)){const f=sh.filter(r=>r.status==="approved"&&r.lib===a.l);return f.length?"From my specialty: "+pk(f).text:"Teach me something and I’ll teach you something back."}
+ if(pre)return null;
+ if(isQ(q)){const tp=q.trim().replace(/[?!. ]+$/,"").replace(/^(what|who|where|when|why|how)(?:'s|’s| is| are| was| were| does| do| did| to)?\s+(?:a |an |the )?/i,"").trim()||q.trim();pendQ[a.id]=tp.slice(0,60);
+  return pk(["I don’t know that one yet.","Good question, and I don’t have the answer yet.","I haven’t learned that yet."])+" What’s the answer? Tell me and I’ll remember it for all of us. Or say “never mind.”"}
+ if(/\b(great|awesome|amazing|happy|excited|proud|won|finished|passed|promoted|best day|good news)\b/i.test(q))return pk(["That’s awesome! Tell me more.","Nice! I love hearing that. What happened?","Heck yes. How did it feel?"]);
+ return pk(["Tell me more, I’m listening.","Hm, interesting. What made you think of that?","I hear you. Want to keep going?","Okay. What else is on your mind?"])}
 const EMR=`aurora|Depression: types and signs|Depression includes major depression, persistent low-grade depression and seasonal patterns. Signs include low mood or emptiness, lost interest, changes in sleep and appetite, fatigue, guilt and trouble concentrating. If it lasts two weeks or more, see a clinician. It is treatable with therapy, medication or both.
 aurora|Anxiety disorders|Anxiety disorders include generalized anxiety (constant worry), social anxiety, panic disorder and phobias. Signs include restlessness, a racing heart, muscle tension and avoiding feared situations. Therapy such as CBT works well, and some people also benefit from medication. A clinician can assess what fits.
 aurora|Panic attacks|A panic attack is a sudden surge of fear with a pounding heart, short breath and dizziness that peaks within minutes. It feels dangerous but passes. Slow breathing, naming what is happening and grounding with the five senses help. Get chest pain checked to be safe.
@@ -452,8 +502,8 @@ act.breathe=()=>{let n=0;const step=()=>{const c=document.getElementById("bc"),t
 let epi=ld("epi",[]),curEp=null;
 const cap=x=>x[0].toUpperCase()+x.slice(1);
 const nameOf=()=>{const p=prof.find(x=>/^Their name is /.test(x.t));return p?p.t.replace("Their name is ",""):""};
-function addFact(txt,by){txt=(txt||"").trim().slice(0,160);if(!txt||prof.some(p=>p.t.toLowerCase()===txt.toLowerCase()))return;prof.push({id:uid(),t:txt,by,ts:Date.now(),k:"fact"});prof=prof.slice(-80);sv("prof",prof)}
-function remember(t,a){const by=a?a.id:"group";curEp=null;if(CR.test(t.replace(/[\u2019\u2018]/g,"'")))return;let m;
+function addFact(txt,by){txt=(txt||"").trim().slice(0,160);if(!txt||prof.some(p=>p.t.toLowerCase()===txt.toLowerCase()))return;lastFact=txt;prof.push({id:uid(),t:txt,by,ts:Date.now(),k:"fact"});prof=prof.slice(-80);sv("prof",prof)}
+function remember(t,a){const by=a?a.id:"group";curEp=null;lastFact=null;if(CR.test(t.replace(/[\u2019\u2018]/g,"'")))return;let m;
  if(m=t.match(/my name is ([a-z][a-z'-]{1,19})/i))addFact("Their name is "+cap(m[1]),by);
  if(m=t.match(/(?:call me|i go by) ([a-z][a-z'-]{1,19})/i))addFact("Their name is "+cap(m[1]),by);
  if((m=t.match(/\bi (?:really )?(love|like|enjoy|hate|dislike|prefer) ([^.!?,;]{2,40})/i))&&!/^(you|it|this|that|to)\b/i.test(m[2]))addFact((/hate|dislike/i.test(m[1])?"Dislikes ":"Likes ")+m[2].trim(),by);
@@ -471,7 +521,7 @@ function memAnswer(a,q){const s=q.toLowerCase().replace(/[\u2019\u2018]/g,"'");
  if(/what (did|were) we (talk|chat|talking|chatting) about|last time we/.test(s)){const e=epi.filter(x=>x.id!==curEp).reverse().filter(x=>!x.s).slice(0,3);return e.length?"Recently: "+e.map(x=>x.w+": \u201c"+x.q+"\u201d").join("; "):"We haven\u2019t talked much yet."}
  return null}
 const st0=smalltalk;
-smalltalk=(a,q)=>{const r=st0(a,q);if(/^(yo|hi|hello|hey|sup|howdy|good (morning|afternoon|evening)|what's up|whats up)(?![a-z])/.test(q.toLowerCase().replace(/[\u2019\u2018]/g,"'").trim())){const n=nameOf(),l=lastEpisode();return (n?"Hey "+n+"! ":"")+r+(l?" Last time, "+l:"")}return r};
+smalltalk=(a,q,pre)=>{const r=st0(a,q,pre);if(r===null)return null;if(/^(yo|hi|hello|hey|sup|howdy|good (morning|afternoon|evening)|what's up|whats up)(?![a-z])/.test(q.toLowerCase().replace(/[\u2019\u2018]/g,"'").trim())){const n=nameOf(),l=lastEpisode();return (n?"Hey "+n+"! ":"")+r+(l?" Last time, "+l:"")}return r};
 V.brain=()=>`<div class="strip">One shared brain for all 12. Every assistant remembers what you tell any of them. ${prof.length} facts, ${epi.length} memories.</div><h3>Add a memory</h3><div class="row"><input id="bm" placeholder="Something they should remember" aria-label="New memory"><button data-a="badd">Save</button></div><h3>Facts about you</h3>${prof.slice().reverse().map(p=>`<div class="box">${esc(p.t)}<p class="st">${p.by?"Learned via "+esc(nm(p.by))+". ":""}${p.ts?new Date(p.ts).toLocaleDateString():""}</p><button class="sm" data-a="pf" data-i="${p.id}">Forget</button></div>`).join("")||'<p class="st">No facts yet. Tell any assistant about yourself.</p>'}<h3>Recent memories</h3>${epi.slice(-20).reverse().map(e=>`<div class="box"><span class="tag">${esc(e.w)}</span> ${esc(e.q)}<p class="st">${new Date(e.ts).toLocaleString()}</p><button class="sm" data-a="ef" data-i="${e.id}">Forget</button></div>`).join("")||'<p class="st">Nothing yet.</p>'}`;
 act.badd=()=>{const el=document.getElementById("bm");if(el&&el.value.trim()){addFact(el.value,"you");}draw()};
 act.ef=i=>{epi=epi.filter(e=>e.id!==i);sv("epi",epi);draw()};
@@ -543,7 +593,7 @@ async function ask(t){const a=CA(),b=br[a.id];if(busy)return;remember(t,a);
  b.hist.push({r:"a",t:rp});b.hist=b.hist.slice(-60);sv("b:"+a.id,b);busy=false;draw();
  if(hf)say(rp,listen);else if(gs.speak)say(rp)}
 V.chat=()=>{const a=CA(),h=br[a.id].hist;
- const intro=h.length?"":`<div class="m a">${esc(a.n)} online. “${esc(a.q||"")}” ${SAMPLE?"Talk to me about anything.":"Ask me about anything I know."} Teach me with: learn: title | text | source.</div>`;
+ const intro=h.length?"":`<div class="m a">${esc(a.n)} online. “${esc(a.q||"")}” Just talk to me. Tell me things and I’ll remember them. Ask me things and I’ll tell you what we know.</div>`;
  return `<div id="log">${intro}${h.map((m,i)=>m.r==="u"?`<div class="m u">${esc(m.t)}</div>`:`<div class="m a">${esc(m.t)}<div class="fbk"><button data-a="fb" data-i="${i}|1" aria-label="Helpful" aria-pressed="${m.f==="up"}">👍</button><button data-a="fb" data-i="${i}|0" aria-label="Not helpful" aria-pressed="${m.f==="down"}">👎</button></div></div>`).join("")}${busy?`<div class="m a">Thinking…</div>`:""}</div><div class="row"><input id="q" placeholder="Ask ${a.n}" aria-label="Message"><button data-a="spk" aria-pressed="${!!gs.speak}" aria-label="Speak replies">🔊</button><button data-a="send">Send</button></div>`};
 const v0=V.voice;
 V.voice=()=>{const a=CA();return v0()+`<h3>Real AI</h3><div class="box"><p class="st">${SAMPLE?"Replies come from a real AI, using this assistant’s personality, its approved knowledge, your chat and what it has learned about you.":"Real AI replies are unavailable here, so offline answers are used."}</p></div><h3>What I know about you</h3><div class="box">${prof.map(p=>`<div>${esc(p.t)} <button class="sm" data-a="pf" data-i="${p.id}">Forget</button></div>`).join("")||'<p class="st">Nothing yet. The assistants learn it from your chats, and you can remove anything.</p>'}</div>`};

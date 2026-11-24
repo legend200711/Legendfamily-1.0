@@ -14,6 +14,8 @@ Open the repository > Add file > Upload files > upload index.html and sw.js (the
 > Commit changes. Close the app fully and open it again.
 
 NOTES
+- Just talk to the assistants. They learn facts you tell them ("A capacitor is..."), your name and likes,
+  and if they don't know something they ask you and remember your answer. Say "forget that" to undo.
 - Everything runs offline in your phone. No accounts, no cloud AI.
 - What you teach the assistants is saved in the browser on your phone. Use Control > Export all
   now and then and save the text somewhere safe.
