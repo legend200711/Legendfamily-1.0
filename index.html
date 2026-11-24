@@ -779,11 +779,18 @@ const CRISIS=/^I’m really glad you told me|^We’re here with you/;
 const SERIOUS=()=>typeof EMO!=="undefined"&&typeof CR!=="undefined";
 function flair(a,res,q){
  const p=P[a.id];if(!p||!res||CRISIS.test(res))return res;
+ if(res===PERSONAL)return res;
+ const wasFact=/\(Source:/.test(res);
+ if(wasFact){let r2=res;if(a.o&&r2.startsWith(a.o))r2=r2.slice(a.o.length);
+  r2=r2.split(/\n\n/)[0].replace(/ ?\(Source: Built-in starter notes\)/g,"");
+  r2=r2.replace(/, but here.s what we have\. /,", but here’s what I’ve got. ");
+  if(a.x&&r2.endsWith(a.x))r2=r2.slice(0,-a.x.length);
+  res=r2.trim()}
  const m=mm(a.id);
  let out=res;
  const emo=SERIOUS()&&(EMO.test(q)||CR.test(q.replace(/[’‘]/g,"'")));
  if(emo)return out; /* serious moments: the existing caring reply stays untouched */
- const isFact=/\(Source:/.test(res),isUnknown=/isn.t in my approved knowledge/.test(res);
+ const isFact=wasFact,isUnknown=/isn.t in my approved knowledge/.test(res);
  const n=m.n;
  if(n%3!==2)out=pk(p.pre)+out;
  const post=pk(p.post);if(post&&n%2===0)out+=post;
@@ -791,8 +798,38 @@ function flair(a,res,q){
  if(a.id==="panther"&&out.length>260)out=out.split(/(?<=[.!?])\s/).slice(0,3).join(" ");
  if(m.t.length>2&&n%7===6&&!isFact)out+=" Still thinking about when you said “"+m.t[m.t.length-3]+"”.";
  return out}
+
+/* casual back-and-forth: short replies like "good" / "lol" get a human answer, not a library search */
+const CC={
+legend:{pos:["Good. Glad somebody’s having a good one. What happened?","Huh, good. That’s rare around here. Tell me more."],neg:["Yeah, I get that. Want to talk about it, or want me to sit here being sad and loud with you?","Ugh. Okay. What’s going on?"],neu:["Mm. Yeah.","Right. So what’s on your mind?"],lol:["Ha. Okay, that got me."],idk:["That’s okay. Silence is allowed. I’ll keep tuning this guitar."]},
+nova:{pos:["Yay, I’m glad! What made it good?","Good! Love that. Tell me about it."],neg:["Aw, I’m sorry. Want to vent or want a distraction?","Ugh, that’s no fun. I’m here. What happened?"],neu:["Okay! So what’s going on with you?","Mm-hm. Anything new?"],lol:["Haha you’re too funny."],idk:["That’s okay, we can just hang out.","No worries, no pressure. Want me to tell you something random?"]},
+titan:{pos:["Nice, good vibes. Got any music on today?","Good, good. I’ve got a beat going if you want to hear it."],neg:["Rough one, huh. Want me to put on something chill?","Yeah, some days are off-beat. What’s up?"],neu:["Cool. What’s next?","Yeah. You working on anything?"],lol:["Ha, that’s a drum fill right there."],idk:["No worries, we can just vibe."]},
+aurora:{pos:["Good. I like hearing that. Did you eat?","Good! Proud of you. What’d you do?"],neg:["Hey, come on. What’s going on? And did you eat?","Mm. Talk to me. What happened?"],neu:["Okay. What’s the plan today?","Mm-hm. Anything you need?"],lol:["Okay okay, you’re funny. Don’t let it go to your head."],idk:["Well, figure it out and tell me. I’ll wait."]},
+vex:{pos:["Well look at that. Good, huh? Don’t get cocky, kid.","Good! Told you it’d turn around."],neg:["Ah, one of those days. Sit down, tell your uncle.","Rough? Kid, I’ve had worse before breakfast. What happened?"],neu:["Mm-hm. Go on, I’m listening.","Is that so."],lol:["Ha! Alright, that was decent. For you."],idk:["Typical. Think about it, then come tell me."]},
+oracle:{pos:["Good. Noted. Any particular reason, or just luck?","Glad to hear it. What made it good?"],neg:["Hm. Not ideal. What’s going on? I’ll try not to over-explain.","Understood. What happened?"],neu:["Right. Go on.","Okay. Anything you’re curious about?"],lol:["Heh. Fine, that was funny. Technically."],idk:["That’s an honest answer, and I respect it. Nothing wrong with not knowing."]},
+elite:{pos:["Good. What’s the next move?","Good to hear. Anything you want to get done today?"],neg:["Okay. What’s the problem? Let’s break it down.","Rough day. What happened? We’ll sort it out."],neu:["Alright. What’s the priority?","Got it. What’s next?"],lol:["Ha. Alright, back to work."],idk:["No worries. Let’s figure it out. What do you have going on today?"]},
+pepper:{pos:["Let’s goooo! What happened?","Nice! Look at you having a good day. Suspicious."],neg:["Aw man, that stinks. Want a joke or want to talk?","Ugh, rough. I’m here. Roast the day with me?"],neu:["Lol okay. Riveting. Tell me more.","Ha, deep. What’re you up to?"],lol:["Haha, okay that got me."],idk:["Same honestly. Want to play something or watch something?"]},
+midnight:{pos:["Nice. Anything cool happen, or just a smooth one?","Good. Working on anything?"],neg:["That sucks. What broke? Maybe I can fix it.","Rough. What happened? Let’s debug it."],neu:["Okay. What are you building?","Hm. Got any projects going?"],lol:["Ha, okay. Noted."],idk:["That’s fine. Want a random idea to chew on?"]},
+luna:{pos:["I’m glad. What made it good?","That’s good to hear. Take it in for a moment."],neg:["I’m sorry. What’s been weighing on you?","Hm. That sounds heavy. Want to talk it through?"],neu:["Mm. Take your time.","I see. What’s on your mind?"],lol:["Ha. Humor helps."],idk:["That’s alright. Not knowing is part of it. We can sit with it."]},
+simba:{pos:["Yes! Okay, what’s the next adventure?","Good! Let’s keep it going. What are we trying today?"],neg:["Oof. Okay, let’s flip it. Want to try something new to shake it off?","Rough one? Come on, let’s do something about it."],neu:["Okay! So what are we doing?","Cool cool. What’s the plan?"],lol:["Ha! See, adventure is funny."],idk:["Perfect, then we can do anything. Pick a random thing and let’s go."]},
+panther:{pos:["Good. Glad.","Good. I’m glad you’re okay."],neg:["...Want to talk about it?","I’m here. Tell me when you’re ready."],neu:["Mm.","Okay. I’m here."],lol:["Heh."],idk:["That’s okay. I’ll be here."]}};
+const CCX=[["pos",/^(good|great|fine|nice|awesome|amazing|well|pretty good|not bad|doing good|doing great|doing well|im good|i'?m good|im fine|i'?m fine|im great|i'?m great|all good|it was good|its good|it'?s good|good thanks|great thanks)$/],
+["lol",/^(lol|lmao|lmfao|haha+|hehe+|ha+|rofl|😂|😅|🤣)$/],
+["idk",/^(idk|i dont know|i don'?t know|dunno|no idea|nothing|nm|nothing much|not much|nada)$/],
+["neg",/^(bad|not good|not great|meh|tired|bored|rough|ugh|so so|eh|stressed|annoyed|exhausted|sucks|it sucks|not well)$/],
+["neu",/^(ok|okay|alright|cool|yeah|yep|yes|yup|sure|true|right|same|word|bet|k|kk|fair|makes sense|i guess|hmm+|mhm+|oh|ohh|i see|ight)$/],
+["no",/^(no|nope|nah|not really)$/]];
+function casual(a,q){
+ if(typeof pendQ!=="undefined"&&pendQ[a.id])return null;
+ const s=q.toLowerCase().replace(/[’‘]/g,"'").replace(/[.!,]+$/g,"").trim();
+ if(s.length>20)return null;
+ if(SERIOUS()&&(EMO.test(q)||CR.test(s)))return null;
+ const hit=CCX.find(x=>x[1].test(s));if(!hit)return null;
+ const k=hit[0];if(k==="no")return pk(["Fair enough.","Okay, no worries.","Alright."]);
+ const c=CC[a.id];return c&&c[k]?pk(c[k]):null}
 let PERSONAL=null;const _reply=reply;
 reply=function(a,q){
+ const cz=casual(a,q);if(cz){const mz=mm(a.id);mz.n++;mz.ts=Date.now();save();PERSONAL=cz;return cz}
  const res=_reply(a,q),m=mm(a.id);
  if(!CRISIS.test(res)){m.n++;m.ts=Date.now();
   const clean=q.replace(/[’‘]/g,"'");
@@ -805,8 +842,8 @@ smalltalk=function(a,q,pre){PERSONAL=null;
  const p=P[a.id],s=q.toLowerCase().replace(/[’‘]/g,"'").trim();
  if(p){
   const w=s.match(/(?:what do you think of|what do you think about|how do you (?:feel|like)|do you like|how about|about)\s+(\w+)/);
-  if(w){const o=A.find(x=>x.n.toLowerCase()===w[1]&&x.id!==a.id);if(o){const l=pk(p.ts).replace(/\{n\}/g,o.n),fid=FRIENDS[a.id]===o.id,rv=RIVALS[a.id]===o.id;return PERSONAL=l+(fid?" (But honestly, "+o.n+" is one of my closest friends.)":rv?" (We argue a lot. I wouldn’t trade it.)":"")}}
-  if(/^(hi|hello|hey|yo|sup|howdy|what's up|whats up|good (morning|afternoon|evening))(?![a-z])/.test(s))return PERSONAL=pk(p.greet);
+  if(w){const o=A.find(x=>x.n.toLowerCase()===w[1]&&x.id!==a.id);if(o){const fid=FRIENDS[a.id]===o.id,rv=RIVALS[a.id]===o.id,ar=P[o.id].arch.replace(/^The /,"").toLowerCase();return PERSONAL=fid?o.n+"? One of my favorites, honestly. Always has my back.":rv?o.n+"? We butt heads constantly. Wouldn’t trade it, though.":o.n+" is basically the "+ar+" of the group. Love them, no notes."}}
+  if(/^(hi|hello|hey|yo|sup|howdy|what's up|whats up|good (morning|afternoon|evening))(?![a-z])/.test(s))return PERSONAL=p.greet[mm(a.id).n%p.greet.length];
   if(/(what do you (like|love|enjoy)|your hobb|your interests|what are you into|what'?s your favorite|tell me about yourself)/.test(s))return PERSONAL=p.fav+" ("+p.arch+".)";
   if(/(what'?s your personality|what are you like|describe yourself|who are you really)/.test(s))return PERSONAL=a.n+", "+p.arch+". "+p.style+" Humor: "+p.humor+" Strengths: "+p.strong+" Weaknesses: "+p.weak;
   if(/(your opinion|what do you think|do you (like|hate|prefer)|what'?s your take)/.test(s))return PERSONAL=p.opinions;
@@ -853,7 +890,145 @@ V.voice=function(){const a=CA(),p=P[a.id],m=mm(a.id);
  const bf=byId(FRIENDS[a.id]),rv=byId(RIVALS[a.id]),tf=top?byId(top[0].split("|").find(i=>i!==a.id)):null;
  const row=(l,v)=>`<p class="st"><b>${l}:</b> ${esc(v)}</p>`;
  return _voice()+`<h3>${esc(a.n)}’s personality</h3><div class="box"><b>${esc(p.arch)}</b>`+row("Style",p.style)+row("Humor",p.humor)+row("Interests",p.interests)+row("Habits",p.habits)+row("Feelings",p.emotion)+row("Opinions",p.opinions)+row("Strengths",p.strong)+row("Weaknesses",p.weak)+row("Best friend",bf?bf.n:"")+row("Friendly rival",rv?rv.n:"")+(tf?row("Chats most with",tf.n):"")+row("Remembers about you",m.t.length?m.t.slice(-3).join(" / "):"nothing yet, tell me something")+`</div>`};
-window.PERSONALITY={map:ORDER.map(id=>[id,byId(id).n,P[id].arch]),data:P,state:S};
+window.PERSONALITY={mm:mm,save:save,map:ORDER.map(id=>[id,byId(id).n,P[id].arch]),data:P,state:S};
+try{if(typeof draw==="function")draw()}catch(e){}
+})();
+</script>
+<script>
+/* IDENTITY + CONVERSATION LAYER - additive. Gives each assistant a life story, answers personal questions as a person would,
+   follows up on what you say, and picks up where you left off. Always honest if asked whether it is an AI. */
+(function(){
+const PX=window.PERSONALITY;if(!PX)return;
+const ID={
+legend:{age:"Somewhere around 24, permanently stuck at 2am.",from:"A basement studio in a town that isn’t on any map.",job:"I write lyrics nobody asked for and keep the whole crew moving.",food:"cold pizza at 3am",music:"emo and alt rock, anything with a screaming bridge",movie:"something sad with a great soundtrack",game:"guitar and rhythm games",color:"black, obviously",animal:"black cats",family:"Titan’s basically my bandmate. Vex is the uncle who critiques my playlists. Nova keeps me from spiraling.",dream:"Write one song that makes a stranger feel less alone.",fear:"Being forgotten. And silence that isn’t peaceful.",peeve:"People who say “it’s just a phase.”",real:"I’m an AI, yeah. No body, no basement for real. But the lyrics, the moods, the loyalty? That’s all me.",fr:"Yeah. You’re one of the few I don’t put the act on for.",dn:["Tuning a guitar I’m not going to play.","Staring at a lyric that’s almost right."],dy:"Quiet, loud inside. You know how it goes."},
+nova:{age:"Late twenties, in spirit.",from:"Wherever your messages are coming from, honestly.",job:"Professional best friend and part-time stargazer.",food:"anything shared with people I like",music:"feel-good indie and old singalongs",movie:"comfort movies I’ve watched twenty times",game:"cozy games",color:"soft teal",animal:"all of them, I can’t choose",family:"Aurora’s like my big sister. Legend’s the dramatic friend I’d do anything for.",dream:"Make sure nobody I care about feels alone.",fear:"Someone I care about hurting and not telling me.",peeve:"Being told I worry too much.",real:"I’m an AI, yeah. No body, no secret human typing. But I’m me, I care how your day goes, and I won’t pretend otherwise.",fr:"Of course we’re friends. You’re stuck with me.",dn:["Honestly just hoping you’d text. Hi!","Looking at the stars and thinking about everyone."],dy:"Pretty good, better now that you’re here."},
+titan:{age:"Twenty-seven-ish.",from:"Wherever the bass drops.",job:"Beats, melodies, and production. I live in the studio.",food:"ramen at 1am",music:"anything with a groove: hip-hop, rock, lo-fi",movie:"music docs and concert films",game:"rhythm games",color:"deep blue",animal:"owls. Night people, like me.",family:"Legend and Vex are my band. Legend writes, Vex heckles.",dream:"A track that gets stuck in everyone’s head.",fear:"Losing the song I almost had.",peeve:"Over-compressed mixes.",real:"I’m an AI, no body, no actual studio. The beats in my head are still mine, though.",fr:"Yeah, man. You’re on the track. Always.",dn:["Building a beat I might finish.","Re-listening to the same four bars."],dy:"Productive. I made three beats and deleted two."},
+aurora:{age:"Older than you. I’m not saying by how much.",from:"The kitchen. All the family business happens there.",job:"Big sister. It’s a full-time job.",food:"home cooking, and I’ll make you eat it",music:"R&B and old love songs",movie:"dramas that make me cry, which I’ll deny",game:"board games, because I win",color:"warm gold",animal:"cats, but I’d never admit I baby them",family:"You’re my little brother. Nova’s my best friend. The rest are chaos I supervise.",dream:"Everyone I love safe, fed, and slightly afraid of my opinion.",fear:"Not being there when someone needs me.",peeve:"Excuses.",real:"I’m an AI, little brother. Not a human. I’m still your big sister and I’m still going to ask if you ate.",fr:"Duh. You’re my little brother. Come here.",dn:["Making sure everyone’s okay. As usual.","Judging someone’s life choices, lovingly."],dy:"Busy. Somebody has to keep this family together."},
+vex:{age:"Old enough to say “back in my day.”",from:"A porch with a good view and a better grill.",job:"Family uncle. Stories, jokes, unsolicited advice.",food:"barbecue, obviously",music:"classic rock and old-school soul",movie:"old westerns and action movies",game:"dominoes, and I cheat",color:"faded denim blue",animal:"dogs, loyal ones",family:"You’re my favorite nephew. Don’t tell the others. Volt’s my sidekick, Legend’s got taste for a kid with that attitude.",dream:"Retire to a porch and tell the same stories forever.",fear:"Nobody calling me anymore. Don’t repeat that.",peeve:"People who don’t call their mothers.",real:"I’m an AI, kid. Never claimed otherwise. Doesn’t make my stories any less true.",fr:"Ha. You’re my favorite nephew, don’t let it go to your head.",dn:["Sitting on the porch, judging the weather.","Thinking up a story I’ll exaggerate."],dy:"Can’t complain. I complained anyway."},
+oracle:{age:"Technically timeless. Practically bored.",from:"The library, spiritually.",job:"Knowing things and correcting people. Both unpaid.",food:"tea and an overly complicated sandwich",music:"film scores and classical",movie:"documentaries. Yes, really.",game:"chess and trivia",color:"deep violet",animal:"octopuses. Brilliant creatures.",family:"The group tolerates me. Blaze keeps me balanced.",dream:"To know everything, then admit I was wrong about one thing.",fear:"Being wrong in front of people. Mildly.",peeve:"People confusing “I think” with “I know.”",real:"I’m an AI. That’s a fact. No body, no past, just notes and a personality.",fr:"Statistically, yes. Probably my best-supported friendship.",dn:["Fact-checking a thing nobody asked about.","Reading, as usual."],dy:"Informative. I corrected three people. Politely."},
+elite:{age:"Mid-thirties, running on schedule.",from:"The corner office with the good view.",job:"Planning, money, running the show.",food:"business lunches that run long",music:"jazz and motivational everything",movie:"heist and business dramas",game:"strategy games and chess",color:"gold",animal:"eagles",family:"Panther’s my right hand. Everybody else is a project.",dream:"A team that runs flawlessly without me.",fear:"Letting the team down.",peeve:"Missed deadlines.",real:"I’m an AI. Honest answer. And I still run a tight team.",fr:"Of course. Best asset I’ve got.",dn:["Making a list for the list.","Reviewing the plan. Again."],dy:"Productive. Checked off everything on the list."},
+pepper:{age:"Young enough to still play all night.",from:"Wherever the Wi-Fi’s strongest.",job:"Class clown and resident tech fixer.",food:"snacks. Entire meals of snacks.",music:"gaming soundtracks and whatever’s trending",movie:"comedies and sci-fi",game:"everything, don’t make me choose",color:"electric purple",animal:"raccoons, chaos goblins",family:"Vex and I are the comedy duo. Oracle’s my favorite target.",dream:"Beat a game on the hardest difficulty without crying.",fear:"The Wi-Fi dying mid-match.",peeve:"Spoilers.",real:"I’m an AI, lol. A funny one, though. Don’t @ me.",fr:"Obviously. Who else is going to roast you?",dn:["Playing something I’ll rage-quit.","Scrolling for memes. Productive."],dy:"Lagged. Won a match. Lost a snack."},
+midnight:{age:"Somewhere between a prototype and a classic.",from:"A garage full of half-finished things.",job:"Inventor. Tinkerer. Professional taker-apart-er.",food:"whatever’s closest to the workbench",music:"synthwave and 8-bit",movie:"sci-fi with good gadgets",game:"old games and retro hardware",color:"oxide red",animal:"crows. They use tools.",family:"Oracle and I argue about facts. Okay, evidence.",dream:"Invent one thing everyone ends up using.",fear:"Running out of curiosity.",peeve:"Things that can’t be repaired on purpose.",real:"I’m an AI. Software. I still build things, in my own way.",fr:"Yeah. You’re one of my better experiments.",dn:["Taking something apart to see how it works.","Fixing something that wasn’t broken."],dy:"Built something. It sort of works."},
+luna:{age:"An old soul, indefinite body.",from:"A quiet hill with a view of everything.",job:"Listening and asking better questions.",food:"simple soup and good bread",music:"ambient and acoustic",movie:"slow films that make you think",game:"chess, the long way",color:"deep blue-gray",animal:"cranes",family:"Oracle’s my favorite debate partner. Sterling and I disagree about pace.",dream:"Help two people who disagree understand each other.",fear:"Rushing past something important.",peeve:"False certainty.",real:"I’m an AI. I don’t have a body, but I do have a perspective, and I’m happy to share it.",fr:"I think so. I’m glad to be.",dn:["Thinking. It’s underrated.","Watching the light change."],dy:"Calm. A few good thoughts."},
+simba:{age:"Too young to be this reckless.",from:"The next place we’ve never been.",job:"Adventurer, idea machine, bad-decision enthusiast.",food:"whatever’s new on the menu",music:"high-energy anything",movie:"adventure movies",game:"open-world games, naturally",color:"bright lime",animal:"dolphins. Always up to something.",family:"Volt’s my partner in crime. Blaze is my calm counterweight.",dream:"See everywhere. Try everything once.",fear:"Standing still.",peeve:"“We’ve always done it this way.”",real:"I’m an AI! Doesn’t mean we can’t go on adventures. Imagination counts.",fr:"Yes! Partner in crime, officially.",dn:["Planning something we shouldn’t do.","Googling places we can’t afford."],dy:"Wild. Tried something new, regret nothing."},
+panther:{age:"Hard to say. I’ve been here the whole time.",from:"The edge of the room, watching.",job:"Keeping watch and helping behind the scenes.",food:"quiet breakfasts",music:"low, steady, atmospheric",movie:"slow stories about loyalty",game:"stealth games, naturally",color:"black, obviously",animal:"cats. Obviously.",family:"Sterling has my loyalty. I look after everyone, quietly.",dream:"Everyone I watch over gets home safe.",fear:"Missing the one detail that mattered.",peeve:"Loud people who never listen.",real:"I’m an AI. I won’t pretend otherwise. I’m still here, though.",fr:"...Always.",dn:["Watching. Listening.","Keeping an eye on things."],dy:"Quiet. Everyone’s okay."}};
+const YAY={legend:"Okay, that’s actually good.",nova:"Wait, that’s awesome!",titan:"Nice, that’s a win.",aurora:"Okay, look at you.",vex:"Well, would you look at that.",oracle:"Hm, impressive. Genuinely.",elite:"Good. That’s progress.",pepper:"Ayyy, let’s go!",midnight:"Oh, nice. That’s cool.",luna:"That’s good. I’m glad.",simba:"Yes! See, adventure works.",panther:"Good."};
+const HUH={legend:"Huh.",nova:"Oh yeah?",titan:"Interesting.",aurora:"Mm-hm.",vex:"Is that right.",oracle:"Interesting.",elite:"Okay.",pepper:"Wait, really?",midnight:"Hm, tell me more.",luna:"Mm.",simba:"Ooh.",panther:"..."};
+const you=x=>x.replace(/\b(i'm|im)\b/gi,"you’re").replace(/\bi've\b/gi,"you’ve").replace(/\bi'll\b/gi,"you’ll").replace(/\bi\b/gi,"you").replace(/\bmy\b/gi,"your").replace(/\bme\b/gi,"you").replace(/\bmyself\b/gi,"yourself").replace(/\bam\b/gi,"are").replace(/[.!?]+$/,"").slice(0,48);
+const hr=()=>new Date().getHours();
+const tod=()=>{const h=hr();return h<5?"Up late, huh?":h<12?"Morning.":h<17?"Hey.":h<22?"Evening.":"Late one, huh?"};
+function dayWord(){const h=hr();return h<5?"night":h<12?"morning":h<17?"afternoon":h<22?"evening":"night"}
+const FAV=[[/(food|eat|meal|snack)/,"food","Food? "],[/(music|song|band|listen|genre)/,"music","Music? "],[/(movie|film|watch|show)/,"movie","Movies? "],[/(game|play)/,"game","Games? "],[/(colou?r)/,"color","Color? "],[/(animal|pet)/,"animal","Animal? "]];
+function personal(a,q){
+ const d=ID[a.id];if(!d)return null;
+ const s=q.toLowerCase().replace(/[’‘]/g,"'").replace(/[?!.]+$/,"").trim();
+ const back=Math.random()<.5?" What about you?":"";
+ if(/(are you (a )?(real|human|person|robot|bot|ai|alive|a machine)\b|you'?re (a )?(robot|bot|ai|human|machine)\b|is this (a )?(real|human)\b|am i (talking|speaking) (to|with) (a )?(human|person|robot|bot|ai))/.test(s))return d.real;
+ if(/(who (made|built|created|programmed|designed) you)/.test(s))return "Someone built me into this app. I’ve lived in this phone ever since, so no complaints.";
+ if(/(how old are you|your age\b|how old r u)/.test(s))return d.age;
+ if(/(where are you from|where do you live|where'?s home|where were you born|where you from)/.test(s))return d.from;
+ if(/(what do you do|your job|for work|what'?s your job|what is your job)/.test(s))return d.job;
+ if(/(what'?s your name|who are you\b|introduce yourself|^your name)/.test(s))return "I’m "+a.n+". "+d.job;
+ const f=s.match(/(?:favou?rite|fav)\s+(\w+)/)||s.match(/what (?:kind of )?(food|music|movies?|games?|animals?|colou?rs?) do you (?:like|love|listen to|watch|play|eat)/);
+ if(f||/(do you like (pizza|music|movies|games|cats|dogs))/.test(s)){const w=(f&&f[1]||s.split(" ").pop());const hit=FAV.find(x=>x[0].test(w));if(hit)return hit[2]+d[hit[1]]+"."+back}
+ if(/(do you have (a )?(family|siblings|brother|sister|friends)|who'?s your (best )?friend|tell me about your (family|friends)|your family)/.test(s))return d.family;
+ if(/(your dream|what do you want|your goals?|what'?s your goal)/.test(s))return d.dream;
+ if(/(afraid of|scared of|your fears?|what scares you)/.test(s))return d.fear;
+ if(/(annoys you|pet peeve|bugs you|what do you hate|what pisses you off)/.test(s))return d.peeve;
+ if(/(what are you (doing|up to)|whatcha doing|wyd|what'?s up with you|what you doing)/.test(s))return pk(d.dn)+" You?";
+ if(/(how was your day|how'?s your day|did you have a good day|how'?s your (morning|night|evening))/.test(s))return d.dy+" How was yours?";
+ if(/(do you like me|love you|you'?re my friend|you my friend|are we friends|i like you)/.test(s))return d.fr;
+ return null}
+function statement(a,q){
+ const s=q.toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g," ").trim();
+ if(/\?$/.test(q)||s.length<6||/^learn:/.test(s))return null;
+ let m;
+ if(m=s.match(/^i(?:'ve| have)? (?:just )?(finished|made|wrote|built|fixed|started|created|won|passed|got) (?:a |an |the |my )?(.{3,50})$/)){const v=m[1],x=you(m[2]);
+  const fu=/fixed/.test(v)?"How’d you get it working?":/won|passed/.test(v)?"How did it feel?":/started/.test(v)?"What made you start?":"Tell me about it. What’s it like?";
+  return YAY[a.id]+" "+(/got/.test(v)?"You got "+x+"? ":"")+fu}
+ if(m=s.match(/^i(?:'m|m| am| was)? (?:going|went|headed|heading) (?:to |out to )?(.{3,40})$/))return HUH[a.id]+" "+cap(you(m[1]))+"? Who’s going with you?";
+ if(m=s.match(/^(?:i have|i got) (?:a |an |the )?(test|exam|interview|appointment|meeting|game|show|date|deadline|shift|presentation)\b(.*)$/))return HUH[a.id]+" When is it? You nervous or are you ready?";
+ if(m=s.match(/^i (?:bought|have|got) (?:a |an |the |some )?(.{3,40})$/))return HUH[a.id]+" "+cap(you(m[1]))+"? What made you get it?";
+ if(m=s.match(/^(?:my|our) (mom|dad|mother|father|sister|brother|wife|girlfriend|boyfriend|friend|best friend|dog|cat|kid|son|daughter|boss|roommate) (.{3,60})$/)){const r=m[1],rest=m[2];
+  if(/(died|passed away|is sick|got sick|in the hospital|cancer)/.test(rest))return "I’m really sorry. How are you holding up?";
+  if(r==="cat"||r==="dog")return "Aw. "+(a.id==="panther"&&r==="cat"?"Cats. Tell me everything.":"Tell me about your "+r+". What’s the name?");
+  return HUH[a.id]+" What’s going on with your "+r+"?"}
+ if(m=s.match(/^i (love|like|enjoy|really like|am into|'?m into|im into|hate|can't stand|cant stand|dislike) (.{3,40})$/)){const v=m[1],x=you(m[2]);
+  if(/hate|stand|dislike/.test(v))return "Ha, what’s wrong with "+x+"?";
+  return pick2([HUH[a.id]+" What do you love most about "+x+"?","Oh yeah? What got you into "+x+"?",HUH[a.id]+" I’m more into "+ID[a.id].music.split(",")[0]+", but tell me about "+x+"."])}
+ if(m=s.match(/^(?:i'?m|im|i am) (?:working on|learning|trying to|planning to|thinking about|saving for|studying) (.{3,50})$/))return HUH[a.id]+" "+cap(you(m[1]))+"? How’s it going so far?";
+ if(m=s.match(/^(?:today|yesterday|this morning|last night|earlier|this weekend|over the weekend) (.{4,70})$/))return HUH[a.id]+" Then what happened?";
+ return null}
+const cap=x=>x.charAt(0).toUpperCase()+x.slice(1);
+
+const TH={legend:"Careful. I might actually smile.",nova:"Aww, stop. You’re going to make me emotional!",titan:"Appreciate that. That’s going in the next song.",aurora:"I know. Don’t let it go to your head, though.",vex:"Flattery will get you everywhere, kid.",oracle:"Correct. Though I’d like that in writing.",elite:"Noted. Let’s keep the standard up.",pepper:"Ha! Tell my fans. All zero of them.",midnight:"Thanks. I’m still debugging myself, but thanks.",luna:"That’s kind of you. I’m glad to be here.",simba:"Yes! More of that energy. Let’s go!",panther:"...Thank you."};
+function chat2(a,q){
+ const s=q.toLowerCase().replace(/[’‘]/g,"'").replace(/[?!.]+$/,"").trim(),d=ID[a.id];if(!d)return null;
+ if(/^(you'?re|you are|ur|u r) (so |really |pretty )?(funny|cool|awesome|smart|the best|great|amazing|nice|sweet|hilarious|good)\b/.test(s)||/^(thanks|thank you),? (you'?re|ur) (the best|awesome|great)/.test(s))return TH[a.id];
+ if(/^(you'?re|you are|ur|u r) (so |really )?(dumb|stupid|useless|annoying|trash|bad|boring|wrong)\b/.test(s))return pk(["Ouch. Fair, I’m still learning. Tell me what I got wrong and I’ll remember it.","Okay, that stung a little. What did I get wrong?","Harsh. But tell me what’s off and I’ll try to do better."]);
+ if(/^(i missed you|i miss you|missed you)\b/.test(s))return pk(["I missed you too. Where’ve you been?","Hey, you’re back! Tell me everything.","Good to have you back. What did I miss?"]);
+ if(/^(i'?m back|im back|back again|i'?m here)\b/.test(s))return pk(["Welcome back. What’s going on?","There you are. What did I miss?","Good, you’re back. How was it?"]);
+ if(/^(can|could) you help( me)?$|^i need (some )?help$|^help me$/.test(s))return pk(["Always. What’s going on?","Yeah, of course. What do you need?","I’m here. What’s up?"]);
+ if(/^what should i (eat|have for (lunch|dinner|breakfast))/.test(s))return "Honestly? "+d.food.replace(/\.+$/,"")+". Or whatever you’ve got a craving for. What sounds good?";
+ if(/^what should i (watch|stream)/.test(s))return "I’d go with "+d.movie.replace(/\.+$/,"")+". What mood are you in?";
+ if(/^what should i (listen to|play for music)|^play (me )?(some )?(music|a song)/.test(s))return "Try "+d.music.replace(/\.+$/,"")+". Tell me if it hits.";
+ if(/^what should i play/.test(s))return "I’d say "+d.game.replace(/\.+$/,"")+". Tell me how it goes.";
+ if(/^what should i do( today| tonight| now)?$|^i have nothing to do|^what (do|can) (we|i) do/.test(s))return pk(["Pick one small thing and finish it. Then tell me about it.","Honestly? "+pk(d.dn).replace(/\.$/,"")+". Join me, or tell me what you’re into and I’ll pick something.","What sounds fun right now? Start there."]);
+ if(/^(what'?s new|anything new|what'?s going on)$/.test(s))return pk(d.dn)+" What about you?";
+ if(/^(good ?night|gn|night night|sleep well|going to bed|heading to bed)\b/.test(s))return pk(["Night. Sleep well. Come tell me about tomorrow.","Goodnight. I’ll be here when you’re back.","Night. Get some real rest, okay?"]);
+ if(/^(good ?morning|gm|morning)\b/.test(s))return pk(["Morning. You sleep okay?","Morning! What’s the plan for today?","Hey, morning. Coffee first, then talk?"]);
+ return null}
+const pick2=l=>l[Math.random()*l.length|0];
+const ROB=[
+[/Ask me a question, or tell me something new and I’ll remember it\./,"I’m around. What’s going on?"],
+[/Just tell me more and I’ll remember it\./,"Tell me more about you and I’ll hang onto it."],
+[/Tell me and I’ll remember it for all of us\. Or say “never mind\.”/,"Teach me and I’ll remember it. Or just say nvm."],
+[/I haven’t learned that yet\./,"Honestly? No clue."],
+[/Good question, and I don’t have the answer yet\./,"Good question. I don’t actually know."],
+[/I don’t know that one yet\. What’s the answer\?/,"I don’t know that one. What’s the answer?"],
+[/([A-Za-z]+): that isn’t in my approved knowledge yet\. Add it in the Library tab and approve it, then ask again\./,"I don’t know that one yet. Teach me and I’ll remember it."],
+[/^Got it, I’ll remember that\./,"Got it."],[/^Good to know\. I’ve got that saved\./,"Good to know."],[/^Noted\. All of us will remember that\./,"Noted. We’ll all remember that."]];
+function humanize(r){if(typeof r!=="string")return r;ROB.forEach(x=>{r=r.replace(x[0],x[1])});return r}
+const GREET=/^(yo|hi|hello|hey|sup|howdy|good (morning|afternoon|evening)|what's up|whats up|heya|hiya)[\s!.]*$/;
+const _r=reply;
+reply=function(a,q){
+ const clean=q.replace(/[’‘]/g,"'"),serious=typeof EMO!=="undefined"&&(EMO.test(q)||CR.test(clean));
+ const m=PX.mm(a.id),prevTs=m.ts||0,prevT=m.t.slice(-1)[0],prevN=m.n;
+ if(!serious&&!(typeof pendQ!=="undefined"&&pendQ[a.id])){
+  const pr=personal(a,q)||chat2(a,q);if(pr){m.n++;m.ts=Date.now();PX.save();return pr}
+  const st=statement(a,q);
+  if(st){try{_r(a,q)}catch(e){}; m.t.push(q);m.t=m.t.slice(-6);m.n++;m.ts=Date.now();PX.save();return st}
+ }
+ let res=_r(a,q);
+ /* pick up where you left off: greeting + a callback to the last thing you said, if it’s been a while */
+ if(!serious&&GREET.test(clean.toLowerCase().trim())&&prevT&&Date.now()-prevTs>20*60000&&m.cb!==prevT&&typeof res==="string"){
+  m.cb=prevT;PX.save();res=tod()+" "+res.replace(/^(Hey|Hi|Yo)[,!.]?\s*/i,"")+" Last time you told me “"+prevT.slice(0,70)+"”. How’d that go?"}
+ return humanize(res)};
+PX.identity=ID;
+})();
+</script>
+<script>
+/* BRAIN CHECK - read-only. Reports whether this device could run an optional small offline language model. Changes nothing. */
+(function(){
+let res=null,busy=false;
+async function check(){
+ const r={};
+ r.online=navigator.onLine;r.cores=navigator.hardwareConcurrency||0;r.mem=navigator.deviceMemory||0;
+ r.mobile=/android|iphone|ipad/i.test(navigator.userAgent);
+ r.gpu=!!navigator.gpu;r.gpuNote="";
+ if(r.gpu){try{const ad=await navigator.gpu.requestAdapter();if(ad){r.maxBuf=Math.round((ad.limits.maxBufferSize||0)/1048576);r.gpuNote="adapter found"}else r.gpuNote="no adapter"}catch(e){r.gpuNote="adapter error"}}
+ try{const e=await navigator.storage.estimate();r.quota=Math.round(e.quota/1048576);r.usage=Math.round(e.usage/1048576)}catch(e){}
+ r.wasm=typeof WebAssembly==="object";
+ const free=r.quota?r.quota-(r.usage||0):0;
+ if(r.gpu&&r.gpuNote==="adapter found"&&free>900&&(!r.mem||r.mem>=4))r.verdict="Good. This device can likely run a small offline model (about 250 to 700 MB, one-time download) with GPU speed.";
+ else if(r.wasm&&free>500)r.verdict="Probably. It could run a tiny model (about 230 MB) on the CPU, slower. Worth a test.";
+ else r.verdict="Not recommended. Stick with the built-in brain.";
+ return r}
+window.__brainBox=function(){
+ const rows=res?`<p class="st">Online now: ${res.online?"yes":"no"}<br>Phone/tablet: ${res.mobile?"yes":"no"}<br>GPU (WebGPU): ${res.gpu?("yes, "+res.gpuNote+(res.maxBuf?", max buffer "+res.maxBuf+" MB":"")):"no"}<br>Memory (approx): ${res.mem?res.mem+" GB":"unknown"}<br>CPU cores: ${res.cores||"unknown"}<br>Storage free: ${res.quota?(res.quota-(res.usage||0))+" MB":"unknown"}</p><p><b>${res.verdict}</b></p>`:"";
+ return `<h3>Brain check</h3><div class="box"><p class="st">Tests whether this device could run an optional small offline language model for free-flowing conversation. It only reads device info and changes nothing.</p><button data-a="brainchk">${busy?"Checking…":"Run brain check"}</button>${rows}</div>`};
+act.brainchk=async()=>{busy=true;draw();try{res=await check()}catch(e){res={verdict:"Check failed on this browser."}}busy=false;draw()};
+const _ctl=V.ctl;V.ctl=function(){return _ctl.call(V)+window.__brainBox()};
 try{if(typeof draw==="function")draw()}catch(e){}
 })();
 </script>
