@@ -289,7 +289,7 @@ async function gsend(t){remember(t,null);const q=t.replace(/[’‘]/g,"'");
   know=[...new Set(A.map(a=>search(a.id,q)[0]).filter(Boolean).map(r=>r.t+": "+r.x))].slice(0,3).join("\n")||"none",
   hist=grp.slice(-10,-1).map(m=>(m.w==="u"?"USER":nm(m.w).toUpperCase())+": "+m.t).join("\n")||"(start)",
   roster=A.map(a=>a.id+" = "+a.n+", "+PERS[a.id]).join("\n");
- try{const o=await SAMPLE.json(`This is a group chat between the user and their 12 AI friends. They are close friends of the user, NOT therapists, doctors or psychiatrists.\nFRIENDS:\n${roster}\n\nRules: Choose 2 to 4 friends to reply${ms.length?" (the user mentioned: "+ms.join(", ")+", so those must reply)":""}. Each friend must sound clearly different, using their own personality and slang, and react to what the user said and sometimes to each other. Real friends texting: casual, warm, short (under 35 words each). If the user shares feelings, give emotional support: empathy first, relate, comfort, maybe one small idea or a joke if it fits. No clinical language, no diagnoses, no lists, no textbook definitions, no reciting facts unless asked. Never mention psychiatrists or being an AI. Use the background notes only quietly.\nBACKGROUND NOTES: ${know}\nWHAT THEY KNOW ABOUT THE USER: ${prof.map(p=>p.t).join("; ")||"nothing yet"}\nSHARED MEMORY: ${memNote()}\nCHAT SO FAR:\n${hist}\nUSER: ${t}\n\nReply with JSON only: {"messages":[{"who":"friend id","text":"message"}]}`,{cache:false,modelTier:"quick"});
+ try{const o=await SAMPLE.json(`This is a group chat between the user and their 12 AI friends. They are close friends of the user, NOT therapists, doctors or psychiatrists.\nFRIENDS:\n${roster}\n\nRules: Choose 2 to 4 friends to reply${ms.length?" (the user mentioned: "+ms.join(", ")+", so those must reply)":""}. Each friend must sound clearly different, using their own personality and slang, and react to what the user said and sometimes to each other. Real friends texting: casual, warm, short (under 35 words each). If the user shares feelings, give emotional support: empathy first, relate, comfort, maybe one small idea or a joke if it fits. No clinical language, no diagnoses, no lists, no textbook definitions, no reciting facts unless asked. Never mention psychiatrists. Don\u2019t bring up being an AI unless asked; if someone sincerely asks, answer honestly. Use the background notes only quietly.\nBACKGROUND NOTES: ${know}\nWHAT THEY KNOW ABOUT THE USER: ${prof.map(p=>p.t).join("; ")||"nothing yet"}\nSHARED MEMORY: ${memNote()}\nCHAT SO FAR:\n${hist}\nUSER: ${t}\n\nReply with JSON only: {"messages":[{"who":"friend id","text":"message"}]}`,{cache:false,modelTier:"quick"});
   const list=((o&&o.messages)||[]).filter(m=>A.some(a=>a.id===m.who)&&typeof m.text==="string").slice(0,4);
   if(!list.length)throw 0;
   list.forEach((m,i)=>setTimeout(()=>post(m.who,m.text),900*(i+1)))
@@ -528,7 +528,16 @@ function wire(){if(!DICT)return;
   if(hf){if(talking)return;let t=text;const m=text.match(/^(?:hey\s+)?(\w+)[,.]?\s*(.*)$/i);if(m){const f=A.find(a=>a.n.toLowerCase()===m[1].toLowerCase());if(f){cur=f.id;t=m[2]}}if(t.trim())ask(t)}
   else{const q=document.getElementById("q");if(q)q.value=(q.value+" "+text).trim()}});
  DICT.onState(({state})=>{dictOn=state==="listening";const b=document.querySelector('[data-a="dict"]');if(b)b.setAttribute("aria-pressed",String(dictOn))})}
-(async()=>{try{if(window.claude){SAMPLE=await claude.use("sample")}}catch(e){}if(tab==="chat"||tab==="voice")draw()})();
+const LLM_URL="";   // Phase 1: paste your Cloudflare Worker URL here (see worker/README.txt). Empty = offline mode.
+const LLM={json:async(prompt)=>{
+  const r=await fetch(LLM_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt})});
+  if(r.status===503){const e=new Error("budget");e.code="budget";throw e}
+  if(!r.ok)throw new Error("llm "+r.status);
+  const d=await r.json();
+  const t=String(d.text||"").replace(/```json|```/g,"").trim();
+  return JSON.parse(t.slice(t.indexOf("{"),t.lastIndexOf("}")+1));
+}};
+(async()=>{try{if(LLM_URL){SAMPLE=LLM}else if(window.claude){SAMPLE=await claude.use("sample")}}catch(e){}if(tab==="chat"||tab==="voice")draw()})();
 act.vg=i=>{gv[cur]=i;sv("gv",gv);draw();say("Hi, I\u2019m "+CA().n+".")};
 draw();
 </script>

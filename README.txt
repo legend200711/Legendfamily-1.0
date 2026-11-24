@@ -1,4 +1,9 @@
-THE LEGENDARY TWELVE - update (version 5: voice diagnostics)
+THE LEGENDARY TWELVE - version 6: Phase 0/1 (real AI replies, optional)
+
+WITHOUT the worker, the app works exactly as before (offline answers).
+To turn on real AI replies, follow worker/README.txt, then set LLM_URL in index.html.
+
+To update GitHub Pages: upload index.html and sw.js (replace the old ones), commit, close and reopen the app.
 
 To update your GitHub Pages site:
 1. Open your repository on github.com in your phone browser.
