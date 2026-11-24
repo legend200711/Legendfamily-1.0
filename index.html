@@ -263,8 +263,8 @@ V.chat=()=>{const a=CA(),h=br[a.id].hist;
  const intro=h.length?"":`<div class="m a">${esc(a.n)} online. “${esc(a.q||"")}” Ask me about anything I know, or teach me with: learn: title | text | source.</div>`;
  return `<div id="log">${intro}${h.map(m=>`<div class="m ${m.r}">${esc(m.t)}</div>`).join("")}</div><div class="row"><input id="q" placeholder="Ask ${a.n}" aria-label="Message"><button data-a="send">Send</button></div>`};
 V.voice=()=>{const a=CA();
- return `<div class="strip">Settings for ${a.n}. ${a.n} keeps its own chat history and its own knowledge. Use Library to teach it and approve what it learns.</div><h3>Voice</h3><div class="box"><div class="chips"><button data-a="vg" data-i="m" aria-pressed="${vgen(a)==="m"}">Man’s voice</button><button data-a="vg" data-i="f" aria-pressed="${vgen(a)==="f"}">Woman’s voice</button></div><button data-a="hf">Hands-free: ${hf?"on":"off"}</button> <button data-a="spk">Speak replies: ${gs.speak?"on":"off"}</button><p class="st">${esc(hmsg)}</p><p class="st">${wl?"Your screen stays on while this app is open.":"Screen stay-awake is not available in this browser."}</p></div>`};
-act.back=()=>{if(hf)act.hf();go("panels")};
+ return `<div class="strip">Settings for ${a.n}. ${a.n} keeps its own chat history and its own knowledge. Use Library to teach it and approve what it learns.</div><h3>Voice</h3><div class="box"><div class="chips"><button data-a="vg" data-i="m" aria-pressed="${vgen(a)==="m"}">Man’s voice</button><button data-a="vg" data-i="f" aria-pressed="${vgen(a)==="f"}">Woman’s voice</button></div><button data-a="spk">Speak replies: ${gs.speak?"on":"off"}</button> <button class="sm" data-a="vtest">Test voice</button><p class="st">${esc(hmsg)}</p><p class="st">${voiceInfo()}</p><p class="st">${wl?"Your screen stays on while this app is open.":"Screen stay-awake is not available in this browser."}</p></div>`};
+act.back=()=>{if(window.speechSynthesis)speechSynthesis.cancel();go("panels")};
 act.set=()=>go("voice");
 act.tochat=()=>go("chat");
 document.getElementById("hd").addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(b)act[b.dataset.a](b.dataset.i,b)});
@@ -280,6 +280,7 @@ function ping(a,t,pr){pr=pr||(t.startsWith("I’m really glad you told me")?"urg
  if(tab==="panels")draw()}
 function post(w,t,pr){const m={w,t,ts:Date.now()};grp.push(m);grp=grp.slice(-100);sv("grp",grp);
  if(tab==="group"){const lg=document.getElementById("log");if(lg){lg.insertAdjacentHTML("beforeend",gm(m));lg.scrollTop=lg.scrollHeight}}
+ if(w!=="u"&&gs.speak&&tab==="group")sayQ(t,A.find(x=>x.id===w));
  if(w!=="u")ping(A.find(x=>x.id===w),t,pr)}
 async function gsend(t){remember(t,null);const q=t.replace(/[’‘]/g,"'");
  if(!SAMPLE||CR.test(q)||/^learn:/i.test(q)){gsendOff(t);return}
@@ -318,14 +319,14 @@ function setAuto(){clearInterval(gt);gt=null;if(gs.auto)gt=setInterval(tick,gs.a
 setAuto();
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&tab==="group"){unread=0;document.title="Legendary Twelve"}});
 V.group=()=>{unread=0;document.title="Legendary Twelve";
- return `<div id="log">${grp.map(gm).join("")||`<div class="m a">The whole team is here. Ask anything, or mention someone like @Nova. Type learn: title | text | source and Legend will record it.</div>`}</div><div class="chips gc"><button data-a="galerts" aria-pressed="${gs.alerts}">Alerts: ${gs.alerts?"on":"off"}</button><button data-a="gauto" aria-pressed="${!!gs.auto}">They chat on their own: ${gs.auto?gs.auto+" min":"off"}</button><button data-a="nfc">Notifications${nf.length?" ("+nf.length+")":""}</button></div><p class="st">${esc(gmsg)}</p><div class="row"><input id="q" placeholder="Message the group" aria-label="Group message"><button data-a="send">Send</button></div>`};
+ return `<div id="log">${grp.map(gm).join("")||`<div class="m a">The whole team is here. Ask anything, or mention someone like @Nova. Type learn: title | text | source and Legend will record it.</div>`}</div><div class="chips gc"><button data-a="galerts" aria-pressed="${gs.alerts}">Alerts: ${gs.alerts?"on":"off"}</button><button data-a="gauto" aria-pressed="${!!gs.auto}">They chat on their own: ${gs.auto?gs.auto+" min":"off"}</button><button data-a="nfc">Notifications${nf.length?" ("+nf.length+")":""}</button></div><p class="st">${esc(gmsg)}</p><div class="row"><input id="q" placeholder="Message the group" aria-label="Group message"><button data-a="spk" aria-pressed="${!!gs.speak}" aria-label="Speak replies">🔊</button><button data-a="send">Send</button></div>`};
 act.grp=()=>go("group");
 act.galerts=()=>{gs.alerts=!gs.alerts;sv("gs",gs);
  if(gs.alerts){gmsg="Alerts on. You’ll get a buzz, a beep and a notification when they text while this page is open.";
   if("Notification" in window&&Notification.permission==="default"){try{Notification.requestPermission().then(p=>{gmsg=p==="granted"?"Alerts on. Notifications allowed.":"Notifications blocked, so you’ll get a buzz and a beep instead.";if(tab==="group")draw()})}catch(e){}}}
  else gmsg="";draw()};
 act.gauto=()=>{const o=[0,1,5,15];gs.auto=o[(o.indexOf(gs.auto)+1)%o.length];sv("gs",gs);setAuto();gmsg=gs.auto?"They’ll chat on their own every "+gs.auto+" min while this page is open.":"";draw()};
-let nf=ld("nf",[]);gs=Object.assign({min:"low",q:false,qs:22,qe:7},gs);
+let nf=ld("nf",[]);gs=Object.assign({min:"low",q:false,qs:22,qe:7,speak:true},gs);
 function quiet(){if(!gs.q)return false;const h=new Date().getHours(),s=gs.qs,e=gs.qe;return s<e?h>=s&&h<e:h>=s||h<e}
 function allowed(pr){if(quiet()&&pr!=="urgent")return false;const r={low:0,normal:1,urgent:2};return r[pr]>=r[gs.min||"low"]}
 V.nfc=()=>`<div class="strip">Alerts only fire while this page is open. Urgent messages, like a crisis reply from Aurora, ignore quiet hours.</div><h3>Preferences</h3><div class="box"><button data-a="nmin">Minimum priority: ${gs.min}</button> <button class="sm" data-a="nq">Quiet hours: ${gs.q?"on":"off"}</button><div class="row"><input id="qs" type="number" min="0" max="23" value="${gs.qs}" aria-label="Quiet hours start (0 to 23)"><input id="qe" type="number" min="0" max="23" value="${gs.qe}" aria-label="Quiet hours end (0 to 23)"></div><p class="st">Quiet from ${gs.qs}:00 to ${gs.qe}:00 (24-hour clock).</p><button class="sm" data-a="nsave">Save hours</button></div><h3>History</h3>${nf.slice(0,30).map(n=>`<div class="box"><span class="tag ${n.p==="urgent"?"rejected":n.p==="low"?"":"approved"}">${n.p}</span><b style="color:${A.find(a=>a.id===n.w).c}">${nm(n.w)}</b> <span class="st">${new Date(n.ts).toLocaleString()}</span><p>${esc(n.t)}</p></div>`).join("")||'<p class="st">No alerts yet. They appear here when an assistant texts while you are away from the group chat.</p>'}`;
@@ -345,7 +346,8 @@ act.nsave=()=>{const s=+val("qs"),e=+val("qe");if(s>=0&&s<24&&e>=0&&e<24){gs.qs=
   if(!rm&&!document.hidden)raf=requestAnimationFrame(frame)}
  size();frame();addEventListener("resize",()=>{size();if(rm)frame()});
  document.addEventListener("visibilitychange",()=>{cancelAnimationFrame(raf);if(!document.hidden&&!rm)raf=requestAnimationFrame(frame)})})();
-act.spk=()=>{gs.speak=!gs.speak;sv("gs",gs);draw();if(gs.speak)say("Voice replies on.")};
+act.spk=()=>{gs.speak=!gs.speak;sv("gs",gs);if(gs.speak){draw();testVoice()}else{if(window.speechSynthesis)speechSynthesis.cancel();draw()}};
+act.vtest=()=>testVoice();
 function smalltalk(a,q){const s=q.toLowerCase().replace(/[’‘]/g,"'").trim();
  const titles=()=>{const t=sh.filter(r=>r.status==="approved"&&r.lib===a.l&&pm[a.id][r.lib]).map(r=>r.title).concat(br[a.id].learned.map(r=>r.title)).slice(0,4);return t.length?t.join(", "):"nothing yet"};
  if(/^(yo|hi|hello|hey|sup|howdy|good (morning|afternoon|evening)|what's up|whats up)(?![a-z])/.test(s))return a.n+" here. “"+(a.q||"Ready when you are.")+"” What do you want to know?";
@@ -443,6 +445,8 @@ V.brain=()=>`<div class="strip">One shared brain for all 12. Every assistant rem
 act.badd=()=>{const el=document.getElementById("bm");if(el&&el.value.trim()){addFact(el.value,"you");}draw()};
 act.ef=i=>{epi=epi.filter(e=>e.id!==i);sv("epi",epi);draw()};
 setInterval(()=>{if(!wl&&document.visibilityState==="visible")lock()},30000);
+if("speechSynthesis" in window)speechSynthesis.onvoiceschanged=()=>{if(tab==="voice")draw()};
+document.addEventListener("click",()=>{try{const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u)}catch(e){}},{once:true});
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let hf=false,srec=null,wl=null,talking=false,hmsg="",gv=ld("gv",{});
 const vgen=a=>gv[a.id]||a.g;
@@ -450,11 +454,29 @@ async function lock(){try{if("wakeLock" in navigator){wl=await navigator.wakeLoc
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&!wl)lock()});
 document.addEventListener("click",()=>{if(!wl)lock()},{once:true});lock();
 function pickV(g){if(!("speechSynthesis" in window))return null;const f=/female|woman|samantha|victoria|karen|moira|tessa|fiona|zira|hazel|susan|aria|jenny|serena|allison|\bava\b|nicky|google us english/i,m=/\bmale\b|daniel|\balex\b|\bfred\b|david|\bmark\b|george|\bguy\b|oliver|\btom\b|aaron|arthur|rishi|ryan/i;return speechSynthesis.getVoices().filter(x=>/^en/i.test(x.lang)).find(x=>(g==="f"?f:m).test(x.name))||null}
-function say(t,done){try{srec&&srec.abort()}catch(e){}
- if(!("speechSynthesis" in window)){done&&done();return}
- speechSynthesis.cancel();const g=vgen(CA()),p=pickV(g),u=new SpeechSynthesisUtterance(t);
- if(p){u.voice=p;u.lang=p.lang;u.pitch=1}else u.pitch=g==="f"?1.3:.85;
- u.onend=u.onerror=()=>{talking=false;done&&done()};talking=true;try{speechSynthesis.speak(u)}catch(e){talking=false;done&&done()}}
+function vlog(x){window.__vl=((window.__vl||[]).concat(x)).slice(-4)}
+function beep(){try{const c=new (window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.frequency.value=660;g.gain.value=.15;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.4);vlog("beep "+c.state)}catch(e){vlog("beep failed")}}
+const spokenText=t=>String(t).replace(/\(Source:[^)]*\)/g,"").replace(/\s+/g," ").trim();
+function mkUtt(t,a){const g=vgen(a),p=pickV(g),u=new SpeechSynthesisUtterance(spokenText(t));
+ if(p){u.voice=p;u.lang=p.lang;u.pitch=1}else{u.lang="en-US";u.pitch=g==="f"?1.3:.85}
+ u.rate=1;u.volume=1;u.onstart=()=>{window.__started=Date.now();vlog("voice started")};u.onerror=e=>vlog("error "+((e&&e.error)||"unknown"));(window.__u=window.__u||[]).push(u);if(window.__u.length>30)window.__u.shift();return u}
+function say(t,done,who){
+ if(!("speechSynthesis" in window)){hmsg=" This browser can\u2019t speak replies.";done&&done();return}
+ const syn=window.speechSynthesis,a=who||CA();
+ const go=()=>{try{syn.resume()}catch(e){}
+  let u;try{u=mkUtt(t,a)}catch(e){done&&done();return}
+  let fin=false;const end=()=>{if(fin)return;fin=true;talking=false;done&&done()};
+  u.onend=()=>{vlog("voice ended");end()};u.onerror=e=>{vlog("error "+((e&&e.error)||"unknown"));end()};talking=true;
+  try{syn.speak(u)}catch(e){end()}
+  setTimeout(()=>{if(!fin&&!syn.speaking&&!syn.pending)end()},Math.max(4000,String(t).length*120))};
+ if(syn.speaking||syn.pending){syn.cancel();setTimeout(go,150)}else go()}
+function sayQ(t,a){if(!("speechSynthesis" in window))return;try{speechSynthesis.resume();speechSynthesis.speak(mkUtt(t,a))}catch(e){}}
+function voiceInfo(){if(!("speechSynthesis" in window))return "Spoken replies are not supported in this browser.";const n=speechSynthesis.getVoices().length,emb=(window.self!==window.top)||/; wv\)/.test(navigator.userAgent);
+ return (n?n+" voices available on this device.":"No voices found yet. Install a text-to-speech voice in your phone settings.")+(emb?" You seem to be inside another app, which can block sound. Open the site directly in Chrome.":"")+(window.__vl&&window.__vl.length?" Last voice events: "+window.__vl.join(", ")+".":"")}
+function testVoice(){if(!("speechSynthesis" in window)){hmsg=" This browser can\u2019t speak replies.";draw();return}
+ window.__started=0;hmsg=" You should hear a beep, then a voice. Tell me which one you hear.";beep();
+ setTimeout(()=>say("This is "+CA().n+". Can you hear me?"),700);
+ setTimeout(()=>{if(!window.__started)hmsg=" The beep played but the voice did not start. Check that your phone has a text-to-speech engine, and that sound is allowed for this page.";if(tab==="voice"||tab==="chat"||tab==="group")draw()},3500)}
 function listen(){if(DICT||!hf||!SR||talking)return;try{srec=new SR()}catch(e){return}srec.lang="en-US";
  srec.onresult=e=>{let t=e.results[0][0].transcript;const m=t.match(/^\s*(?:hey\s+)?(\w+)[,.]?\s*(.*)$/i);
   if(m){const f=A.find(a=>a.n.toLowerCase()===m[1].toLowerCase());if(f){cur=f.id;t=m[2]}}
@@ -491,7 +513,7 @@ async function ask(t){const a=CA(),b=br[a.id];if(busy)return;remember(t,a);
  if(hf)say(rp,listen);else if(gs.speak)say(rp)}
 V.chat=()=>{const a=CA(),h=br[a.id].hist;
  const intro=h.length?"":`<div class="m a">${esc(a.n)} online. “${esc(a.q||"")}” ${SAMPLE?"Talk to me about anything.":"Ask me about anything I know."} Teach me with: learn: title | text | source.</div>`;
- return `<div id="log">${intro}${h.map((m,i)=>m.r==="u"?`<div class="m u">${esc(m.t)}</div>`:`<div class="m a">${esc(m.t)}<div class="fbk"><button data-a="fb" data-i="${i}|1" aria-label="Helpful" aria-pressed="${m.f==="up"}">👍</button><button data-a="fb" data-i="${i}|0" aria-label="Not helpful" aria-pressed="${m.f==="down"}">👎</button></div></div>`).join("")}${busy?`<div class="m a">Thinking…</div>`:""}</div><div class="row"><input id="q" placeholder="Ask ${a.n}" aria-label="Message"><button data-a="hf" aria-pressed="${hf}" aria-label="Hands-free voice">🎙</button><button data-a="send">Send</button></div>`};
+ return `<div id="log">${intro}${h.map((m,i)=>m.r==="u"?`<div class="m u">${esc(m.t)}</div>`:`<div class="m a">${esc(m.t)}<div class="fbk"><button data-a="fb" data-i="${i}|1" aria-label="Helpful" aria-pressed="${m.f==="up"}">👍</button><button data-a="fb" data-i="${i}|0" aria-label="Not helpful" aria-pressed="${m.f==="down"}">👎</button></div></div>`).join("")}${busy?`<div class="m a">Thinking…</div>`:""}</div><div class="row"><input id="q" placeholder="Ask ${a.n}" aria-label="Message"><button data-a="spk" aria-pressed="${!!gs.speak}" aria-label="Speak replies">🔊</button><button data-a="send">Send</button></div>`};
 const v0=V.voice;
 V.voice=()=>{const a=CA();return v0()+`<h3>Real AI</h3><div class="box"><p class="st">${SAMPLE?"Replies come from a real AI, using this assistant’s personality, its approved knowledge, your chat and what it has learned about you.":"Real AI replies are unavailable here, so offline answers are used."}</p></div><h3>What I know about you</h3><div class="box">${prof.map(p=>`<div>${esc(p.t)} <button class="sm" data-a="pf" data-i="${p.id}">Forget</button></div>`).join("")||'<p class="st">Nothing yet. The assistants learn it from your chats, and you can remove anything.</p>'}</div>`};
 act.fb=i=>{const [k,x]=i.split("|"),b=br[cur],m=b.hist[+k];if(!m)return;m.f=x==="1"?"up":"down";b.fb=(b.fb||[]).concat({u:x==="1",t:m.t.slice(0,140)}).slice(-12);sv("b:"+cur,b);draw()};
