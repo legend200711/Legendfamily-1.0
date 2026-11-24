@@ -1,0 +1,21 @@
+THE LEGENDARY TWELVE - upload steps (phone only, free)
+
+FIRST TIME
+1. In Chrome on your phone, open github.com and sign in.
+2. Tap + > New repository. Name it legendary-twelve. Set it to Public. Tap Create repository.
+3. Tap "uploading an existing file". Unzip this package first, then select ALL files in it
+   (index.html, sw.js, manifest.webmanifest and the four .png icons). Tap Commit changes.
+4. Go to Settings > Pages. Under Branch pick main and folder / (root). Tap Save.
+5. Wait about a minute. Your site opens at https://YOUR-USERNAME.github.io/legendary-twelve/
+6. Open it in Chrome > menu > Add to Home screen.
+
+UPDATING LATER
+Open the repository > Add file > Upload files > upload index.html and sw.js (they replace the old ones)
+> Commit changes. Close the app fully and open it again.
+
+NOTES
+- Everything runs offline in your phone. No accounts, no cloud AI.
+- What you teach the assistants is saved in the browser on your phone. Use Control > Export all
+  now and then and save the text somewhere safe.
+- Keep the repository Public only if you are okay with the app itself being public.
+  It contains no personal data; your teaching stays on your phone.
