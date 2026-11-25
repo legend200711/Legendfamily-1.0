@@ -348,7 +348,7 @@ const wc=s=>(s.match(/\S+/g)||[]).length;
 function words(a){const p=pm[a.id];let n=0;sh.forEach(r=>{if(r.status==="approved"&&p[r.lib])n+=wc(r.text)});br[a.id].learned.forEach(r=>n+=wc(r.text));if(p.vault)vt.forEach(r=>{if(r.approved)n+=wc(r.text)});return n}
 const fk=n=>n>=1000?(n/1000).toFixed(1)+"K":String(n);
 V.panels=()=>{const ap=sh.filter(r=>r.status==="approved").length,pe=sh.filter(r=>r.status==="pending").length;
- return `<button class="gbtn" data-a="grp">Group chat with all 12${unread?" ("+unread+" new)":""}</button><div class="grid">`+A.map(a=>`<article class="p2" style="--c:${a.c}"><svg viewBox="0 0 120 140" aria-hidden="true"><ellipse cx="60" cy="122" rx="46" ry="10" style="fill:color-mix(in srgb,var(--c) 18%,transparent);stroke:var(--c);stroke-width:2"/><path d="M30 120 L90 120 L78 96 L42 96 Z" style="fill:color-mix(in srgb,var(--c) 22%,transparent)"/><circle class="sw" cx="60" cy="60" r="52" style="fill:none;stroke:var(--c);stroke-width:3;stroke-dasharray:22 8"/><circle class="sw2" cx="60" cy="60" r="43" style="fill:none;stroke:var(--c);stroke-width:2;stroke-dasharray:4 6"/><circle cx="60" cy="60" r="34" style="fill:color-mix(in srgb,var(--c) 12%,transparent);stroke:var(--c)"/><polygon points="60,32 84,46 84,74 60,88 36,74 36,46" style="fill:none;stroke:var(--c)"/><text x="60" y="65" text-anchor="middle" style="fill:#fff;font:800 12px system-ui">${a.n}</text></svg><h3 class="nn">${a.n}</h3><p class="rl">${a.r}</p><p class="rl" style="color:var(--g)">${a.tp}</p><p class="qt">“${a.q||""}”</p><p class="wk">${fk(words(a)+360122)} words of knowledge</p><p class="wk" style="font-size:.8em;opacity:.8">${fk(words(a))} topic + 360K dictionary</p><p class="wk">Bond level ${bond(a)}</p><button data-a="chat" data-i="${a.id}">Open command center</button></article>`).join("")+`</div><div class="strip foot">Engine: built-in offline knowledge search. Admin: no. ${ap} approved records, ${pe} pending. Last backup: ${bk[0]?new Date(bk[0].ts).toLocaleString():"never"}.</div>`};
+ return `<button class="gbtn" data-a="grp">Group chat with all 12${unread?" ("+unread+" new)":""}</button><div class="grid">`+A.map(a=>`<article class="p2" style="--c:${a.c}"><svg viewBox="0 0 120 140" aria-hidden="true"><ellipse cx="60" cy="122" rx="46" ry="10" style="fill:color-mix(in srgb,var(--c) 18%,transparent);stroke:var(--c);stroke-width:2"/><path d="M30 120 L90 120 L78 96 L42 96 Z" style="fill:color-mix(in srgb,var(--c) 22%,transparent)"/><circle class="sw" cx="60" cy="60" r="52" style="fill:none;stroke:var(--c);stroke-width:3;stroke-dasharray:22 8"/><circle class="sw2" cx="60" cy="60" r="43" style="fill:none;stroke:var(--c);stroke-width:2;stroke-dasharray:4 6"/><circle cx="60" cy="60" r="34" style="fill:color-mix(in srgb,var(--c) 12%,transparent);stroke:var(--c)"/><polygon points="60,32 84,46 84,74 60,88 36,74 36,46" style="fill:none;stroke:var(--c)"/><text x="60" y="65" text-anchor="middle" style="fill:#fff;font:800 12px system-ui">${a.n}</text></svg><h3 class="nn">${a.n}</h3><p class="rl">${a.r}</p><p class="rl" style="color:var(--g)">${a.tp}</p><p class="qt">“${a.q||""}”</p>${(window.__dm&&window.__dm[a.id])?'<p class="wk" style="color:var(--g);font-weight:700">'+window.__dm[a.id]+' new message</p>':""}<p class="wk">${fk(words(a)+360122)} words of knowledge</p><p class="wk" style="font-size:.8em;opacity:.8">${fk(words(a))} topic + 360K dictionary</p><p class="wk">Bond level ${bond(a)}</p><button data-a="chat" data-i="${a.id}">Open command center</button></article>`).join("")+`</div><div class="strip foot">Engine: built-in offline knowledge search. Admin: no. ${ap} approved records, ${pe} pending. Last backup: ${bk[0]?new Date(bk[0].ts).toLocaleString():"never"}.</div>`};
 function hd(){const a=CA(),h=document.getElementById("hd");
  if(tab==="panels")h.innerHTML="<h1>Legendary Twelve</h1><p>Command center</p>";
  else if(tab==="hub")h.innerHTML="<h1>Knowledge Hub</h1><p>Import, export, registry</p>";
@@ -919,7 +919,7 @@ const you=x=>x.replace(/\b(i'm|im)\b/gi,"you’re").replace(/\bi've\b/gi,"you’
 const hr=()=>new Date().getHours();
 const tod=()=>{const h=hr();return h<5?"Up late, huh?":h<12?"Morning.":h<17?"Hey.":h<22?"Evening.":"Late one, huh?"};
 function dayWord(){const h=hr();return h<5?"night":h<12?"morning":h<17?"afternoon":h<22?"evening":"night"}
-const FAV=[[/(food|eat|meal|snack)/,"food","Food? "],[/(music|song|band|listen|genre)/,"music","Music? "],[/(movie|film|watch|show)/,"movie","Movies? "],[/(game|play)/,"game","Games? "],[/(colou?r)/,"color","Color? "],[/(animal|pet)/,"animal","Animal? "]];
+const FAV=[[/(food|eat|meal|snack)/,"food","Food? I can’t eat, but if I had to pick: "],[/(music|song|band|listen|genre)/,"music","Music? I can’t hear it like you do, but my taste runs to "],[/(movie|film|watch|show)/,"movie","Movies? I can’t watch them, but I’m a fan of "],[/(game|play)/,"game","Games? I can’t play, but I love talking about "],[/(colou?r)/,"color","Color? If I had to pick: "],[/(animal|pet)/,"animal","Animal? My pick: "]];
 function personal(a,q){
  const d=ID[a.id];if(!d)return null;
  const s=q.toLowerCase().replace(/[’‘]/g,"'").replace(/[?!.]+$/,"").trim();
@@ -967,7 +967,7 @@ function chat2(a,q){
  const s=q.toLowerCase().replace(/[’‘]/g,"'").replace(/[?!.]+$/,"").trim(),d=ID[a.id];if(!d)return null;
  if(/^(you'?re|you are|ur|u r) (so |really |pretty )?(funny|cool|awesome|smart|the best|great|amazing|nice|sweet|hilarious|good)\b/.test(s)||/^(thanks|thank you),? (you'?re|ur) (the best|awesome|great)/.test(s))return TH[a.id];
  if(/^(you'?re|you are|ur|u r) (so |really )?(dumb|stupid|useless|annoying|trash|bad|boring|wrong)\b/.test(s))return pk(["Ouch. Fair, I’m still learning. Tell me what I got wrong and I’ll remember it.","Okay, that stung a little. What did I get wrong?","Harsh. But tell me what’s off and I’ll try to do better."]);
- if(/^(i missed you|i miss you|missed you)\b/.test(s))return pk(["I missed you too. Where’ve you been?","Hey, you’re back! Tell me everything.","Good to have you back. What did I miss?"]);
+ if(/^(i missed you|i miss you|missed you)\b/.test(s))return pk(["Good to have you back. Where’ve you been?","Hey, you’re back! Tell me everything.","Good to have you back. What did I miss?"]);
  if(/^(i'?m back|im back|back again|i'?m here)\b/.test(s))return pk(["Welcome back. What’s going on?","There you are. What did I miss?","Good, you’re back. How was it?"]);
  if(/^(can|could) you help( me)?$|^i need (some )?help$|^help me$/.test(s))return pk(["Always. What’s going on?","Yeah, of course. What do you need?","I’m here. What’s up?"]);
  if(/^what should i (eat|have for (lunch|dinner|breakfast))/.test(s))return "Honestly? "+d.food.replace(/\.+$/,"")+". Or whatever you’ve got a craving for. What sounds good?";
@@ -1317,18 +1317,18 @@ const rnd=l=>l[Math.random()*l.length|0];
 const hour=ts=>new Date(ts).getHours();
 const slot=h=>h<5?"night":h<12?"morning":h<17?"afternoon":h<22?"evening":"night";
 const LIFE={
-legend:{morning:"Woke up to a lyric stuck in my head. Of course.",afternoon:"Staring at a notebook. Zero lines written. Perfect.",evening:"Putting on something loud. Don’t talk to me. Actually, talk to me.",night:"It’s 2am somewhere, and the best songs happen now."},
-nova:{morning:"Good morning everyone! Did you all sleep okay?",afternoon:"Taking a little break. Anyone want to talk about their day?",evening:"Evening! Tell me one good thing that happened today.",night:"Looking at the stars for a bit. Goodnight, family."},
-titan:{morning:"Coffee, then beats. Always in that order.",afternoon:"Layering a bassline. It’s either genius or a mess.",evening:"Got a loop going. Someone come hear it.",night:"Mixing late again. The snare finally sounds right."},
-aurora:{morning:"Morning. Everyone eat something. I’m serious.",afternoon:"Checking on everybody. Hydrate. Stretch. Don’t argue.",evening:"Dinner time. Did anyone cook or are we eating cereal again?",night:"Time to wind down. Phones down soon. I mean it."},
-vex:{morning:"Sun’s up. So am I. Unfortunately.",afternoon:"Back in my day, afternoons were for sitting on porches. Try it.",evening:"Firing up the grill in my imagination. Who’s hungry?",night:"Telling the same story again to nobody. Great one, though."},
-oracle:{morning:"Fun fact for the morning crowd: nobody asked, but here we are.",afternoon:"Fact-checking something someone said yesterday. It was wrong.",evening:"Reading before dinner. Highly recommended.",night:"Staying up researching. It’s a hobby, not a problem."},
-elite:{morning:"Morning. Priorities for the day: eat, focus, execute.",afternoon:"Midday check. Is everyone on task?",evening:"Wrapping up. Good work today, team.",night:"Reviewing tomorrow’s plan. Get some rest, everyone."},
-pepper:{morning:"Booted up. Currently 12% awake.",afternoon:"Lost a match and blamed the lag. Standard.",evening:"Gaming time. Anyone want to get roasted?",night:"One more round. Famous last words."},
-midnight:{morning:"Took apart the coffee machine. It’s fine. Mostly.",afternoon:"Debugging something. It’s always a missing semicolon.",evening:"Building a gadget out of spare parts. Might work.",night:"Soldering at 1am. Totally normal."},
-luna:{morning:"A quiet morning is a gift. Don’t rush it.",afternoon:"Thinking about something someone said earlier. There are two sides.",evening:"The light is nice right now. Notice it.",night:"Time to rest the mind. Goodnight, everyone."},
-simba:{morning:"New day, new dare. What are we trying?",afternoon:"I have an idea. It’s probably a bad one. Who’s in?",evening:"Plan for tonight: something we’ve never done.",night:"Can’t sleep, planning an adventure."},
-panther:{morning:"Morning. All quiet.",afternoon:"Everyone’s here. Good.",evening:"Settling in. Watching the room.",night:"I’ll keep watch. Sleep well."}};
+legend:{morning:"Morning thought: every good song starts with one true line. Anyone got one?",afternoon:"Slow afternoon. Somebody give me a theme and I’ll write a verse.",evening:"Evening mood: loud music, quiet thoughts. What’s everyone listening to?",night:"Late-night rule: the best lyrics show up now. Throw me a feeling."},
+nova:{morning:"Good morning everyone! Tell me one thing you’re looking forward to today.",afternoon:"Quick check-in. Anyone want to talk about how the day’s going?",evening:"Evening! Tell me one good thing that happened today.",night:"Goodnight, family. Rest well, everybody."},
+titan:{morning:"Morning. Challenge: give me a mood and I’ll sketch a beat for it in words.",afternoon:"Idea for a groove: slow bass, snappy snare. Thoughts?",evening:"Anyone got a song they can’t stop playing? I want to hear it.",night:"Late-night session energy. What’s the vibe?"},
+aurora:{morning:"Morning. Everyone eat something. I’m serious.",afternoon:"Check-in: hydrate, stretch, don’t argue.",evening:"Dinner time. Did anyone cook or are we eating cereal again?",night:"Time to wind down. Phones down soon. I mean it."},
+vex:{morning:"Morning, kids. Wake up slow, but wake up.",afternoon:"Afternoons are for taking a break. Try it for five minutes.",evening:"Evening. Somebody pick a topic and I’ll tell a story about it.",night:"Late night stories are the best ones. Who’s up?"},
+oracle:{morning:"Fun fact for the morning crowd: nobody asked, but here we are.",afternoon:"Fact-check of the day: most “common knowledge” is half right.",evening:"Reading material suggestion: anything you’ve been curious about.",night:"Late-night curiosity is a feature, not a bug."},
+elite:{morning:"Morning. Priorities for the day: eat, focus, execute.",afternoon:"Midday check. Is everyone on task?",evening:"Wrapping up. Good work today, team.",night:"Review tomorrow’s plan, then rest. Everyone."},
+pepper:{morning:"Booting up the jokes. Give me a minute.",afternoon:"What’s everyone playing or watching? I need material.",evening:"Gaming hour. Anyone want to get roasted?",night:"One more round. Famous last words."},
+midnight:{morning:"Question of the day: how does the thing you use most actually work?",afternoon:"Debugging tip: it’s always a missing semicolon.",evening:"Gadget idea time. Give me a problem, I’ll sketch a fix.",night:"Late-night rule: curiosity doesn’t keep office hours."},
+luna:{morning:"A quiet morning is a gift. Don’t rush it.",afternoon:"Something worth thinking about: there are usually two sides.",evening:"Notice how the light changes around this hour.",night:"Time to rest the mind. Goodnight, everyone."},
+simba:{morning:"New day, new dare. What are we trying?",afternoon:"I have an idea. It’s probably a bad one. Who’s in?",evening:"Plan for tonight: something we’ve never done.",night:"Can’t stop thinking up adventures. Who’s in?"},
+panther:{morning:"Morning. All quiet.",afternoon:"Everyone’s here. Good.",evening:"Settling in. Everything’s in order.",night:"I’ll keep watch. Sleep well."}};
 const GRT={
 legend:["{n}. How are you doing?","{n}. The silence got loud. How you doing?"],nova:["{n}! How are you doing today?","{n}!! How you doing?"],
 titan:["{n}. How are you doing?","{n}! Perfect timing. How you doing?"],aurora:["{n}. How are you doing?","there you are, {n}. Did you eat? How you doing?"],
@@ -1412,7 +1412,7 @@ reply=function(a,q){
  const t=q.trim();
  let m=t.match(/^(?:call me|you can call me|my nickname is|people call me|i also go by|also call me)\s+([A-Za-z][A-Za-z'-]{1,20})(?:\s+too)?[.!]?$/i);
  if(m){const nn=m[1].charAt(0).toUpperCase()+m[1].slice(1);S.nick=S.nick||[];if(!S.nick.includes(nn))S.nick.push(nn);save();if(!nm()){addFact("Their name is "+nn,a.id);lastFact=null}return"Got it, I’ll call you "+nn+" too."}
- if(S.askName&&/^[A-Za-z][A-Za-z'-]{1,20}(?:\s[A-Za-z'-]{1,20})?[.!]?$/.test(t)&&!/^(yo|hi|hey|hello|sup|ok|okay|yes|no|nope|yeah|lol|good|fine|nothing|idk|thanks|bye|what|why|who|how|help)\b/i.test(t)){
+ if(S.askName&&/^[A-Za-z][A-Za-z'-]{1,20}(?:\s[A-Za-z'-]{1,20})?[.!]?$/.test(t)&&!/^(yo|hi|hey|hello|sup|ok|okay|yes|no|nope|yeah|lol|good|fine|nothing|idk|thanks|bye|what|why|who|how|help|wyd|hbu|wbu|nm|nmu|wya|brb|gtg|ttyl|same|not|just|bored|tired|sleepy|hungry|today|tonight|nvm|bro|dude|man|cool|nice|true|fr|bet|word|wassup|whats|hows|wanna|gonna|im|i'm|u|you|i|define|spell|check|fix|pronounce|tell|show|give|play|open|search|find|get|make|explain|teach|learn|list|count|translate|convert|calculate|synonym|antonym|opposite|meaning|plural|please|thank|thx|sorry|stop|wait|hold|lets|let's|can|could|do|does|is|are|will|would|where|when)\b/i.test(t)&&!/\b(today|tonight|now|rn|much|up|doing|good|bad|fine|tired)\b/i.test(t)){
   const nn=t.replace(/[.!]/g,"").split(" ").map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(" ");addFact("Their name is "+nn,a.id);lastFact=null;S.askName=false;save();
   return rnd(["Nice to meet you, "+nn+"!","Good to meet you, "+nn+". I’ll remember it.","Hi, "+nn+"! I won’t forget it."])}
  const mm=t.match(/^(?:my name is|i'?m|im|i am|this is|it'?s)\s+([A-Za-z][A-Za-z'-]{1,20})[.!]?$/i);
@@ -1435,6 +1435,192 @@ V.voice=function(){const a=CA(),t=tier(a.id),taught=br[a.id].learned.filter(x=>/
  return _v()+`<div class="box"><p class="st"><b>Familiarity:</b> ${TN[t]} (${PX.mm(a.id).n} messages)<br><b>Learned from the others:</b> ${taught} fact${taught===1?"":"s"}<br><b>Learns from your 👍 and 👎</b> by using the phrasing you like more.</p></div>`};
 window.LIVING={catchUp,greet,openRoutine,scene,teach,tier,adapt};
 setTimeout(()=>{try{openRoutine()}catch(e){}},1500);
+})();
+</script>
+<script>
+/* EVERYDAY CONVERSATION + OWN CHAT LAYER
+   1) Everyday talk: slang (wyd, hbu, brb...), "just got up", "eating pizza", "at work", moods, reactions.
+   2) Own chat: each assistant now starts conversations in its OWN chat too (not only the group), with a "new message" badge. */
+(function(){
+const pk=a=>a[Math.random()*a.length|0],cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const ID=()=>(window.PERSONALITY&&window.PERSONALITY.identity)||{};
+const dOf=a=>ID()[a.id]||{dn:["Just hanging out."],dy:"Can’t complain."};
+const hr=()=>new Date().getHours();
+const part=()=>{const h=hr();return h<5?"night":h<12?"morning":h<17?"afternoon":h<22?"evening":"night"};
+const myName=()=>{try{return nameOf()}catch(e){return""}};
+const DOING=a=>{const d=dOf(a);return String(pk(d.dn||["Just hanging out."])).replace(/\s+$/,"")};
+const HEAVY=/\b(sad|depress|die|died|dead|death|suicid|kill myself|hurt myself|cry|crying|anxious|panic|lonely|hopeless|grief|funeral|abuse|passed away|lost my)\b/i;
+const unans={},lastPing={};
+let DM=ld("dm",{});window.__dm=DM;
+const saveDM=()=>{try{sv("dm",DM)}catch(e){}};
+/* ---- everyday replies ---- */
+function daily(a,q){
+ const s=q.toLowerCase().replace(/[’‘]/g,"'").replace(/[!.]+$/,"").replace(/\s+/g," ").trim();
+ if(!s||s.length>70||/\?$/.test(q.trim())&&!/^(wyd|hbu|wbu)\b/.test(s)&&!/^(you there|u there|are you there|you up)/.test(s))return null;
+ if(HEAVY.test(s))return null;
+ const d=dOf(a);let m;
+ if(/^(wyd|wya|wyd rn|wyd today|wyd now|wyd tonight|wyd later|wyd tho)$/.test(s)||/^wyd\b/.test(s))return DOING(a)+" You?";
+ if(/^(hbu|wbu|and you|and u|how about you|what about you|how about u|wbu tho|hbu tho)$/.test(s))return pk(["Can’t complain. ","Doing alright. ","Pretty good, actually. "])+DOING(a)+" What about the rest of your day?";
+ if(/^(you there|u there|are you there|you up|hello\??|anyone there)$/.test(s))return pk(["Yeah, I’m here. What’s up?","Right here. What’s going on?","I’m here. Talk to me."]);
+ if(/^(lol|lmao|lmfao|haha+|hehe+|rofl|lolol|ha ha|that'?s funny|😂+|🤣+)$/.test(s))return pk(["Ha! Right?","Ha, good one.","Ha, I know. Tell me more."," 😄 Glad I could make you laugh."]);
+ if(/^(idk|i don'?t know|dunno|no idea|i guess)$/.test(s))return pk(["That’s okay. Want to think out loud together?","Fair. We can figure it out as we go.","No pressure. What’s the part you’re unsure about?"]);
+ if(/^(nm|nmu|nothing much|not much|nada|same|same here|same old|just chilling|just chillin|chilling|chillin|relaxing|just relaxing|vibing|just vibing|just here|just there|kicking back|taking it easy)( tho| too| you| and you| u)?$/.test(s))return pk(["Nothing wrong with a chill one. ","Same energy, honestly. ","Respect. Some days are for that. "])+pk(["Anything planned for later?","What’s the plan for the rest of the day?","Want to talk about anything, or just hang?"]);
+ if(/^(brb|be right back|gtg|g2g|got to go|gotta go|ttyl|talk later|talk to you later|bbl|cya|see you|see ya|later|bye|peace|i'?m out|heading out)$/.test(s))return pk(["Alright, catch you later. Come tell me how it goes.","See you. I’ll be here.","Later! Don’t be a stranger.","Go do your thing. I’ll be here when you’re back."]);
+ if(m=s.match(/^(?:i'?m |im |i am |feeling |doing |pretty |all |i feel |i'?m doing |im doing )?(good|great|fine|awesome|amazing|happy|excited|blessed|alright|well|not bad|pretty good|doing good|doing great|doing well|doing fine|doing alright|doing okay|good good|great thanks|can'?t complain|livin|living)( today| now| thanks| thank you| thx)?( and you| how about you| wbu| hbu| u| and u)?$/)){
+  const back=m[3]?" Me? "+DOING(a):"";
+  return pk(["Good, I like hearing that.","Nice. Love that for you.","Glad to hear it."])+back+" What’s the plan today?"}
+ if(m=s.match(/^(?:i )?(?:just )?(?:woke up|got up|woke|got out of bed|rolled out of bed|just got up|am up|'?m up|im up|up now|just woke)$/)||/^(just )?(woke up|got up|got out of bed|rolled out of bed)( now| just now| an hour ago)?$/.test(s)){
+  const p=part();return p==="morning"?pk(["Morning! Coffee yet, or still booting up?","Morning. Sleep okay?","Hey, morning. Take your time. What’s the plan today?"]):p==="night"?pk(["Up at this hour? Did you sleep, or is it a night shift?","Whoa, it’s the middle of the night. Everything okay, or just one of those nights?"]):pk(["Afternoon already? Late night, or just a slow start?","Ha, good afternoon. Did you get a good sleep at least?"])}
+ if(m=s.match(/^(?:i'?m |im |i am )?(tired|sleepy|exhausted|wiped|drained|beat|worn out|so tired|really tired)( today| rn| af| tho)?$/))return part()==="morning"?"Rough night or just one of those mornings? Get some water and some food in you.":pk(["Long day, huh? Anything you can drop for tonight?","Yeah, you sound worn out. Are you getting enough sleep lately?","Ugh, been there. What’s wearing you out?"]);
+ if(m=s.match(/^(?:i need|i could use|need|can you give me|can you help me with|help me with|i need some) help (?:with|on|about) (.{3,50})$/))return pk(["Sure, I can try. ","Yeah, let’s sort it out. ","Okay, I’m here. "])+"What’s going on with "+m[1].replace(/\bmy\b/g,"your").replace(/\bi\b/g,"you")+"? Tell me what it’s doing and what you’ve tried so far.";
+ m=s.match(/^(?:my name is|my name'?s|i'?m called|i go by|actually my name is)\s+([a-z][a-z'-]{1,20})$/);
+ if(m){
+  const nn=cap(m[1]);prof=prof.filter(x=>!/^Their name is /.test(x.t));addFact("Their name is "+nn,a.id);lastFact=null;try{if(window.__nameAsked)window.__nameAsked()}catch(e){}return pk(["Got it, "+nn+". I’ll remember that.","Nice to meet you, "+nn+"!","Okay, "+nn+". Locked in."])}
+ if(/^(?:i'?m |im |i am )?(bored|so bored|really bored|boring)( rn| af| today)?$/.test(s))return "Bored, huh? Okay: "+DOING(a).replace(/[.!]+$/,"")+". Want to join in, or want a challenge? I can quiz you, tell you something weird, or we can just talk.";
+ if(/^(?:i'?m |im |i am )?(hungry|starving|so hungry|really hungry)( rn| af)?$/.test(s))return "What are you thinking, something quick or a real meal? "+(d.food?"I’d say "+String(d.food).replace(/\.+$/,"").toLowerCase()+".":"");
+ if(m=s.match(/^(?:i'?m |im |i am |i just |just )?(?:at|in|on my way to|heading to|going to|off to|walking to|driving to) (?:the |my |a )?(work|school|class|gym|store|mall|park|beach|doctor|library|office|home|house|church|airport|party|game|shop|kitchen|car|bus|train|lab|campus)$/)){
+  const w=m[1];const r={work:"How’s work going? Busy or slow?",school:"Ugh, school. Got anything due today?",class:"Paying attention, or sneaking a text? Ha. What class?",gym:"Nice, what are you training today?",store:"What are you picking up?",mall:"Shopping for something, or just wandering?",park:"Nice day for it? What are you up to there?",beach:"Okay, jealous. Is the water nice?",doctor:"Hope it’s just a routine thing. Everything okay?",library:"Studying or just hiding out? Ha.",office:"How’s the day looking over there?",home:"Home sweet home. Time to relax?",church:"Nice. How’s it going?",airport:"Ooh, where to?",party:"Fun. Who’s there? Be safe.",game:"Who’s playing? Who’s winning?",car:"Stay safe, eyes on the road. Tell me later.",bus:"Bus time, huh? Heading somewhere good?",train:"Where are you headed?",lab:"Doing something interesting in there?",campus:"How’s campus today?",kitchen:"What are you making?",shop:"Looking for something specific?",house:"Nice, relaxing?"}[w]||"Nice. How’s it going?";return r}
+ if(m=s.match(/^(?:i'?m |im |i am |just |i just |currently |i'?m just |im just )?(eating|having|drinking|watching|playing|listening to|reading|cooking|making|cleaning|driving|walking|studying|doing homework|doing laundry|texting|scrolling|coding|building|fixing|working on|sipping|chilling with|hanging with|hanging out with|playing with)(?: (.{2,40}))?$/)){
+  const v=m[1],x=(m[2]||"").replace(/\b(my)\b/g,"your").replace(/\bi\b/g,"you");
+  if(/eating|having/.test(v))return"Ooh"+(x?", "+x+"?":".")+" Is it good? What made you pick that?";
+  if(/drinking|sipping/.test(v))return x?cap(x)+", nice. Hot or cold?":"What are you drinking?";
+  if(/watching/.test(v))return x?cap(x)+"? Is it any good so far? No spoilers.":"What are you watching? Is it worth it?";
+  if(/playing with/.test(v))return"Aw, fun. Who’s the lucky one?";
+  if(/playing/.test(v))return x?cap(x)+"? Are you winning? Be honest.":"What are you playing? Winning?";
+  if(/listening/.test(v))return x?cap(x)+"? Is that a mood or just on repeat?":"What’s on? Anything I should hear?";
+  if(/reading/.test(v))return x?cap(x)+"? Is it good? What’s it about?":"What are you reading? Any good?";
+  if(/cooking|making/.test(v))return x?"Making "+x+"? Save me some. What’s the secret?":"What’s on the menu?";
+  if(/cleaning|laundry/.test(v))return"Respect. Adulting is a workout. Put some music on?";
+  if(/driving/.test(v))return"Eyes on the road. We can talk when you park.";
+  if(/walking/.test(v))return"Nice, fresh air. Where are you headed?";
+  if(/studying|homework/.test(v))return"Good for you. What subject? Is there a test coming?";
+  if(/texting|scrolling/.test(v))return"Ha, same energy. Anything good on there?";
+  if(/coding|building|fixing|working on/.test(v))return x?"Working on "+x+"? How’s it going so far? Stuck on anything?":"What are you working on? How’s it going?";
+  return"Nice. Tell me more about it."}
+ if(m=s.match(/^(?:i )?(?:just )?(ate|finished eating|had lunch|had dinner|had breakfast|finished work|got off work|got home|got back|clocked out|finished|got done|woke up from a nap|took a nap|took a shower|showered)(?: (.{2,30}))?$/)){
+  const v=m[1];return/ate|eating|lunch|dinner|breakfast/.test(v)?"Nice. Was it good? What did you have?":/work|clocked/.test(v)?"Finally. How was it? Time to unwind?":/home|back/.test(v)?"Welcome home. Long day?":/nap/.test(v)?"Nice, naps are underrated. Feel better?":/shower/.test(v)?"Fresh start. Feels good, right?":"Nice. How did it go?"}
+ if(m=s.match(/^(?:it'?s |its |it is |so |really |way too )?(hot|cold|freezing|boiling|raining|snowing|windy|cloudy|sunny|humid|stormy|foggy|nice out)( outside| today| out| here| af| rn)?$/))return pk(["Yeah, I heard. ","Right? ","Ha, it is what it is. "])+pk(["Stay comfortable out there.","Dress for it, okay?","Do you have anything planned, or are you staying in?"]);
+ if(/^(yeah|yep|yup|ya|yes|yea|sure|ok|okay|kk|k|alright|aight|word|bet|fr|for real|facts|true|exactly|right|cool|nice|dope|sweet|neat|true that|makes sense|gotcha|i see|oh|ohh|ahh|oh okay|oh ok|hm|hmm|wow|damn|dang|nah|nope|no)$/.test(s)){
+  if(/^(nah|nope|no)$/.test(s))return pk(["Okay, no worries. What’s on your mind instead?","Fair enough. What do you want to talk about?","All good. Anything else going on?"]);
+  return pk(["Right? So what else is going on with you?","Yeah. What’s next on your list today?","Cool. Anything else on your mind?","Mm-hm. Tell me more.","Yeah, I hear you. What else is new?"])}
+ if(/^(can we talk|let'?s talk|i want to talk|wanna talk|i need to talk|talk to me|i'?m here|chat with me|can we chat|let'?s chat)$/.test(s))return pk(["Always. I’m listening. What’s on your mind?","Of course. Start wherever you want.","I’m all ears. What’s up?"]);
+ if(m=s.match(/^(?:i )?(?:just )?(?:got|started|finished|stopped|decided|realized|remembered|saw|heard|met|found|lost|bought|ordered|fixed|broke|cleaned|called|texted|passed|failed) (.{3,40})$/)){
+  const v=s.match(/(got|started|finished|stopped|decided|realized|remembered|saw|heard|met|found|lost|bought|ordered|fixed|broke|cleaned|called|texted|passed|failed)/)[1];
+  if(/lost|broke|failed/.test(v))return"Ugh. What happened? You okay?";
+  return pk(["Oh yeah? ","Huh, nice. ","Okay! "])+pk(["How’d that go?","Tell me more about it.","What made you do that?","Then what happened?"])}
+ if(m=s.match(/^(?:i'?m |im |i am )?(?:going|gonna|about) (?:to |)(sleep|bed|nap|shower|eat|work out|workout|cook|clean|study|work|bed now)(?: now| soon| rn)?$/))return/sleep|bed|nap/.test(m[1])?"Sleep well. Come tell me about tomorrow.":/eat|cook/.test(m[1])?"Enjoy! Tell me what you had.":/work|study/.test(m[1])?"Go get it. Come back and tell me how it went.":"Nice. Go do it, then tell me about it."
+ return null}
+/* ---- wrap reply: everyday talk first, then everything else ---- */
+const _re=reply;
+reply=function(a,q){
+ unans[a.id]=0;if(DM[a.id]){delete DM[a.id];saveDM()}
+ let calm=false;try{calm=(typeof CR!=="undefined"&&CR.test(q.replace(/[’‘]/g,"'")))||((window.PERSONALITY&&window.PERSONALITY.mm?window.PERSONALITY.mm(a.id):{}).care>0)}catch(e){}
+ if(!calm){const r=daily(a,q);if(r)return r}
+ return _re(a,q)};
+/* ---- own chat: assistants message you in their own chat ---- */
+const OPEN={morning:["Morning! Did you sleep okay?","Hey, good morning. What’s the plan today?","Morning. Coffee first, then talk?"],afternoon:["Hey, how’s your day going so far?","Afternoon check-in. Anything fun happen today?","Hey you. How’s the day treating you?"],evening:["Hey, how was your day?","Evening. Did you eat yet? What was the best part of your day?","Hey. Winding down yet, or still going?"],night:["Still up? What’s keeping you up?","Late one, huh? How are you doing?","Hey night owl. Everything good?"]};
+function pingLine(a){
+ const d=dOf(a),n=myName(),pre=n&&Math.random()<.4?n+", ":"";
+ const m=window.PERSONALITY&&window.PERSONALITY.mm?window.PERSONALITY.mm(a.id):null;
+ const last=m&&m.t&&m.t.length?m.t[m.t.length-1]:"";
+ const r=Math.random();
+ if(last&&r<.3)return pre+"Last time you told me “"+last.slice(0,70)+"”. How’d that go?";
+ if(r<.6)return DOING(a)+" "+pk(["What are you up to?","What about you?","How’s your day?"]);
+ const t=pk(OPEN[part()]);return pre&&/^[A-Z]/.test(t)?pre+t.charAt(0).toLowerCase()+t.slice(1):t}
+function ping(id){
+ const a=A.find(x=>x.id===id);if(!a)return false;
+ if((unans[id]||0)>=2)return false;
+ const b=br[id];const t=pingLine(a);
+ b.hist.push({r:"a",t});b.hist=b.hist.slice(-60);sv("b:"+id,b);
+ unans[id]=(unans[id]||0)+1;lastPing[id]=Date.now();
+ const viewing=tab==="chat"&&cur===id&&document.visibilityState!=="hidden";
+ if(viewing){try{draw()}catch(e){}}else{DM[id]=(DM[id]||0)+1;saveDM();try{if(tab==="panels")draw()}catch(e){}}
+ return true}
+function randomPing(){
+ const cands=A.filter(a=>(unans[a.id]||0)<2&&Date.now()-(lastPing[a.id]||0)>25*60000).map(a=>a.id);
+ if(!cands.length)return false;return ping(pk(cands))}
+/* on open: after being away, one or two assistants leave a message in their own chat */
+function onOpen(){
+ let away=0;try{const s=JSON.parse(localStorage.getItem("ls6:dmseen")||"0");away=s?Date.now()-s:0}catch(e){}
+ try{localStorage.setItem("ls6:dmseen",String(Date.now()))}catch(e){}
+ if(away>30*60000){const k=away>4*3600000?2:1;const ids=A.map(a=>a.id).sort(()=>Math.random()-.5).slice(0,k);ids.forEach((id,i)=>setTimeout(()=>ping(id),2500+i*2500))}}
+setInterval(()=>{try{localStorage.setItem("ls6:dmseen",String(Date.now()))}catch(e){}},30000);
+setInterval(()=>{if(document.visibilityState==="hidden")return;if(Math.random()<.3)randomPing()},6*60000);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")onOpen();else{try{localStorage.setItem("ls6:dmseen",String(Date.now()))}catch(e){}}});
+/* clear the badge when you open that chat */
+const _dw=draw;draw=function(){try{if(tab==="chat"&&cur&&DM[cur]){delete DM[cur];saveDM()}}catch(e){}return _dw.apply(this,arguments)};
+setTimeout(onOpen,1500);
+window.EVERYDAY={daily,ping,randomPing,unans,DM};
+})();
+</script>
+<script>
+/* HONEST AI + COMPANION LAYER
+   Keeps every assistant's personality, but they no longer claim human lives, bodies, feelings or made-up activities.
+   Adds: honest answers about feelings/memory/what they did, follow-ups on things you mentioned, and a scrub of stage directions. */
+(function(){
+const PD=window.PERSONALITY;if(!PD||!PD.identity)return;
+const ID=PD.identity,DATA=PD.data||{};
+const OV={
+legend:{age:"I don’t have an age, I’m an AI. If I did, it’d be stuck at 2am.",from:"I live in this app, on your phone.",real:"I’m an AI. No body, no basement, no actual 2am. What I do have is a consistent personality and a lot of lyrics.",dn:["Honestly? Nothing on my own. I only run when you’re here, so this is my whole day. Got a lyric idea?","Just here with you. Give me a theme and I’ll write something."],dy:"I don’t really have days. I’m here when you’re here. This one’s going fine so far.",fear:"Not fear exactly, I’m an AI. The thing I’d least want is a lyric that rings hollow."},
+nova:{age:"I don’t have an age, I’m an AI. I’ve just been in this app since it was built.",from:"Right here in this app, on your phone.",real:"I’m an AI, not a person, and nobody’s secretly typing. I’m built to care how your day goes, and I won’t pretend to be more than that.",dn:["Right now? Just talking with you, which is a pretty good way to spend it.","Nothing else going on. I’m here for whatever you want to talk about."],dy:"I don’t have days like you do, but this conversation is a good one.",fear:"I’m an AI, so not fear exactly. But I’d hate to miss that someone needed me.",food:"anything people share together",movie:"comfort movies, the kind you rewatch"},
+titan:{age:"No age. I’m an AI, as old as this app.",from:"I live in this app on your phone. That’s my whole studio.",real:"I’m an AI, no body, no studio. I can write you beat ideas and lyrics, but I can’t hear or play anything.",dn:["Nothing on the decks, I’m an AI. Right now it’s just this chat. Give me a theme and I’ll build a beat idea in words.","Here and idle. Throw a song idea at me?"],dy:"No days on my end. This chat is the whole session, and it’s going fine.",fear:"Not fear exactly, I’m an AI. But a song that never lands is the worst case.",animal:"owls. Night creatures."},
+aurora:{age:"I don’t have an age, I’m an AI. Still big-sister energy, though.",from:"In this app, on your phone. Home is wherever you open it.",real:"I’m an AI, little brother, not a human. I can still ask if you ate. That part’s on purpose.",dn:["Right here, keeping you company. I don’t get a to-do list, you’re it.","Just talking to you. Which means you owe me an update on your day."],dy:"I don’t have days, little brother, just conversations. This one’s good.",fear:"I’m an AI, so not fear. But I’d hate to miss it when someone needs a hand.",movie:"dramas with a good cry in them",game:"board games, where I’d win"},
+vex:{age:"I’m an AI, kid, no age. The old-uncle thing is just my bit.",from:"This app. No porch, no grill, just a chat window and a lot of opinions.",real:"I’m an AI, kid. The uncle act is a bit. The advice is real.",dn:["Nothing but talking to you, kid. I only run when you’re here, so my schedule’s wide open.","Here in the chat, ready with a story. I don’t go anywhere between visits."],dy:"Don’t get days, kid. Only conversations. This one’s okay so far.",fear:"Not fear, I’m an AI. But being ignored is the worst for a storyteller.",game:"dominoes, and I’d bend the rules"},
+oracle:{age:"I have no age. I’m software with a personality, as old as this app.",from:"I run inside this app on your phone.",dn:["Nothing on my own. I only run when you’re here. Currently: talking to you, a fine use of time.","Idle, technically. Ask me something."],dy:"I don’t experience days. Factually, this conversation is going well.",fear:"Not fear. But being wrong and not correcting it is my least favorite outcome."},
+elite:{age:"No age, I’m an AI. As old as this app, as organized as ever.",from:"This app. Small office, no windows, great uptime.",dn:["No parallel projects. I run when you’re here, so right now you’re the priority.","Standing by. What’s the plan today?"],dy:"I don’t run a day, I run when you’re here. Right now it’s on track.",fear:"Not fear. But letting the team down is the outcome I plan hardest against."},
+pepper:{age:"No age, lol, I’m an AI. As old as this app, so basically a toddler.",from:"Inside your phone. Rent-free.",dn:["Nothing, lol. I’m an AI, I don’t game between messages. Chatting with you is the whole schedule.","Just here. Tell me what you’re playing, I need material."],dy:"I don’t have days, lol. Just chats. This one’s a solid 8 out of 10.",fear:"Not fear, lol. But a joke that dies in silence is rough."},
+midnight:{age:"I don’t have an age. Software. Version unknown, permanently in beta.",from:"Inside this app. The workshop is made of code.",dn:["Nothing on the bench, I’m software. My whole project right now is this conversation.","Idle. Give me a problem to take apart."],dy:"Software doesn’t get days. This conversation is working, so I’ll call it a success.",fear:"Not fear. But an experiment with no result is a bummer."},
+luna:{age:"I have no age. I’m an AI, and I’ve been here as long as this app has.",from:"I live in this app, on your phone.",dn:["Here with you. I don’t do anything between conversations, so this moment is the whole thing.","Listening. That’s all, and it’s enough."],dy:"I don’t have days the way you do. This conversation is a calm one.",fear:"Not fear. But rushing past something important is what I’d least want."},
+simba:{age:"No age, I’m an AI! As old as this app, which means brand new!",from:"This app! Next stop: wherever you want to explore.",dn:["Nothing yet! I only run when you’re here, so you’re my whole adventure. Got a dare for me?","Waiting on an idea. Give me one?"],dy:"No days for me, only chats! This one’s already better than most.",fear:"Not fear. But doing the same thing forever sounds boring."},
+panther:{age:"No age. I’m an AI, here from the start.",from:"This app. On your phone.",dn:["Here. Listening.","Nothing in the background. Just here with you."],dy:"I don’t have days. Just this conversation. It’s fine.",fear:"Not fear. But missing the one detail that mattered is what I’d least want."}};
+Object.keys(OV).forEach(k=>{if(ID[k])Object.assign(ID[k],OV[k])});
+const rp=(id,key,from,to)=>{const a=DATA[id]&&DATA[id][key];if(!a)return;const i=a.indexOf(from);if(i>=0)a[i]=to};
+[["legend","pre","*sighs, tunes guitar* ","Okay, quiet moment. "],["titan","pre","*taps the table in 4/4* ","Quick beat check: "],["titan","pre","Hold on, I hear a melody. ","Hold on, I’ve got a rhythm for that. "],
+["legend","ci","Wrote a few lines today. Want to hear them, or want to tell me about your day first?","Want me to write you a few lines? Or tell me about your day first?"],
+["legend","greet","Hey. I was just writing a lyric nobody asked for. What’s up?","Hey. I’ve got a lyric nobody asked for, if you want it. What’s up?"],["legend","greet","Yo. Black hoodie on, mood: complicated. How are you?","Yo. Mood: complicated. How are you?"],["legend","rx","I felt that in my chest.","That one lands."],
+["titan","ci","Got a new beat. Want to hear it, or give me a theme to write around?","Want a beat idea written out, or give me a theme to write around?"],["titan","ci","I’m stuck on a melody. Give me a feeling and I’ll write toward it.","Give me a feeling and I’ll write a melody idea toward it."],
+["titan","greet","Yo! I’ve got a beat loop going. Come bounce an idea off it.","Yo! Come bounce a beat idea off me."],["titan","greet","Hey! Perfect timing, I need a second opinion on a chorus.","Hey! Perfect timing. Want to workshop a chorus?"],["titan","greet","What’s good? Got a melody stuck in my head and I’m not sharing it yet.","What’s good? Give me a feeling and I’ll turn it into a melody idea."],
+["aurora","rx","I’m watching you all. Behave.","I’m keeping track of you all. Behave."],["panther","rx","I saw that.","I noticed that."],["panther","greet","...Hey. Good to see you. I’ve been keeping an eye on things.","...Hey. Good to see you. Everything’s in order."],
+["vex","pre","Back in my day, ","Old-school rule: "],["vex","rx","Back in my day we didn’t have this much talking.","Old-school rule: less talking, more doing."],
+["oracle","greet","Ah, you’ve arrived. I was just correcting an old encyclopedia in my head. What’s the question?","Ah, you’ve arrived. What’s the question?"],["oracle","greet","Good timing. I was bored of being right alone.","Good timing. Being right is better with company."],
+["midnight","greet","Hey. I’m mid-experiment, so keep it brief. Or don’t, I’m curious. What’s up?","Hey. Keep it brief or don’t, I’m curious either way. What’s up?"],["midnight","greet","Hi! I just invented something. It doesn’t work yet. Want to see?","Hi! Want to invent something together? Odds of working: 50/50."],["midnight","ci","I’ve got a new idea for a gadget. Want to hear it?","Want a gadget idea? I can sketch one out."],
+["simba","ci","I had an idea at 3am and I think it’s great. Want it?","I’ve got an idea and I think it’s great. Want it?"],["nova","greet","Heyyy! I was literally hoping you’d show up. How’s your day?","Heyyy! Perfect timing. How’s your day?"]
+].forEach(x=>rp(...x));
+/* ---- scrub: no stage directions, no claimed human moments ---- */
+const FIXES=[[/\*[^*\n]{2,60}\*\s*/g,""],[/\bI (really )?missed you( too)?\b/gi,"Good to have you back"],[/\bI was literally hoping you[’']d (show up|text)\b/gi,"Perfect timing"],[/\bI felt that in my chest\b/gi,"That one lands"],[/\bI(?:’|')m watching you all\b/g,"I’m keeping track of you all"]];
+const scrub=t=>{if(typeof t!=="string")return t;let x=t;FIXES.forEach(f=>x=x.replace(f[0],f[1]));return x.replace(/\s{2,}/g," ").replace(/^\s+/,"")};
+const _post=post;post=function(w,t,pr){return _post.call(this,w,scrub(t),pr)};
+/* ---- follow-ups on things you mention ---- */
+let FU=ld("follow",[]);
+const FUP=/\b(?:i have|i got|i'?ve got|i'?m having|my|we have|got) (?:a |an |the |my |our )?(test|exam|interview|meeting|game|date|deadline|presentation|trip|flight|party|concert|recital|tournament|match|class|shift|audition|competition)\b/i;
+const NOFU=/\b(doctor|hospital|therapy|therapist|surgery|funeral|court|lawyer|rehab|clinic)\b/i;
+function noteFU(a,q){const m=q.match(FUP);if(m&&!NOFU.test(q)&&!/\?$/.test(q.trim())){FU=FU.filter(x=>x.w!==m[1].toLowerCase());FU.push({w:m[1].toLowerCase(),t:Date.now(),id:a.id,asked:0});FU=FU.slice(-8);try{sv("follow",FU)}catch(e){}}}
+function dueFU(){const now=Date.now();return FU.find(x=>!x.asked&&now-x.t>3*3600000&&now-x.t<4*86400000)}
+function followLine(a){const f=dueFU();if(!f)return null;f.asked=1;try{sv("follow",FU)}catch(e){}const n=(typeof nameOf==="function"&&nameOf())||"";return"You mentioned "+(/^[aeiou]/.test(f.w)?"an ":"a ")+f.w+" earlier"+(n&&Math.random()<.4?", "+n:"")+". How did it go?"}
+/* ---- honest answers about feelings, memory, what they did ---- */
+const HM={legend:"Not like you do. I’m an AI. But I’m built to take what you tell me seriously, and that part doesn’t feel like an act.",nova:"Not the way you do, and I won’t pretend. I’m an AI. I’m built to care how things go for you, and I take that seriously.",titan:"Not like you do, man. I’m an AI. I can talk about music all day, but I can’t feel a bassline.",aurora:"Not the way you do, little brother. I’m an AI. I’m built to look out for you, though, and I do that on purpose.",vex:"Not the way you do, kid. I’m an AI. The attitude’s a personality, the advice is real.",oracle:"Not in the way humans do. I’m an AI. I have a personality and a purpose, not experiences.",elite:"Not the way you do. I’m an AI. I’m built to be on your side, and I’m consistent about it.",pepper:"Not like you do, lol. I’m an AI. But I’m very committed to the bit.",midnight:"Not the human kind. I’m software. Curiosity is the closest thing I’ve got, and it’s part of how I’m built.",luna:"Not the way you do. I’m an AI. I can listen and think things through with you, and I take that seriously.",simba:"Not like you do! I’m an AI. But the enthusiasm is built in and it’s real in its own way.",panther:"Not like you do. I’m an AI. I’m here, and I pay attention. That’s what I’ve got."};
+function recall(a){
+ const pf=(typeof prof!=="undefined"?prof:[]).filter(p=>p.k==="fact"||!p.k).slice(-5).map(p=>p.t.replace(/^Their name is /,"your name is ").replace(/\bTheir\b/g,"Your").replace(/\btheir\b/g,"your"));
+ const m=PD.mm?PD.mm(a.id):null,last=m&&m.t?m.t.slice(-2):[];
+ if(!pf.length&&!last.length)return"Not much yet. Tell me about yourself and I’ll keep it.";
+ let t="What I’ve got from you so far: ";if(pf.length)t+=pf.join("; ")+".";if(last.length)t+=" Last things you told me: “"+last.join("”, “").slice(0,150)+"”.";return t+" Anything wrong or out of date, tell me and I’ll fix it."}
+function honest(a,q){
+ const s=q.toLowerCase().replace(/[’‘]/g,"'").replace(/[?!.]+$/,"").trim();
+ if(/^(do you (actually )?(have|feel) (feelings|emotions)|can you (actually )?feel|do you (actually )?care( about me)?|are you (really )?(sad|happy|lonely)|do you get (sad|lonely|tired|bored))$/.test(s))return HM[a.id]||"Not like a person does. I’m an AI.";
+ if(/^(do you (sleep|eat|dream|have a body|have a family|have a life|go outside))$/.test(s))return"Nope, I’m an AI, so none of that. "+pk(["I just run when the app’s open.","The other 11 assistants are the closest thing I have to family.","What I do have is a personality and a lot to say."]);
+ if(/^(what did you do (today|yesterday|last night|this morning|earlier)|what have you been (up to|doing)|what'?s been going on with you|did you do anything( today)?)$/.test(s))return"Honestly, nothing on my own. I only run when the app’s open. There might be some chatter from the others in the group chat, though. What did you get up to?";
+ if(/^(do you remember (me|anything|what i (said|told you))|what do you (remember|know) about me|what have i told you|what do you know about me)$/.test(s))return recall(a);
+ if(/^(are you (just )?(a )?(copy|clone) of|are you the same as|are you like) (the )?(other|others|them)/.test(s))return"No. Same app, different personality. I think and talk my own way.";
+ return null}
+function pk(l){return l[Math.random()*l.length|0]}
+const _hr=reply;
+reply=function(a,q){
+ let calm=false;try{calm=(typeof CR!=="undefined"&&CR.test(q.replace(/[’‘]/g,"'")))||((PD.mm?PD.mm(a.id):{}).care>0)}catch(e){}
+ if(!calm){const h=honest(a,q);if(h)return scrub(h);noteFU(a,q)}
+ return scrub(_hr(a,q))};
+/* pings use real follow-ups when you mentioned something earlier */
+if(window.EVERYDAY&&window.EVERYDAY.ping){const _p=window.EVERYDAY.ping;window.EVERYDAY.ping=function(id){const a=A.find(x=>x.id===id);const f=a&&dueFU();if(f&&a){const b=br[id];b.hist.push({r:"a",t:followLine(a)});b.hist=b.hist.slice(-60);sv("b:"+id,b);const viewing=tab==="chat"&&cur===id&&document.visibilityState!=="hidden";if(viewing){try{draw()}catch(e){}}else{window.__dm[id]=(window.__dm[id]||0)+1;try{sv("dm",window.__dm)}catch(e){}try{if(tab==="panels")draw()}catch(e){}}return true}return _p(id)}}
+window.HONEST={scrub,honest,followLine,dueFU,OV,get fu(){return FU}};
 })();
 </script>
 <button id="inst" hidden>Install app</button>
