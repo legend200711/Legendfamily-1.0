@@ -1,25 +1,9 @@
-Legendary Twelve v20: caring replies for loss and hard news. Re-upload ALL files, replacing the old ones, then reopen the app.
+Legendary Twelve v21 - upload steps (GitHub Pages)
 
-THE LEGENDARY TWELVE - upload steps (phone only, free)
-
-FIRST TIME
-1. In Chrome on your phone, open github.com and sign in.
-2. Tap + > New repository. Name it legendary-twelve. Set it to Public. Tap Create repository.
-3. Tap "uploading an existing file". Unzip this package first, then select ALL files in it
-   (index.html, sw.js, manifest.webmanifest and the four .png icons). Tap Commit changes.
-4. Go to Settings > Pages. Under Branch pick main and folder / (root). Tap Save.
-5. Wait about a minute. Your site opens at https://YOUR-USERNAME.github.io/legendary-twelve/
-6. Open it in Chrome > menu > Add to Home screen.
-
-UPDATING LATER
-Open the repository > Add file > Upload files > upload index.html and sw.js (they replace the old ones)
-> Commit changes. Close the app fully and open it again.
-
-NOTES
-- Just talk to the assistants. They learn facts you tell them ("A capacitor is..."), your name and likes,
-  and if they don't know something they ask you and remember your answer. Say "forget that" to undo.
-- Everything runs offline in your phone. No accounts, no cloud AI.
-- What you teach the assistants is saved in the browser on your phone. Use Control > Export all
-  now and then and save the text somewhere safe.
-- Keep the repository Public only if you are okay with the app itself being public.
-  It contains no personal data; your teaching stays on your phone.
+1. Upload EVERY file in this folder to the root of your repository, replacing the old ones:
+   index.html, sw.js, manifest.webmanifest, the 4 icon .png files, and the 10 dictionary files
+   dict_1.json to dict_10.json (about 16 MB total, they hold the 360,000-word dictionary and spelling list).
+   Tip: on a phone, use "Add file > Upload files" and select them all at once.
+2. Wait a minute for Pages to rebuild, then open the site and reload once.
+3. First open on each device downloads the dictionary once (needs internet, Wi-Fi recommended). After that it works offline.
+4. Tell any assistant your name once ("my name is ...") and they will greet you by name every time.

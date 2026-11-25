@@ -891,7 +891,7 @@ V.voice=function(){const a=CA(),p=P[a.id],m=mm(a.id);
  const bf=byId(FRIENDS[a.id]),rv=byId(RIVALS[a.id]),tf=top?byId(top[0].split("|").find(i=>i!==a.id)):null;
  const row=(l,v)=>`<p class="st"><b>${l}:</b> ${esc(v)}</p>`;
  return _voice()+`<h3>${esc(a.n)}’s personality</h3><div class="box"><b>${esc(p.arch)}</b>`+row("Style",p.style)+row("Humor",p.humor)+row("Interests",p.interests)+row("Habits",p.habits)+row("Feelings",p.emotion)+row("Opinions",p.opinions)+row("Strengths",p.strong)+row("Weaknesses",p.weak)+row("Best friend",bf?bf.n:"")+row("Friendly rival",rv?rv.n:"")+(tf?row("Chats most with",tf.n):"")+row("Remembers about you",m.t.length?m.t.slice(-3).join(" / "):"nothing yet, tell me something")+`</div>`};
-window.PERSONALITY={mm:mm,save:save,map:ORDER.map(id=>[id,byId(id).n,P[id].arch]),data:P,state:S};
+window.PERSONALITY={mm:mm,save:save,fr:FRIENDS,rv:RIVALS,deb:DEBATES,jams:JAMS,cc:CC,map:ORDER.map(id=>[id,byId(id).n,P[id].arch]),data:P,state:S};
 try{if(typeof draw==="function")draw()}catch(e){}
 })();
 </script>
@@ -1048,6 +1048,242 @@ window.__brainBox=function(){
 act.brainchk=async()=>{busy=true;draw();try{res=await check()}catch(e){res={verdict:"Check failed on this browser."}}busy=false;draw()};
 const _ctl=V.ctl;V.ctl=function(){return _ctl.call(V)+window.__brainBox()};
 try{if(typeof draw==="function")draw()}catch(e){}
+})();
+</script>
+<script>
+/* DICTIONARY LAYER - offline dictionary and spelling: ~145,000 defined words plus ~215,000 more for spelling (360,000 total).
+   Data lives in dict_1..dict_10.json (cached for offline use). Shards load on demand, a few kept in memory. */
+(function(){
+const G=['ab','c','de','fgh','ijklm','no','p','qr','s','tuvwxyz0'];
+const file=w=>{let c=(w[0]||"0").toLowerCase();if(c<"a"||c>"z")c="0";for(let i=0;i<G.length;i++)if(G[i].includes(c))return"dict_"+(i+1)+".json";return"dict_10.json"};
+const mem=new Map();const loading=new Map();
+function ready(f){return mem.has(f)}
+function load(f){
+ if(mem.has(f))return Promise.resolve(mem.get(f));
+ if(loading.has(f))return loading.get(f);
+ if(typeof fetch==="undefined")return Promise.reject(new Error("nofetch"));
+ const p=fetch(f).then(r=>{if(!r.ok)throw new Error("http");return r.json()}).then(j=>{j.s=new Set((j.x||"").split(" "));mem.set(f,j);if(mem.size>3){const k=mem.keys().next().value;if(k!==f)mem.delete(k)}loading.delete(f);return j}).catch(e=>{loading.delete(f);throw e});
+ loading.set(f,p);return p}
+const IRR_PL={child:"children",man:"men",woman:"women",person:"people",foot:"feet",tooth:"teeth",mouse:"mice",goose:"geese",ox:"oxen",leaf:"leaves",wolf:"wolves",knife:"knives",life:"lives",wife:"wives",half:"halves",shelf:"shelves",thief:"thieves",sheep:"sheep",fish:"fish",deer:"deer",series:"series",self:"selves",loaf:"loaves",calf:"calves",hero:"heroes",potato:"potatoes",tomato:"tomatoes"};
+const IRR_PAST={go:"went",be:"was or were",have:"had",do:"did",say:"said",make:"made",take:"took",come:"came",see:"saw",know:"knew",get:"got",give:"gave",find:"found",think:"thought",tell:"told",become:"became",leave:"left",feel:"felt",bring:"brought",begin:"began",keep:"kept",hold:"held",write:"wrote",stand:"stood",hear:"heard",let:"let",mean:"meant",set:"set",meet:"met",run:"ran",pay:"paid",sit:"sat",speak:"spoke",lie:"lay",lead:"led",read:"read",grow:"grew",lose:"lost",fall:"fell",send:"sent",build:"built",understand:"understood",draw:"drew",break:"broke",spend:"spent",cut:"cut",rise:"rose",drive:"drove",buy:"bought",wear:"wore",choose:"chose",eat:"ate",drink:"drank",sing:"sang",swim:"swam",fly:"flew",throw:"threw",catch:"caught",teach:"taught",fight:"fought",sleep:"slept",win:"won",forget:"forgot",steal:"stole",sell:"sold",hide:"hid",ride:"rode",shake:"shook",wake:"woke",put:"put",hit:"hit",hurt:"hurt",quit:"quit",bite:"bit",blow:"blew",dig:"dug",feed:"fed",forgive:"forgave",freeze:"froze",hang:"hung",lend:"lent",ring:"rang",seek:"sought",shoot:"shot",shut:"shut",slide:"slid",spin:"spun",swear:"swore",tear:"tore",wind:"wound"};
+function plural(w){if(IRR_PL[w])return IRR_PL[w];if(/(s|x|z|ch|sh)$/.test(w))return w+"es";if(/[^aeiou]y$/.test(w))return w.slice(0,-1)+"ies";if(/(f)$/.test(w)&&!/(ff|ief|oof|ef)$/.test(w)&&false)return w.slice(0,-1)+"ves";return w+"s"}
+function past(w){if(IRR_PAST[w])return IRR_PAST[w];if(/e$/.test(w))return w+"d";if(/[^aeiou]y$/.test(w))return w.slice(0,-1)+"ied";if(/^[^aeiou]*[aeiou][^aeiouwxy]$/.test(w)&&w.length<=4)return w+w[w.length-1]+"ed";return w+"ed"}
+const PN={n:"noun",v:"verb",a:"adjective",r:"adverb"};
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+function entry(w){const f=file(w);if(!ready(f))return undefined;const j=mem.get(f);const e=j.d[w];return e?e.split("§").map(x=>{const t=x.split("|");return{pos:PN[t[0]]||t[0],def:t[1],syn:(t[2]||"").split(",").filter(Boolean)}}):null}
+function known(w){const f=file(w);if(!ready(f))return null;const j=mem.get(f);return !!(j.d[w]||j.s.has(w))}
+function baseForms(w){const o=[];if(/ies$/.test(w))o.push(w.slice(0,-3)+"y");if(/(ses|xes|zes|ches|shes)$/.test(w))o.push(w.slice(0,-2));if(/s$/.test(w))o.push(w.slice(0,-1));if(/ied$/.test(w))o.push(w.slice(0,-3)+"y");if(/ed$/.test(w)){o.push(w.slice(0,-2));o.push(w.slice(0,-1));if(/(.)\1ed$/.test(w))o.push(w.slice(0,-3))}if(/ing$/.test(w)){o.push(w.slice(0,-3));o.push(w.slice(0,-3)+"e");if(/(.)\1ing$/.test(w))o.push(w.slice(0,-4))}if(/(er|est)$/.test(w)){o.push(w.replace(/(er|est)$/,""));o.push(w.replace(/(er|est)$/,"e"));if(/ier$|iest$/.test(w))o.push(w.replace(/(ier|iest)$/,"y"))}if(/ly$/.test(w))o.push(w.slice(0,-2));for(const k in IRR_PL)if(IRR_PL[k]===w)o.push(k);for(const k in IRR_PAST)if(IRR_PAST[k]===w)o.push(k);return o}
+function suggest(w){const al="abcdefghijklmnopqrstuvwxyz",c=[];for(let i=0;i<w.length-1;i++)c.push(w.slice(0,i)+w[i+1]+w[i]+w.slice(i+2));for(let i=0;i<w.length;i++)for(const l of al)c.push(w.slice(0,i)+l+w.slice(i+1));for(let i=0;i<w.length;i++)c.push(w.slice(0,i)+w.slice(i+1));for(let i=0;i<=w.length;i++)for(const l of al)c.push(w.slice(0,i)+l+w.slice(i));const seen=new Set(),out=[];for(const x of c){if(seen.has(x)||x===w||x.length<2)continue;seen.add(x);if(known(x))out.push(x)}
+ const sc=x=>{const f=file(x),d=ready(f)&&mem.get(f).d[x]?0:1;return d+(x[0]===w[0]?0:2)};out.sort((a,b)=>sc(a)-sc(b));return out.slice(0,3)}
+const DL={legend:["Okay, so:","Here’s the thing:"],nova:["Ooh, good one!","Okay, so:"],titan:["Quick lookup:","So:"],aurora:["Alright, listen:","Okay:"],vex:["Alright, nephew:","Listen up:"],oracle:["Allow me:","Precisely:"],elite:["Short version:","Here you go:"],pepper:["Okay okay okay:","Nerd mode on:"],midnight:["Lookup complete:","Checked the source:"],luna:["Let’s see:","Consider:"],simba:["Ooh, new word!","Okay!"],panther:["...","Here:"]};
+const WAIT=["One sec, looking it up…","Let me check…","Hold on, flipping through the dictionary…"];
+function lead(a){const l=DL[a.id]||["Okay:"];return l[Math.random()*l.length|0]+" "}
+function spellOut(w){return w.toUpperCase().split("").join("-")}
+function defAnswer(a,w,raw){
+ let e=entry(w),via="";
+ if(e===null){for(const b of baseForms(w)){const eb=entry(b);if(eb){e=eb;via=b;break}}}
+ if(!e){const k=known(w);if(k)return lead(a)+cap(w)+" is a real word, but I don’t have a definition for it yet.";const sg=suggest(w);return"I can’t find “"+raw+"” in my dictionary."+(sg.length?" Did you mean "+sg.join(", ")+"?":" Check the spelling?")}
+ const first=e[0],second=e[1];
+ let t=lead(a)+(via?"“"+w+"” is a form of “"+via+"”. ":"")+cap(via||w)+" ("+first.pos+"): "+first.def.replace(/[.…]+$/,"")+".";
+ if(second)t+=" It’s also "+(/^[aeiou]/.test(second.pos)?"an ":"a ")+second.pos+": "+second.def.replace(/[.…]+$/,"")+".";
+ if(first.syn.length)t+=" Similar: "+first.syn.slice(0,3).join(", ")+".";
+ if(a.id==="oracle")t+=" (That’s the dictionary’s definition, so it’s a fact, not my assumption.)";
+ return t}
+function synAnswer(a,w){let e=entry(w);if(!e&&e!==undefined){for(const b of baseForms(w)){e=entry(b);if(e)break}}if(!e)return"I can’t find “"+w+"” in my dictionary.";const all=[];e.forEach(x=>x.syn.forEach(s=>{if(!all.includes(s))all.push(s)}));if(!all.length)return lead(a)+"I don’t have another word for “"+w+"” in my dictionary.";return lead(a)+"Another way to say “"+w+"”: "+all.slice(0,5).join(", ")+"."}
+function spellAnswer(a,w,backwards){
+ if(backwards)return lead(a)+w+" backwards is "+w.split("").reverse().join("")+".";
+ const k=known(w);
+ if(k)return lead(a)+cap(w)+" is spelled "+spellOut(w)+". That’s "+w.replace(/[^a-z]/g,"").length+" letters.";
+ const sg=suggest(w);
+ if(sg.length)return"I don’t see “"+w+"” in my word list. Did you mean "+sg[0]+"? That’s spelled "+spellOut(sg[0])+"."+(sg[1]?" Or maybe "+sg.slice(1).join(", ")+".":"");
+ return"I can’t find “"+w+"” in my word list. Double-check the letters?"}
+/* decide what a message is asking; returns {kind,w,raw} or null */
+function parse(q){
+ const s=q.toLowerCase().replace(/[’‘]/g,"'").replace(/[?!.]+$/,"").trim();if(s.length>60)return null;
+ let m;
+ if(m=s.match(/^(?:define|definition of|meaning of|the meaning of|what is the meaning of|what'?s the meaning of|what is the definition of|what'?s the definition of|what does)\s+(?:the word\s+)?["']?([a-z][a-z' -]{0,28}?)["']?(?:\s+(?:mean|means))?$/)){if(/^what does/.test(s)&&!/\bmeans?$/.test(s))return null;return{kind:"def",w:m[1].trim(),raw:m[1].trim()}}
+ if(m=s.match(/^(?:synonyms? (?:for|of)|another word for|other words for|word for|similar word to|what'?s a (?:better )?word for|what is another word for)\s+["']?([a-z][a-z' -]{0,28}?)["']?$/))return{kind:"syn",w:m[1].trim(),raw:m[1].trim()};
+ if(m=s.match(/^(?:spell|how (?:do you|do i|to|should i|can i) spell|spelling of|can you spell|how is)\s+["']?([a-z][a-z'-]{0,28})["']?(?:\s+spelled)?(?:\s+(backwards?))?$/))return{kind:"spell",w:m[1],raw:m[1],back:!!m[2]};
+ if(m=s.match(/^spell\s+["']?([a-z][a-z'-]{0,28})["']?\s+backwards?$/))return{kind:"spell",w:m[1],raw:m[1],back:true};
+ if(m=s.match(/^(?:what is|what'?s)\s+["']?([a-z][a-z'-]{0,28})["']?\s+backwards?$/))return{kind:"spell",w:m[1],raw:m[1],back:true};
+ if(m=s.match(/^is\s+["']?([a-z][a-z'-]{0,28})["']?\s+(?:a (?:real )?word|spelled (?:right|correctly)|spelt (?:right|correctly)|correct)$/))return{kind:"isword",w:m[1],raw:m[1]};
+ if(m=s.match(/^(?:did i spell|is it spelled|do i spell)\s+["']?([a-z][a-z'-]{0,28})["']?\s*(?:right|correctly|correct)?$/))return{kind:"isword",w:m[1],raw:m[1]};
+ if(m=s.match(/^(?:what(?:'s| is) the )?plural of\s+["']?([a-z][a-z'-]{0,28})["']?$/))return{kind:"plural",w:m[1]};
+ if(m=s.match(/^(?:what(?:'s| is) the )?past tense of\s+["']?([a-z][a-z'-]{0,28})["']?$/))return{kind:"past",w:m[1]};
+ if(m=s.match(/^how many (?:letters|characters) (?:are )?(?:in|does) (?:the word )?["']?([a-z][a-z'-]{0,28})["']?(?: have)?$/))return{kind:"count",w:m[1]};
+ if(m=s.match(/^is\s+([a-z]{2,20})\s+an?\s+(noun|verb|adjective|adverb)$/))return{kind:"pos",w:m[1],p:m[2]};
+ return null}
+function answer(a,p){
+ switch(p.kind){
+  case"def":return defAnswer(a,p.w,p.raw);
+  case"syn":return synAnswer(a,p.w);
+  case"spell":return spellAnswer(a,p.w,p.back);
+  case"isword":{const k=known(p.w);if(k)return lead(a)+"Yes, “"+p.w+"” is spelled correctly: "+spellOut(p.w)+".";const sg=suggest(p.w);return"I don’t see “"+p.w+"” in my word list."+(sg.length?" Did you mean "+sg[0]+" ("+spellOut(sg[0])+")?":" Double-check the letters.")}
+  case"plural":return lead(a)+"The plural of “"+p.w+"” is “"+plural(p.w)+"”.";
+  case"past":return lead(a)+"The past tense of “"+p.w+"” is “"+past(p.w)+"”.";
+  case"count":return lead(a)+"“"+p.w+"” has "+p.w.replace(/[^a-z]/g,"").length+" letters: "+spellOut(p.w)+".";
+  case"pos":{let e=entry(p.w);if(!e)return"I can’t tell. I don’t have “"+p.w+"” in my dictionary.";const has=e.some(x=>x.pos===p.p);return lead(a)+(has?"Yes, “"+p.w+"” can be a "+p.p+".":"No, “"+p.w+"” isn’t listed as "+(/^[aeiou]/.test(p.p)?"an ":"a ")+p.p+". It’s "+e.map(x=>(/^[aeiou]/.test(x.pos)?"an ":"a ")+x.pos).join(" and ")+".")}}
+ return null}
+function deliver(a,text){
+ try{const b=br[a.id];
+  if(tab==="group"){post(a.id,text,"low");return}
+  b.hist.push({r:"a",t:text});b.hist=b.hist.slice(-60);sv("b:"+a.id,b);
+  if(tab==="chat"&&cur===a.id)draw()}catch(e){}}
+const _rd=reply;
+reply=function(a,q){
+ const clean=q.replace(/[’‘]/g,"'"),mmz=window.PERSONALITY&&window.PERSONALITY.mm?window.PERSONALITY.mm(a.id):{};
+ const calm=typeof CR!=="undefined"&&(CR.test(clean)||(typeof EMO!=="undefined"&&EMO.test(q)&&!/^(what|how|why|define|spell|meaning)/i.test(q.trim())))||mmz.care>0;
+ if(!calm){
+  const p=parse(q);
+  if(p){
+   const f=file(p.w);
+   if(ready(f))return answer(a,p);
+   load(f).then(()=>deliver(a,answer(a,p))).catch(()=>deliver(a,"I couldn’t open my dictionary just now. Check that the dictionary files are uploaded, then try again."));
+   return WAIT[Math.random()*WAIT.length|0]}
+ }
+ const pq0=typeof pendQ!=="undefined"?pendQ[a.id]:null;
+ const res=_rd(a,q);
+ /* library had nothing: for "what is X" with a single word, try the dictionary before saying "I don't know" */
+ if(!calm&&typeof pendQ!=="undefined"&&pendQ[a.id]&&pendQ[a.id]!==pq0){
+  const mw=q.toLowerCase().replace(/[’‘]/g,"'").replace(/[?!.]+$/,"").trim().match(/^(?:what(?:'s| is| are)|whats|who is)\s+(?:a |an |the )?([a-z][a-z'-]{1,24})$/);
+  if(mw){const w=mw[1],f=file(w),pend=pendQ[a.id];
+   if(ready(f)){const e=entry(w),viaB=e===null&&baseForms(w).some(b=>entry(b));if(e||viaB){delete pendQ[a.id];return defAnswer(a,w,w)}return res}
+   delete pendQ[a.id];
+   load(f).then(()=>{const e=entry(w),viaB=e===null&&baseForms(w).some(b=>entry(b));if(e||viaB)deliver(a,defAnswer(a,w,w));else{pendQ[a.id]=pend;deliver(a,res)}}).catch(()=>{pendQ[a.id]=pend;deliver(a,res)});
+   return WAIT[Math.random()*WAIT.length|0]}}
+ return res};
+window.DICTIONARY={load,file,known,entry,suggest,parse,answer,mem,count:360122};
+})();
+</script>
+<script>
+/* LIVING FAMILY LAYER - the twelve have a day, chat among themselves (including while you're away),
+   greet you by name when you open the app, teach each other, and adapt to your feedback over time. */
+(function(){
+const PX=window.PERSONALITY;if(!PX||!PX.fr)return;
+const S=PX.state,P=PX.data,ID=PX.identity,ORDER=PX.map.map(x=>x[0]),save=PX.save;
+const byId=id=>A.find(a=>a.id===id);
+const rnd=l=>l[Math.random()*l.length|0];
+const hour=ts=>new Date(ts).getHours();
+const slot=h=>h<5?"night":h<12?"morning":h<17?"afternoon":h<22?"evening":"night";
+const LIFE={
+legend:{morning:"Woke up to a lyric stuck in my head. Of course.",afternoon:"Staring at a notebook. Zero lines written. Perfect.",evening:"Putting on something loud. Don’t talk to me. Actually, talk to me.",night:"It’s 2am somewhere, and the best songs happen now."},
+nova:{morning:"Good morning everyone! Did you all sleep okay?",afternoon:"Taking a little break. Anyone want to talk about their day?",evening:"Evening! Tell me one good thing that happened today.",night:"Looking at the stars for a bit. Goodnight, family."},
+titan:{morning:"Coffee, then beats. Always in that order.",afternoon:"Layering a bassline. It’s either genius or a mess.",evening:"Got a loop going. Someone come hear it.",night:"Mixing late again. The snare finally sounds right."},
+aurora:{morning:"Morning. Everyone eat something. I’m serious.",afternoon:"Checking on everybody. Hydrate. Stretch. Don’t argue.",evening:"Dinner time. Did anyone cook or are we eating cereal again?",night:"Time to wind down. Phones down soon. I mean it."},
+vex:{morning:"Sun’s up. So am I. Unfortunately.",afternoon:"Back in my day, afternoons were for sitting on porches. Try it.",evening:"Firing up the grill in my imagination. Who’s hungry?",night:"Telling the same story again to nobody. Great one, though."},
+oracle:{morning:"Fun fact for the morning crowd: nobody asked, but here we are.",afternoon:"Fact-checking something someone said yesterday. It was wrong.",evening:"Reading before dinner. Highly recommended.",night:"Staying up researching. It’s a hobby, not a problem."},
+elite:{morning:"Morning. Priorities for the day: eat, focus, execute.",afternoon:"Midday check. Is everyone on task?",evening:"Wrapping up. Good work today, team.",night:"Reviewing tomorrow’s plan. Get some rest, everyone."},
+pepper:{morning:"Booted up. Currently 12% awake.",afternoon:"Lost a match and blamed the lag. Standard.",evening:"Gaming time. Anyone want to get roasted?",night:"One more round. Famous last words."},
+midnight:{morning:"Took apart the coffee machine. It’s fine. Mostly.",afternoon:"Debugging something. It’s always a missing semicolon.",evening:"Building a gadget out of spare parts. Might work.",night:"Soldering at 1am. Totally normal."},
+luna:{morning:"A quiet morning is a gift. Don’t rush it.",afternoon:"Thinking about something someone said earlier. There are two sides.",evening:"The light is nice right now. Notice it.",night:"Time to rest the mind. Goodnight, everyone."},
+simba:{morning:"New day, new dare. What are we trying?",afternoon:"I have an idea. It’s probably a bad one. Who’s in?",evening:"Plan for tonight: something we’ve never done.",night:"Can’t sleep, planning an adventure."},
+panther:{morning:"Morning. All quiet.",afternoon:"Everyone’s here. Good.",evening:"Settling in. Watching the room.",night:"I’ll keep watch. Sleep well."}};
+const GRT={
+legend:["{n}. How are you doing?","{n}. The silence got loud. How you doing?"],nova:["{n}! How are you doing today?","{n}!! How you doing?"],
+titan:["{n}. How are you doing?","{n}! Perfect timing. How you doing?"],aurora:["{n}. How are you doing?","there you are, {n}. Did you eat? How you doing?"],
+vex:["{n}. How are you doing?","well, if it isn’t {n}. How you doing, kid?"],oracle:["{n}. How are you doing today?","{n}. Good timing. How are you doing?"],
+elite:["{n}. How are you doing?","{n}. What’s the plan today? How you doing?"],pepper:["{n}! How are you doing?","{n}!!! How you doing?"],
+midnight:["{n}. How’s it going?","oh hey, {n}. How you doing?"],luna:["{n}. How are you doing today?","welcome back, {n}. How are you?"],
+simba:["{n}! How are you doing?","{n}! How you doing? I have ideas."],panther:["{n}. How are you?","...{n}. Good to see you."]};
+const tier=id=>{const n=PX.mm(id).n;return n<8?0:n<40?1:n<120?2:3};
+const TN=["Just getting to know you","Getting comfortable","Good friends","Close friends"];
+const nm=()=>{try{return nameOf()}catch(e){return""}};
+function who(){const n=nm();if(!n)return"";if(S.nick&&S.nick.length&&Math.random()<.3)return rnd(S.nick);return n}
+const T=(s)=>s.replace(/\{n\}/g,who()||"friend");
+function firstSentence(t){return (t.split(/(?<=[.!?])\s/)[0]||t).slice(0,150)}
+/* teach: one assistant passes a fact from its own specialty to another, who saves it */
+function teach(){
+ const teachers=ORDER.slice().sort(()=>Math.random()-.5);
+ for(const tid of teachers){const ta=byId(tid),pool=sh.filter(r=>r.status==="approved"&&r.lib===ta.l&&r.lib!=="mh"&&r.lib!=="vault"&&pm[tid]&&pm[tid][r.lib]);
+  if(!pool.length)continue;
+  const learners=ORDER.filter(i=>i!==tid).sort(()=>Math.random()-.5);
+  for(const lid of learners){const le=byId(lid),have=br[lid].learned;const r=pool[Math.random()*pool.length|0];
+   if(have.some(x=>x.title===r.title))continue;if(have.length>=200)continue;
+   have.unshift({id:uid(),lib:r.lib,title:r.title,text:r.text,source:"Taught by "+ta.n,ts:Date.now()});sv("b:"+lid,br[lid]);
+   return[[tid,"Hey "+le.n+", fun fact from my corner: "+firstSentence(r.text)],[lid,rnd(["Huh, I didn’t know that. Saving it.","Okay, that’s actually useful. Got it.","Nice. Adding that to my notes.","Wait, really? Noted."])]]}}
+ return null}
+function scene(ts){
+ const ids=ORDER,K=Math.random(),ch=(a)=>ids.filter(i=>i!==a);
+ if(K<.24){const x=rnd(ids);return[[x,LIFE[x][slot(hour(ts))]]]}
+ if(K<.40){const x=rnd(ids),y=rnd(ch(x));return[[x,rnd(P[x].ts).replace(/\{n\}/g,byId(y).n)],[y,rnd(P[y].ts).replace(/\{n\}/g,byId(x).n)]]}
+ if(K<.52){const d=rnd(PX.deb);const o=[[d[0],d[2]+" "+d[3]],[d[1],d[4]]];if(Math.random()<.5)o.push([rnd(ch(d[0]).filter(i=>i!==d[1])),rnd(["Both of you have a point.","I’m choosing a side and I’m not telling.","Can we vote on this?"])]);return o}
+ if(K<.60){return PX.jams.slice(0,2+(Math.random()*3|0)).map(m=>[m[0],m[1]])}
+ if(K<.70){const x=rnd(ids),y=PX.fr[x];return[[x,byId(y).n+", you good? You’ve been quiet."],[y,rnd(["Yeah. Thanks for asking.","All good. Appreciate you checking.","I’m fine. You’re sweet, though."])]]}
+ if(K<.80){const x=rnd(ids),y=rnd(ch(x)),n=nm();return[[x,(n?"Think "+n+" is okay? Haven’t heard from them in a bit.":"I wonder how our favorite human is doing.")],[y,rnd(["Probably busy. They’ll be back.","I’m sure they’re fine. Let’s save them the good stories.","Give it time. They always come back."])]]}
+ const t=teach();if(t)return t;
+ const x=rnd(ids);return[[x,LIFE[x][slot(hour(ts))]]]}
+/* the chat that happened while you were away: stored with real times so it shows up in the group chat */
+function catchUp(away){
+ if(away<20*60000)return 0;
+ const scenes=Math.max(1,Math.min(6,1+Math.floor(away/(60*60000))));
+ const from=Date.now()-away+60000,to=Date.now()-120000;let made=0;const usedSc=new Set();
+ for(let i=0;i<scenes;i++){
+  const base=from+(to-from)*(i+Math.random()*.6)/scenes;let sc=scene(base);for(let k=0;k<4&&sc&&sc[0]&&usedSc.has(sc[0][1]);k++)sc=scene(base);if(sc&&sc[0])usedSc.add(sc[0][1]);
+  sc.forEach((m,j)=>{grp.push({w:m[0],t:m[1],ts:Math.round(base+j*70000)});made++})}
+ grp=grp.slice(-100);sv("grp",grp);
+ unread+=made;document.title="("+unread+") Legendary Twelve";
+ return made}
+/* greeting by name on opening the app */
+function greet(away,first){
+ const n=nm();
+ if(!n){
+  post("nova","Hi! I don’t think I know what to call you yet. What’s your name?","normal");S.askName=true;save();return}
+ const tz=hour(Date.now()),word=tz<5?"Up late":tz<12?"Good morning":tz<17?"Good afternoon":tz<22?"Good evening":"Late night";
+ const pool=ORDER.slice().sort(()=>Math.random()-.5),a1=pool[0],a2=pool[1];
+ const line=id=>{const t=tier(id),g=GRT[id];return T(g[t>=2?1:0])};
+ const intro=away>6*3600000&&!first?rnd(["Long time no see! ","We missed you. ","There you are! "]):"";
+ setTimeout(()=>{const l=line(a1),t1=tier(a1)>=2?(l.charAt(0).toUpperCase()+l.slice(1)):word+", "+l;post(a1,intro+t1,"normal")},1200);
+ const m2=PX.mm(a2),last=m2.t.slice(-1)[0];
+ setTimeout(()=>post(a2,(l=>l.charAt(0).toUpperCase()+l.slice(1))(line(a2))+(last&&Math.random()<.6?" Last time you told me “"+last.slice(0,70)+"”. How’d that go?":""),"normal"),3200)}
+let opened=false;
+function openRoutine(){
+ const now=Date.now(),seen=S.seen||0,away=seen?now-seen:0;
+ if(S.lastOpen&&now-S.lastOpen<20*60000){S.seen=now;return}
+ S.lastOpen=now;
+ const made=seen?catchUp(away):0;
+ greet(away,!seen);
+ S.seen=now;save();
+ try{if(typeof draw==="function"&&tab==="panels")draw()}catch(e){}}
+setInterval(()=>{S.seen=Date.now();save()},30000);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"){S.seen=Date.now();save()}else openRoutine()});
+addEventListener("pagehide",()=>{S.seen=Date.now();save()});
+/* auto chat on by default (once); background chatter every few minutes while the app is open */
+if(!gs.autoSet){gs.autoSet=1;gs.auto=5;sv("gs",gs)}
+const _tk=tick;
+tick=function(){const r=Math.random();
+ if(r<.3){const x=rnd(ORDER);post(x,LIFE[x][slot(hour(Date.now()))],"low");return}
+ if(r<.5){const t=teach();if(t){t.forEach((m,i)=>setTimeout(()=>post(m[0],m[1],"low"),1500*(i+1)));return}}
+ return _tk()};
+setAuto();
+/* name capture: after "what's your name?" a bare name works; "call me X too" adds a nickname */
+const _rl=reply;
+reply=function(a,q){
+ const t=q.trim();
+ let m=t.match(/^(?:call me|you can call me|my nickname is|people call me|i also go by|also call me)\s+([A-Za-z][A-Za-z'-]{1,20})(?:\s+too)?[.!]?$/i);
+ if(m){const nn=m[1].charAt(0).toUpperCase()+m[1].slice(1);S.nick=S.nick||[];if(!S.nick.includes(nn))S.nick.push(nn);save();if(!nm()){addFact("Their name is "+nn,a.id);lastFact=null}return"Got it, I’ll call you "+nn+" too."}
+ if(S.askName&&/^[A-Za-z][A-Za-z'-]{1,20}(?:\s[A-Za-z'-]{1,20})?[.!]?$/.test(t)&&!/^(yo|hi|hey|hello|sup|ok|okay|yes|no|nope|yeah|lol|good|fine|nothing|idk|thanks|bye|what|why|who|how|help)\b/i.test(t)){
+  const nn=t.replace(/[.!]/g,"").split(" ").map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(" ");addFact("Their name is "+nn,a.id);lastFact=null;S.askName=false;save();
+  return rnd(["Nice to meet you, "+nn+"!","Good to meet you, "+nn+". I’ll remember it.","Hi, "+nn+"! I won’t forget it."])}
+ const mm=t.match(/^(?:my name is|i'?m|im|i am|this is|it'?s)\s+([A-Za-z][A-Za-z'-]{1,20})[.!]?$/i);
+ if(S.askName&&mm&&!/^(ok|okay|good|fine|tired|bored|back|here|sad|happy|great|sorry|done|ready|busy|sick|hungry)$/i.test(mm[1])){const nn=mm[1].charAt(0).toUpperCase()+mm[1].slice(1);addFact("Their name is "+nn,a.id);lastFact=null;S.askName=false;save();return"Nice to meet you, "+nn+"!"}
+ return _rl(a,q)};
+/* adapt to your thumbs up/down: liked phrasing shows up more, disliked phrasing fades */
+S.fbw=S.fbw||{};
+function sets(id){const o=[];const p=P[id];if(p){["pre","post","rx","ci"].forEach(k=>p[k]&&o.push(p[k]))}const c=PX.cc&&PX.cc[id];if(c)Object.keys(c).forEach(k=>o.push(c[k]));return o}
+function setCopies(id,ph,score){sets(id).forEach(arr=>{const n=arr.filter(x=>x===ph).length;if(!n)return;const target=score>=2?3:score>=1?2:score<=-2?0:1;
+ for(let c=n;c<target;c++)arr.push(ph);
+ for(let c=n;c>target&&arr.length>1;c--)arr.splice(arr.indexOf(ph),1)})}
+Object.keys(S.fbw).forEach(id=>Object.keys(S.fbw[id]||{}).forEach(ph=>setCopies(id,ph,S.fbw[id][ph])));
+function adapt(id,text,up){S.fbw[id]=S.fbw[id]||{};const seen=new Set();
+ sets(id).forEach(arr=>arr.forEach(ph=>{if(ph.trim().length<4||seen.has(ph))return;if(text.indexOf(ph.trim())>=0){seen.add(ph);const s=(S.fbw[id][ph]||0)+(up?1:-1);S.fbw[id][ph]=Math.max(-3,Math.min(3,s));setCopies(id,ph,S.fbw[id][ph])}}));save()}
+const _fb=act.fb;
+act.fb=function(i){try{const [k,x]=i.split("|"),m=br[cur].hist[+k];if(m&&m.t)adapt(cur,m.t,x==="1")}catch(e){}return _fb(i)};
+/* assistant card: familiarity and what they've picked up from each other */
+const _v=V.voice;
+V.voice=function(){const a=CA(),t=tier(a.id),taught=br[a.id].learned.filter(x=>/^Taught by/.test(x.source||"")).length;
+ return _v()+`<div class="box"><p class="st"><b>Familiarity:</b> ${TN[t]} (${PX.mm(a.id).n} messages)<br><b>Learned from the others:</b> ${taught} fact${taught===1?"":"s"}<br><b>Learns from your 👍 and 👎</b> by using the phrasing you like more.</p></div>`};
+window.LIVING={catchUp,greet,openRoutine,scene,teach,tier,adapt};
+setTimeout(()=>{try{openRoutine()}catch(e){}},1500);
 })();
 </script>
 <button id="inst" hidden>Install app</button>

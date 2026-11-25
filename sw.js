@@ -1,8 +1,9 @@
 // Legendary Twelve service worker: caches the app so it opens instantly and works offline.
-const CACHE = "legendary-twelve-v20";
+const CACHE = "legendary-twelve-v21";
+const DICT = ["dict_1.json","dict_2.json","dict_3.json","dict_4.json","dict_5.json","dict_6.json","dict_7.json","dict_8.json","dict_9.json","dict_10.json"];
 const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png", "./apple-touch-icon.png"];
 self.addEventListener("install", e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL).then(() => Promise.allSettled(DICT.map(f => c.add(f))))).then(() => self.skipWaiting()));
 });
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
