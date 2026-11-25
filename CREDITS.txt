@@ -1,0 +1,4 @@
+Topic encyclopedia data sources
+- WordNet 3.0, Princeton University. "WordNet Copyright 2006 by Princeton University. All rights reserved." (WordNet License)
+- GeoNames (geonames.org) via the geonamescache package, licensed CC BY 4.0.
+- ISO country subdivisions, languages, currencies and scripts via the pycountry package (ISO 3166/639/4217/15924 data).
