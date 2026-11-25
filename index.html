@@ -348,7 +348,7 @@ const wc=s=>(s.match(/\S+/g)||[]).length;
 function words(a){const p=pm[a.id];let n=0;sh.forEach(r=>{if(r.status==="approved"&&p[r.lib])n+=wc(r.text)});br[a.id].learned.forEach(r=>n+=wc(r.text));if(p.vault)vt.forEach(r=>{if(r.approved)n+=wc(r.text)});return n}
 const fk=n=>n>=1000?(n/1000).toFixed(1)+"K":String(n);
 V.panels=()=>{const ap=sh.filter(r=>r.status==="approved").length,pe=sh.filter(r=>r.status==="pending").length;
- return `<button class="gbtn" data-a="grp">Group chat with all 12${unread?" ("+unread+" new)":""}</button><div class="grid">`+A.map(a=>`<article class="p2" style="--c:${a.c}"><svg viewBox="0 0 120 140" aria-hidden="true"><ellipse cx="60" cy="122" rx="46" ry="10" style="fill:color-mix(in srgb,var(--c) 18%,transparent);stroke:var(--c);stroke-width:2"/><path d="M30 120 L90 120 L78 96 L42 96 Z" style="fill:color-mix(in srgb,var(--c) 22%,transparent)"/><circle class="sw" cx="60" cy="60" r="52" style="fill:none;stroke:var(--c);stroke-width:3;stroke-dasharray:22 8"/><circle class="sw2" cx="60" cy="60" r="43" style="fill:none;stroke:var(--c);stroke-width:2;stroke-dasharray:4 6"/><circle cx="60" cy="60" r="34" style="fill:color-mix(in srgb,var(--c) 12%,transparent);stroke:var(--c)"/><polygon points="60,32 84,46 84,74 60,88 36,74 36,46" style="fill:none;stroke:var(--c)"/><text x="60" y="65" text-anchor="middle" style="fill:#fff;font:800 12px system-ui">${a.n}</text></svg><h3 class="nn">${a.n}</h3><p class="rl">${a.r}</p><p class="rl" style="color:var(--g)">${a.tp}</p><p class="qt">“${a.q||""}”</p><p class="wk">${fk(words(a))} words of knowledge</p><p class="wk">Bond level ${bond(a)}</p><button data-a="chat" data-i="${a.id}">Open command center</button></article>`).join("")+`</div><div class="strip foot">Engine: built-in offline knowledge search. Admin: no. ${ap} approved records, ${pe} pending. Last backup: ${bk[0]?new Date(bk[0].ts).toLocaleString():"never"}.</div>`};
+ return `<button class="gbtn" data-a="grp">Group chat with all 12${unread?" ("+unread+" new)":""}</button><div class="grid">`+A.map(a=>`<article class="p2" style="--c:${a.c}"><svg viewBox="0 0 120 140" aria-hidden="true"><ellipse cx="60" cy="122" rx="46" ry="10" style="fill:color-mix(in srgb,var(--c) 18%,transparent);stroke:var(--c);stroke-width:2"/><path d="M30 120 L90 120 L78 96 L42 96 Z" style="fill:color-mix(in srgb,var(--c) 22%,transparent)"/><circle class="sw" cx="60" cy="60" r="52" style="fill:none;stroke:var(--c);stroke-width:3;stroke-dasharray:22 8"/><circle class="sw2" cx="60" cy="60" r="43" style="fill:none;stroke:var(--c);stroke-width:2;stroke-dasharray:4 6"/><circle cx="60" cy="60" r="34" style="fill:color-mix(in srgb,var(--c) 12%,transparent);stroke:var(--c)"/><polygon points="60,32 84,46 84,74 60,88 36,74 36,46" style="fill:none;stroke:var(--c)"/><text x="60" y="65" text-anchor="middle" style="fill:#fff;font:800 12px system-ui">${a.n}</text></svg><h3 class="nn">${a.n}</h3><p class="rl">${a.r}</p><p class="rl" style="color:var(--g)">${a.tp}</p><p class="qt">“${a.q||""}”</p><p class="wk">${fk(words(a)+360122)} words of knowledge</p><p class="wk" style="font-size:.8em;opacity:.8">${fk(words(a))} topic + 360K dictionary</p><p class="wk">Bond level ${bond(a)}</p><button data-a="chat" data-i="${a.id}">Open command center</button></article>`).join("")+`</div><div class="strip foot">Engine: built-in offline knowledge search. Admin: no. ${ap} approved records, ${pe} pending. Last backup: ${bk[0]?new Date(bk[0].ts).toLocaleString():"never"}.</div>`};
 function hd(){const a=CA(),h=document.getElementById("hd");
  if(tab==="panels")h.innerHTML="<h1>Legendary Twelve</h1><p>Command center</p>";
  else if(tab==="hub")h.innerHTML="<h1>Knowledge Hub</h1><p>Import, export, registry</p>";
@@ -1152,7 +1152,158 @@ reply=function(a,q){
    load(f).then(()=>{const e=entry(w),viaB=e===null&&baseForms(w).some(b=>entry(b));if(e||viaB)deliver(a,defAnswer(a,w,w));else{pendQ[a.id]=pend;deliver(a,res)}}).catch(()=>{pendQ[a.id]=pend;deliver(a,res)});
    return WAIT[Math.random()*WAIT.length|0]}}
  return res};
-window.DICTIONARY={load,file,known,entry,suggest,parse,answer,mem,count:360122};
+window.DICTIONARY={load,file,known,entry,suggest,parse,answer,mem,count:360122,lead,deliver,base:baseForms,cap};
+})();
+</script>
+<script>
+/* LANGUAGE PACK LAYER - spell check, grammar check, antonyms and pronunciation, all offline.
+   Extra data: lang_freq.json (60,000 common words), lang_ant.json (antonyms), lang_pron_1/2.json (122,000 pronunciations).
+   Uses the dictionary layer above for the full 360,000-word check. */
+(function(){
+const D=window.DICTIONARY;if(!D)return;
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const J={};const jl=f=>J[f]?Promise.resolve(J[f]):fetch(f).then(r=>{if(!r.ok)throw new Error("http");return r.json()}).then(j=>(J[f]=j));
+let FREQ=null,RANK=null;
+function freq(){if(FREQ)return Promise.resolve(FREQ);return jl("lang_freq.json").then(s=>{const a=s.split(" ");RANK=new Map();a.forEach((w,i)=>RANK.set(w,i));FREQ=a;return a})}
+const FIXED={dont:"don't",cant:"can't",wont:"won't",didnt:"didn't",doesnt:"doesn't",isnt:"isn't",wasnt:"wasn't",arent:"aren't",couldnt:"couldn't",shouldnt:"shouldn't",wouldnt:"wouldn't",hasnt:"hasn't",havent:"haven't",im:"I'm",ive:"I've",youre:"you're",theyre:"they're",thats:"that's",whats:"what's",hes:"he's",shes:"she's",lets:"let's",teh:"the",adn:"and",thier:"their",recieve:"receive",recieved:"received",definately:"definitely",seperate:"separate",occured:"occurred",untill:"until",wich:"which",becuase:"because",beleive:"believe",alot:"a lot"};
+const CONTR=new Set("don't can't won't didn't doesn't isn't wasn't aren't couldn't shouldn't wouldn't hasn't haven't i'm i've i'll i'd you're you've you'll you'd they're they've they'll they'd we're we've we'll we'd he's she's it's that's what's there's here's let's who's how's where's ain't y'all o'clock ma'am weren't hadn't mustn't needn't".split(" "));
+const edits1=w=>{const al="abcdefghijklmnopqrstuvwxyz",o=new Set();for(let i=0;i<w.length-1;i++)o.add(w.slice(0,i)+w[i+1]+w[i]+w.slice(i+2));for(let i=0;i<w.length;i++){o.add(w.slice(0,i)+w.slice(i+1));for(const l of al)o.add(w.slice(0,i)+l+w.slice(i+1))}for(let i=0;i<=w.length;i++)for(const l of al)o.add(w.slice(0,i)+l+w.slice(i));o.delete(w);return o};
+function best(w){
+ if(!RANK)return null;let c=[...edits1(w)].filter(x=>RANK.has(x));
+ if(!c.length&&w.length>=5&&w.length<=12){const s=new Set();for(const e of edits1(w))for(const f of edits1(e))if(RANK.has(f))s.add(f);c=[...s]}
+ if(!c.length)return null;
+ const sc=x=>RANK.get(x)+(x[0]===w[0]?0:20000)+(x.length===w.length?0:3000);
+ c.sort((a,b)=>sc(a)-sc(b));return c[0]}
+const TOK=/[A-Za-z]+(?:['’][A-Za-z]+)*/g;
+const caseLike=(src,r)=>src.length>1&&src===src.toUpperCase()?r.toUpperCase():src[0]===src[0].toUpperCase()?cap(r):r;
+/* spell-check a whole text. Resolves {text,fixes:[[from,to]]}. */
+function spellText(text){
+ return freq().then(()=>{
+  const toks=[];let m;TOK.lastIndex=0;
+  while((m=TOK.exec(text)))toks.push({w:m[0],i:m.index,lw:m[0].toLowerCase().replace(/’/g,"'")});
+  const unk=[];
+  for(const t of toks){
+   const lw=t.lw;
+   if(FIXED[lw]!==undefined){t.fix=FIXED[lw];continue}
+   if(CONTR.has(lw)||RANK.has(lw))continue;
+   if(t.w.length<3||(t.w===t.w.toUpperCase()&&t.w.length<=5))continue;
+   const prev=text.slice(Math.max(0,t.i-2),t.i);
+   if(/^[A-Z]/.test(t.w)&&!/(^|[.!?]\s*)$/.test(text.slice(0,t.i).slice(-3).replace(/^\s*$/,"."))&&t.i>0&&!/[.!?]\s*$/.test(text.slice(0,t.i)))continue;
+   if(lw.includes("'")){const b=lw.replace(/['’](s|d|ll|ve|re|m|t)$/,"");if(RANK.has(b)||b===lw)continue}
+   unk.push(t)}
+  /* check the rare ones against the 360,000-word dictionary, one shard at a time */
+  const byFile={};unk.forEach(t=>{const f=D.file(t.lw);(byFile[f]=byFile[f]||[]).push(t)});
+  const files=Object.keys(byFile);
+  let p=Promise.resolve();
+  files.forEach(f=>{p=p.then(()=>D.load(f).catch(()=>null)).then(()=>{byFile[f].forEach(t=>{const k=D.known(t.lw);if(k)t.ok=true})})});
+  return p.then(()=>{
+   unk.forEach(t=>{if(t.ok)return;const b=best(t.lw.replace(/'/g,""));if(b)t.fix=b});
+   let out="",last=0;const fixes=[];
+   toks.forEach(t=>{if(t.fix){out+=text.slice(last,t.i)+caseLike(t.w,t.fix);last=t.i+t.w.length;fixes.push([t.w,caseLike(t.w,t.fix)])}});
+   out+=text.slice(last);return{text:out,fixes}})})}
+/* ---------- grammar rules (same rules as the PC version) ---------- */
+const A="['’]";
+const ING="going|coming|doing|being|getting|trying|running|leaving|making|taking|looking|saying|working|playing|waiting|planning|thinking|talking|staying|living";
+const YRE="going|doing|being|coming|getting|not|welcome|right|wrong|so|very|too|really|gonna|always|never|a|an|the";
+const TRE=ING+"|not|gonna|always|never|still|just|really|very|so|too|all|late|early|here|right|wrong|welcome|a|an|the";
+const NOUNS="own|car|cars|house|houses|name|names|phone|phones|mom|dad|mother|father|friend|friends|dog|dogs|cat|cats|work|job|jobs|book|books|bag|bags|home|homes|family|life|turn|idea|ideas|opinion|choice|money|team|school|room|city|country|kids|children|parents|brother|sister|wife|husband|computer|computers|order|account|email|food|teacher|boss|best";
+const ITSA="a|an|the|been|not|time|going|gonna|okay|ok|fine|very|so|too|just|really|always|never|late|early|raining|snowing|true|about|because|only|still|getting|easy|hard|good|bad|great|nice|cold|hot|here|there|my|your|our|his|her";
+const ITSP="own|color|colour|name|owner|size|shape|tail|head|value|purpose|meaning|surface|edge|top|bottom|side|weight|price|history|beauty|life|place|way|job|role";
+const CMP="more|less|better|worse|bigger|smaller|rather|other|faster|slower|larger|greater|fewer|older|younger|taller|longer|shorter|harder|easier|higher|lower|stronger|cheaper|richer|smarter|louder|quieter|further|farther";
+const NODBL=new Set("had that bye no so very ha really hip yum blah go knock tut boo".split(" "));
+const QW=new Set("who what when where why how is are do does did can could will would should have has am may might which whose".split(" "));
+const ABBR=new Set("e.g i.e etc vs approx dr mr mrs ms prof st jr sr no fig inc ltd co u.s u.k a.m p.m".split(" "));
+const cl=(s,r)=>s.length>1&&s===s.toUpperCase()?r.toUpperCase():s[0]===s[0].toUpperCase()?cap(r):r;
+function wantsAn(w){w=w.replace(/^['"\-]+|['"\-]+$/g,"");if(!w)return null;if(/^\d/.test(w))return /^(8|11|18)/.test(w);const L=w.replace(/[^A-Za-z]/g,"");if(!L)return null;if(L===L.toUpperCase()&&(L.length<=3||!/[AEIOU]/.test(L)))return "AEFHILMNORSX".includes(L[0]);const l=L.toLowerCase();if(/^(hour|honest|honor|honour|heir|herb)/.test(l))return true;if(/^(uni(?!m|n|d|l)|unit|one|once|ewe|euro|use|usu|uti|ubiq|uranium|ufo|eulog|euphem|eucal)/.test(l))return false;return "aeiou".includes(l[0])}
+function grammar(text){
+ const issues=[];let t=text;
+ const run=(re,fn,rule)=>{t=t.replace(re,(...a)=>{const m=a[0];const g=a.slice(1,-2);const off=a[a.length-2];const r=fn(m,g,off);if(!r||r[0]===m)return m;issues.push({rule,from:m,to:r[0],msg:r[1]});return r[0]})};
+ const sw=(m,g,n)=>{const s=g[0];return n+m.slice(s.length)};
+ run(new RegExp("\\b(your)(\\s+)("+YRE+")\\b","gi"),(m,g)=>[cl(g[0],"you're")+m.slice(g[0].length),"“your” is possessive. Use “you’re” (you are)."],"YOUR_YOURE");
+ run(new RegExp("\\b(you"+A+"re)(\\s+)("+NOUNS+")\\b","gi"),(m,g)=>[cl(g[0],"your")+m.slice(g[0].length),"Use “your” (belonging to you) before a noun."],"YOURE_YOUR");
+ run(/\b(their)(\s+)(is|are|was|were)\b/gi,(m,g)=>[cl(g[0],"there")+m.slice(g[0].length),"Use “there” here."],"THEIR_THERE");
+ run(new RegExp("\\b(their)(\\s+)("+TRE+")\\b","gi"),(m,g)=>[cl(g[0],"they're")+m.slice(g[0].length),"“their” is possessive. Use “they’re” (they are)."],"THEIR_THEYRE");
+ run(new RegExp("\\b(there)(\\s+)("+ING+"|gonna)\\b","gi"),(m,g)=>[cl(g[0],"they're")+m.slice(g[0].length),"“there” is a place. Use “they’re” (they are)."],"THERE_THEYRE");
+ run(new RegExp("\\b(there|they"+A+"re)(\\s+)("+NOUNS+")\\b","gi"),(m,g)=>[cl(g[0],"their")+m.slice(g[0].length),"Use “their” (belonging to them) before a noun."],"THERE_THEIR");
+ run(new RegExp("\\b(its)(\\s+)("+ITSA+")\\b","gi"),(m,g)=>[cl(g[0],"it's")+m.slice(g[0].length),"“its” is possessive. Use “it’s” (it is)."],"ITS_ITSA");
+ run(new RegExp("\\b(it"+A+"s)(\\s+)("+ITSP+")\\b","gi"),(m,g)=>[cl(g[0],"its")+m.slice(g[0].length),"Use “its” (belonging to it), no apostrophe."],"ITSA_ITS");
+ run(new RegExp("\\b("+CMP+")(\\s+)(then)\\b","gi"),(m,g)=>[m.slice(0,m.length-4)+cl(g[2],"than"),"Use “than” to compare. “Then” is about time."],"THEN_THAN");
+ run(/\b(and|but|first|next)(\s+)(than)\b/gi,(m,g)=>[m.slice(0,m.length-4)+cl(g[2],"then"),"Use “then” for what happens next."],"THAN_THEN");
+ run(/\b(should|could|would|must|might)(\s+)(of)\b/gi,(m,g)=>[m.slice(0,m.length-2)+"have","Use “have”, not “of”."],"MODAL_OF");
+ run(/\balot\b/gi,m=>[cl(m,"a lot"),"“a lot” is two words."],"ALOT");
+ run(/\bto(\s+)much\b/gi,m=>[cl(m,"too much"),"Use “too” when you mean “excessively”."],"TOO_MUCH");
+ run(/\b(I|we|they|you|he|she)(\s+)(seen)\b/gi,(m,g)=>[m.slice(0,m.length-4)+"saw","Use “saw” for the past. “Seen” needs have/has/had."],"SEEN_SAW");
+ run(/\b(I|we|they|you|he|she)(\s+)(done)\b(?=\s+(?:it|that|this|my|the|a|an|with|all|nothing|something|everything))/gi,(m,g)=>[m.slice(0,m.length-4)+"did","Use “did” for the past. “Done” needs have/has/had."],"DONE_DID");
+ run(new RegExp("\\b(he|she|it)(\\s+)(don"+A+"t)\\b","gi"),(m,g)=>[m.slice(0,m.length-5)+"doesn't","Use “doesn’t” with he, she and it."],"DONT_DOESNT");
+ run(/\b(we|they|you)(\s+)(was)\b/gi,(m,g)=>[m.slice(0,m.length-3)+"were","Use “were” with we, you and they."],"WAS_WERE");
+ run(/\b(I|we|they|you)(\s+)(has)\b/gi,(m,g)=>[m.slice(0,m.length-3)+"have","Use “have” with I, we, you and they."],"HAS_HAVE");
+ run(new RegExp("(^|[^\\w.(])i(?=(?:"+A+"(?:m|ve|ll|d))?(?![\\w.)]))","g"),(m,g)=>[m.slice(0,m.length-1)+"I","The word “I” is always a capital letter."],"I_CAPITAL");
+ run(/\b([A-Za-z]+)(\s+)\1\b/gi,(m,g)=>NODBL.has(g[0].toLowerCase())?null:[g[0],"This word is repeated."],"REPEATED_WORD");
+ run(/\b(a|an)(\s+)([A-Za-z0-9][A-Za-z0-9'\-]*)/gi,(m,g)=>{const w=wantsAn(g[2]);if(w===null)return null;const c=w?"an":"a";if(g[0].toLowerCase()===c)return null;return[cl(g[0],c)+m.slice(g[0].length),"Use “"+c+"” before “"+g[2]+"”."]},"A_AN");
+ run(/(\S)[ ]{2,}(?=\S)/g,(m,g)=>[g[0]+" ","Use a single space."],"DOUBLE_SPACE");
+ run(/,(?=[A-Za-z])/g,()=>[", ","Add a space after the comma."],"COMMA_SPACE");
+ run(/[ ]+(?=[,;:!?](?:\s|$))/g,()=>["","No space before this punctuation."],"SPACE_BEFORE_PUNCT");
+ run(/(^|[.!?]\s+|\n\s*)([a-z])([A-Za-z.]*)/g,(m,g)=>{const wd=(g[1]+g[2]).toLowerCase().replace(/\.$/,"");if(ABBR.has(wd))return null;return[g[0]+g[1].toUpperCase()+g[2],"Start a sentence with a capital letter."]},"SENTENCE_CAPITAL");
+ const st=t.replace(/\s+$/,"");
+ if(st&&/[A-Za-z0-9)]$/.test(st)){const last=st.split(/(?<=[.!?])\s+/).pop();const ws=last.match(/[A-Za-z']+/g)||[];const f=(ws[0]||"").toLowerCase();const q=QW.has(f)&&ws.length<=14&&!/^(what|how)\s+(a|an|nice|great|cool|sweet|beautiful)\b/i.test(last);const mk=q?"?":".";issues.push({rule:"END_PUNCTUATION",from:"",to:mk,msg:"Add punctuation at the end of the sentence."});t=st+mk+t.slice(st.length)}
+ return{text:t,issues}}
+/* full check = spelling first, then grammar */
+function checkAll(text){return spellText(text).then(sp=>{const g=grammar(sp.text);return{text:g.text,spell:sp.fixes,grammar:g.issues}})}
+/* ---------- answers ---------- */
+const LEAD=D.lead,deliver=D.deliver;
+function fixReply(a,orig,r){
+ if(!r.spell.length&&!r.grammar.length)return LEAD(a)+"That looks good to me. I don’t see any spelling or grammar problems.";
+ let t=LEAD(a)+"Here’s the fixed version:\n\n“"+r.text+"”\n\nWhat I changed:";
+ r.spell.slice(0,6).forEach(x=>t+="\n• Spelling: “"+x[0]+"” → “"+x[1]+"”");
+ const seen=new Set();r.grammar.filter(x=>x.from!==x.to).forEach(x=>{const k=x.rule;if(seen.has(k)||seen.size>=6)return;seen.add(k);t+="\n• "+x.msg+(x.from&&x.from.length<30?" (“"+x.from.trim()+"” → “"+x.to.trim()+"”)":"")});
+ return t}
+const waitText={};
+function parseLang(q){
+ const s=q.replace(/[’‘]/g,"'").trim();let m;
+ if(m=s.match(/^(?:please\s+)?(?:check|fix|correct|proofread|spell\s*check|grammar\s*check|edit)\s*(?:my|this|the|that)?\s*(grammar|spelling|writing|sentence|sentences|text|message|paragraph|essay|English)?(?:\s+and\s+(?:grammar|spelling))?\s*(?:for me)?\s*[:\-\n]?\s*([\s\S]*)$/i)){const body=m[2].trim();if(/^(?:check|fix|correct|proofread|spell\s*check|grammar\s*check)/i.test(s)&&(m[1]||body||/^(?:spell|grammar)\s*check$/i.test(s)))return{kind:"check",text:body.replace(/^["“]|["”]$/g,"")}}
+ if(m=s.match(/^(?:is|are)\s+(?:this|that|my|the)\s+(?:sentence|text|message|paragraph|grammar|spelling|writing)?\s*(?:correct|right|ok|okay|good)\s*[:\-]\s*([\s\S]{3,})$/i))return{kind:"check",text:m[1].replace(/^["“]|["”]$/g,"")};
+ if(m=s.match(/^(?:is|are)\s+["“]?([\s\S]{6,200}?)["”]?\s+(?:correct|right|grammatically correct|good grammar)\??$/i))return{kind:"check",text:m[1]};
+ const l=s.toLowerCase().replace(/[?!.]+$/,"");
+ if(m=l.match(/^(?:antonyms? (?:for|of)|opposite of|what(?:'s| is) the opposite of|what is an antonym (?:for|of)|what(?:'s| is) the antonym (?:for|of)|opposite word (?:for|of))\s+["']?([a-z][a-z' -]{0,28}?)["']?$/))return{kind:"ant",w:m[1].trim()};
+ if(m=l.match(/^(?:how (?:do you|do i|to|should i|can i) pronounce|pronounce|how (?:is|do you say|do i say|to say)|pronunciation of|how do you say|say)\s+(?:the word\s+)?["']?([a-z][a-z'-]{0,28})["']?(?:\s+(?:said|pronounced))?$/))return{kind:"pron",w:m[1]};
+ if(m=l.match(/^(?:turn|switch|set)\s+(on|off)\s+auto(?:matic)?[ -]?(?:grammar|fix|correct)(?:ion)?(?:[ -]?(?:fix|check|correct))?$/))return{kind:"auto",on:m[1]==="on"};
+ if(/^(?:auto(?:matic)?[ -]?(?:grammar|fix)).*(?:on|off)$/.test(l)){return{kind:"auto",on:/\bon$/.test(l)}}
+ return null}
+function antAnswer(a,w){
+ return jl("lang_ant.json").then(j=>{let r=j[w];let via="";if(!r){for(const b of(D.base?D.base(w):[])){if(j[b]){r=j[b];via=b;break}}}
+  if(!r){const un="un"+w,inn="in"+w,nn=w.replace(/^un/,"");const f=[];return Promise.all([un,nn,inn].map(x=>D.load(D.file(x)).catch(()=>null))).then(()=>{[un,inn].forEach(x=>{if(D.known(x)&&D.entry(x))f.push(x)});if(w.startsWith("un")&&D.known(nn))f.push(nn);return f.length?LEAD(a)+"The closest opposite I can find for “"+w+"” is “"+f[0]+"”.":"I don’t have a clear opposite for “"+w+"”. Some words don’t really have one."})}
+  const l=r.split(",");return LEAD(a)+"The opposite of “"+(via||w)+"”: "+l.slice(0,4).join(", ")+"."}).catch(()=>"I couldn’t open my antonym list. Check that lang_ant.json is uploaded.")}
+function pronAnswer(a,w){
+ const f=w[0]<"m"?"lang_pron_1.json":"lang_pron_2.json";
+ return jl(f).then(j=>{const r=j[w.replace(/'/g,"'")];if(!r)return"I don’t have the pronunciation for “"+w+"”. Try a more common spelling?";return LEAD(a)+cap(w)+" is said like "+r+". The capital letters are the part you stress."}).catch(()=>"I couldn’t open my pronunciation list. Check that lang_pron_1.json and lang_pron_2.json are uploaded.")}
+const WAITL=["Checking that for you…","Let me look it over…","One sec…"];
+const _rp=reply;
+reply=function(a,q){
+ const calm=typeof CR!=="undefined"&&CR.test(q.replace(/[’‘]/g,"'"));
+ if(!calm){
+  let p=parseLang(q);
+  if(!p&&waitText[a.id]&&Date.now()-waitText[a.id]<120000&&q.length>3&&!/^(no|nah|cancel|never ?mind|stop|nothing)\b/i.test(q)){p={kind:"check",text:q}}
+  if(p){
+   delete waitText[a.id];
+   if(p.kind==="auto"){gs.autoFix=p.on;try{sv("gs",gs)}catch(e){}return p.on?"Okay, auto grammar fix is on. I’ll point out fixes when your messages have mistakes.":"Okay, auto grammar fix is off."}
+   if(p.kind==="check"){
+    if(!p.text){waitText[a.id]=Date.now();return"Sure. Send me the text you want checked and I’ll go through it."}
+    checkAll(p.text).then(r=>deliver(a,fixReply(a,p.text,r))).catch(()=>deliver(a,"I couldn’t open my word lists just now. Make sure the lang_ files are uploaded."));
+    return WAITL[Math.random()*WAITL.length|0]}
+   if(p.kind==="ant"){antAnswer(a,p.w).then(t=>deliver(a,t));return WAITL[Math.random()*WAITL.length|0]}
+   if(p.kind==="pron"){pronAnswer(a,p.w).then(t=>deliver(a,t));return WAITL[Math.random()*WAITL.length|0]}}}
+ const res=_rp(a,q);
+ if(!calm&&gs.autoFix&&q.length>12){
+  checkAll(q).then(r=>{if(r.spell.length||r.grammar.filter(x=>x.rule!=="END_PUNCTUATION"&&x.rule!=="SENTENCE_CAPITAL").length)setTimeout(()=>deliver(a,"Small fix on what you wrote: “"+r.text+"”"),900)}).catch(()=>{})}
+ return res};
+/* before the voice speaks: strip markdown and emoji, fix obvious spelling, read every sentence */
+const _mk=mkUtt;
+mkUtt=function(t,a){
+ let x=String(t).replace(/[*_`#>~]+/g,"").replace(/\[([^\]]+)\]\([^)]*\)/g,"$1").replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu,"").replace(/[•]/g,",").replace(/\s*\n+\s*/g,". ").replace(/\.\s*\./g,".").trim();
+ if(RANK)x=x.replace(TOK,w=>FIXED[w.toLowerCase()]!==undefined&&!/^(I)$/.test(w)?caseLike(w,FIXED[w.toLowerCase()]):w);
+ return _mk.call(this,x,a)};
+freq().catch(()=>{});
+window.LANGPACK={spellText,grammar,checkAll,pron:pronAnswer,ant:antAnswer,parseLang,wordCount:()=>D.count};
 })();
 </script>
 <script>

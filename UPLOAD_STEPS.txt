@@ -1,9 +1,17 @@
-Legendary Twelve v21 - upload steps (GitHub Pages)
+Legendary Twelve v22 - upload steps (GitHub Pages)
 
 1. Upload EVERY file in this folder to the root of your repository, replacing the old ones:
-   index.html, sw.js, manifest.webmanifest, the 4 icon .png files, and the 10 dictionary files
-   dict_1.json to dict_10.json (about 16 MB total, they hold the 360,000-word dictionary and spelling list).
+   index.html, sw.js, manifest.webmanifest, the 4 icon .png files,
+   dict_1.json to dict_10.json (360,000-word dictionary and spelling list, about 16 MB),
+   and the 4 NEW language pack files: lang_freq.json, lang_ant.json, lang_pron_1.json, lang_pron_2.json (about 3.7 MB).
    Tip: on a phone, use "Add file > Upload files" and select them all at once.
 2. Wait a minute for Pages to rebuild, then open the site and reload once.
-3. First open on each device downloads the dictionary once (needs internet, Wi-Fi recommended). After that it works offline.
+3. First open on each device downloads everything once (Wi-Fi recommended). After that it works offline.
 4. Tell any assistant your name once ("my name is ...") and they will greet you by name every time.
+
+Language pack things to try:
+  define happy / what does meticulous mean      synonym for fast / antonym for fast
+  how do you pronounce colonel                  how do you spell necessary
+  check my grammar: their going to the store and i seen it
+  fix this: I recieved teh pakage yesterday     (or say "check my grammar" then send the text)
+  turn on auto grammar fix / turn off auto grammar fix
