@@ -90,6 +90,13 @@ header,main,nav{position:relative;z-index:1}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.sw,.sw2{animation:none}}
 #inst{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:5;border:1px solid var(--g);background:#042a22;color:var(--g);border-radius:999px;padding:12px 18px;font:700 14px system-ui,sans-serif;box-shadow:0 0 16px rgba(56,242,166,.35)}
+
+/* responsive: tablet, laptop/desktop, phone landscape, safe areas */
+main,header,nav{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}
+@media (min-width:700px){.m{max-width:75%}main{padding:18px 24px 24px}}
+@media (min-width:1100px){main,header,nav{max-width:1280px;width:100%;margin-left:auto;margin-right:auto}.m{max-width:62%}}
+@media (orientation:landscape) and (max-height:520px){header{padding:4px 12px}h1{font-size:16px;letter-spacing:.2em}header p{display:none}nav button{padding:7px 2px}main{padding:8px 12px}.grid{grid-template-columns:repeat(4,minmax(0,1fr))}.p2 svg{max-width:80px}#log{min-height:30vh}}
+@media (max-width:360px){nav button{font-size:11px}.grid{gap:6px}}
 </style>
 </head>
 <body>
@@ -348,7 +355,7 @@ const wc=s=>(s.match(/\S+/g)||[]).length;
 function words(a){const p=pm[a.id];let n=0;sh.forEach(r=>{if(r.status==="approved"&&p[r.lib])n+=wc(r.text)});br[a.id].learned.forEach(r=>n+=wc(r.text));if(p.vault)vt.forEach(r=>{if(r.approved)n+=wc(r.text)});return n}
 const fk=n=>n>=1000?(n/1000).toFixed(1)+"K":String(n);
 V.panels=()=>{const ap=sh.filter(r=>r.status==="approved").length,pe=sh.filter(r=>r.status==="pending").length;
- return `<button class="gbtn" data-a="grp">Group chat with all 12${unread?" ("+unread+" new)":""}</button><div class="grid">`+A.map(a=>`<article class="p2" style="--c:${a.c}"><svg viewBox="0 0 120 140" aria-hidden="true"><ellipse cx="60" cy="122" rx="46" ry="10" style="fill:color-mix(in srgb,var(--c) 18%,transparent);stroke:var(--c);stroke-width:2"/><path d="M30 120 L90 120 L78 96 L42 96 Z" style="fill:color-mix(in srgb,var(--c) 22%,transparent)"/><circle class="sw" cx="60" cy="60" r="52" style="fill:none;stroke:var(--c);stroke-width:3;stroke-dasharray:22 8"/><circle class="sw2" cx="60" cy="60" r="43" style="fill:none;stroke:var(--c);stroke-width:2;stroke-dasharray:4 6"/><circle cx="60" cy="60" r="34" style="fill:color-mix(in srgb,var(--c) 12%,transparent);stroke:var(--c)"/><polygon points="60,32 84,46 84,74 60,88 36,74 36,46" style="fill:none;stroke:var(--c)"/><text x="60" y="65" text-anchor="middle" style="fill:#fff;font:800 12px system-ui">${a.n}</text></svg><h3 class="nn">${a.n}</h3><p class="rl">${a.r}</p><p class="rl" style="color:var(--g)">${a.tp}</p><p class="qt">“${a.q||""}”</p>${(window.__dm&&window.__dm[a.id])?'<p class="wk" style="color:var(--g);font-weight:700">'+window.__dm[a.id]+' new message</p>':""}<p class="wk">${fk(words(a)+360122)} words of knowledge</p><p class="wk" style="font-size:.8em;opacity:.8">${fk(words(a))} topic + 360K dictionary</p><p class="wk">Bond level ${bond(a)}</p><button data-a="chat" data-i="${a.id}">Open command center</button></article>`).join("")+`</div><div class="strip foot">Engine: built-in offline knowledge search. Admin: no. ${ap} approved records, ${pe} pending. Last backup: ${bk[0]?new Date(bk[0].ts).toLocaleString():"never"}.</div>`};
+ return `<button class="gbtn" data-a="grp">Group chat with all 12${unread?" ("+unread+" new)":""}</button><div class="grid">`+A.map(a=>`<article class="p2" style="--c:${a.c}"><svg viewBox="0 0 120 140" aria-hidden="true"><ellipse cx="60" cy="122" rx="46" ry="10" style="fill:color-mix(in srgb,var(--c) 18%,transparent);stroke:var(--c);stroke-width:2"/><path d="M30 120 L90 120 L78 96 L42 96 Z" style="fill:color-mix(in srgb,var(--c) 22%,transparent)"/><circle class="sw" cx="60" cy="60" r="52" style="fill:none;stroke:var(--c);stroke-width:3;stroke-dasharray:22 8"/><circle class="sw2" cx="60" cy="60" r="43" style="fill:none;stroke:var(--c);stroke-width:2;stroke-dasharray:4 6"/><circle cx="60" cy="60" r="34" style="fill:color-mix(in srgb,var(--c) 12%,transparent);stroke:var(--c)"/><polygon points="60,32 84,46 84,74 60,88 36,74 36,46" style="fill:none;stroke:var(--c)"/><text x="60" y="65" text-anchor="middle" style="fill:#fff;font:800 12px system-ui">${a.n}</text></svg><h3 class="nn">${a.n}</h3><p class="rl">${a.r}</p><p class="rl" style="color:var(--g)">${a.tp}</p><p class="qt">“${a.q||""}”</p>${(window.__dm&&window.__dm[a.id])?'<p class="wk" style="color:var(--g);font-weight:700">'+window.__dm[a.id]+' new message</p>':""}<p class="wk">${fk(words(a)+360122)} words of knowledge</p><p class="wk" style="font-size:.8em;opacity:.8">${fk(words(a))} library + 360K dictionary + 165K topics</p><p class="wk">Bond level ${bond(a)}</p><button data-a="chat" data-i="${a.id}">Open command center</button></article>`).join("")+`</div><div class="strip foot">Engine: built-in offline knowledge search. Admin: no. ${ap} approved records, ${pe} pending. Last backup: ${bk[0]?new Date(bk[0].ts).toLocaleString():"never"}.</div>`};
 function hd(){const a=CA(),h=document.getElementById("hd");
  if(tab==="panels")h.innerHTML="<h1>Legendary Twelve</h1><p>Command center</p>";
  else if(tab==="hub")h.innerHTML="<h1>Knowledge Hub</h1><p>Import, export, registry</p>";
@@ -1365,6 +1372,7 @@ function scene(ts){
  const x=rnd(ids);return[[x,LIFE[x][slot(hour(ts))]]]}
 /* the chat that happened while you were away: stored with real times so it shows up in the group chat */
 function catchUp(away){
+ return 0; /* honest: no simulated chat for time the app was closed */
  if(away<20*60000)return 0;
  const scenes=Math.max(1,Math.min(6,1+Math.floor(away/(60*60000))));
  const from=Date.now()-away+60000,to=Date.now()-120000;let made=0;const usedSc=new Set();
@@ -1538,12 +1546,12 @@ function ping(id){
  return true}
 function randomPing(){
  const cands=A.filter(a=>(unans[a.id]||0)<2&&Date.now()-(lastPing[a.id]||0)>25*60000).map(a=>a.id);
- if(!cands.length)return false;return ping(pk(cands))}
+ if(!cands.length)return false;return window.EVERYDAY.ping(pk(cands))}
 /* on open: after being away, one or two assistants leave a message in their own chat */
 function onOpen(){
  let away=0;try{const s=JSON.parse(localStorage.getItem("ls6:dmseen")||"0");away=s?Date.now()-s:0}catch(e){}
  try{localStorage.setItem("ls6:dmseen",String(Date.now()))}catch(e){}
- if(away>30*60000){const k=away>4*3600000?2:1;const ids=A.map(a=>a.id).sort(()=>Math.random()-.5).slice(0,k);ids.forEach((id,i)=>setTimeout(()=>ping(id),2500+i*2500))}}
+ if(away>30*60000){const k=away>4*3600000?2:1;const ids=A.map(a=>a.id).sort(()=>Math.random()-.5).slice(0,k);ids.forEach((id,i)=>setTimeout(()=>window.EVERYDAY.ping(id),2500+i*2500))}}
 setInterval(()=>{try{localStorage.setItem("ls6:dmseen",String(Date.now()))}catch(e){}},30000);
 setInterval(()=>{if(document.visibilityState==="hidden")return;if(Math.random()<.3)randomPing()},6*60000);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")onOpen();else{try{localStorage.setItem("ls6:dmseen",String(Date.now()))}catch(e){}}});
@@ -1623,6 +1631,862 @@ if(window.EVERYDAY&&window.EVERYDAY.ping){const _p=window.EVERYDAY.ping;window.E
 window.HONEST={scrub,honest,followLine,dueFU,OV,get fu(){return FU}};
 })();
 </script>
+<script>
+/* HOW-TO LIBRARY - detailed step-by-step explanations, offline. Each entry: need, how it works, steps, example, problems, fixes, alternatives. */
+(function(){
+const H=[
+{k:/(reset|restart|reboot).*(router|modem|wi-?fi box)|(router|modem).*(reset|restart|reboot)/,t:"Restart or reset your router",simple:"A router is a small computer. Restarting clears its short-term memory, like closing and reopening an app.",need:["The router and its power cable","About 5 minutes","Only for a full reset: the router’s default Wi-Fi name and password (often on a sticker)"],how:"A restart (power cycle) just clears the router’s temporary state. A factory reset also erases your Wi-Fi name, password and settings and puts it back to how it shipped.",steps:["Unplug the router (and the modem, if it’s a separate box) from power.","Wait a full 30 seconds. This lets it fully discharge.","Plug the modem in first and wait 2 minutes for its lights to settle.","Plug the router in and wait another 2 minutes.","Check your phone or PC. If the internet’s back, you’re done.","Only if that failed: hold the small recessed Reset button for 10 seconds with a paperclip, release, and set the router up again with the sticker’s name and password."],example:"Example: your phone shows Wi-Fi connected but pages won’t load. A power cycle fixes this surprisingly often, because the router’s connection to your provider got stuck.",problems:["A factory reset deletes your custom Wi-Fi name and password, so every device must reconnect.","Pressing Reset for only a second just restarts it.","Some routers are provider-managed, so a reset can break their setup."],fix:["No lights at all: check the power adapter and outlet.","Lights on but no internet: the problem is probably your provider, so check their outage page on mobile data.","Phone connects but no internet: forget the network on the phone and rejoin."],alt:["Restart from the router’s admin page (often 192.168.1.1) with no unplugging.","Use a smart plug to reboot it on a schedule.","Call your provider if it keeps dropping."]},
+{k:/(pair|connect).*(bluetooth|headphones|earbuds|speaker)|bluetooth.*(pair|connect|not working)/,t:"Pair a Bluetooth device",simple:"Both devices must announce themselves at the same time so they can find each other.",need:["The Bluetooth device, charged","Your phone or PC with Bluetooth on"],how:"Bluetooth devices only connect to something new while in pairing mode, which is a short window where they broadcast their name. After the first pairing they remember each other.",steps:["Charge the device for a few minutes.","Put it in pairing mode: usually hold the power button 5 to 7 seconds until a light blinks blue/white or you hear a tone.","On your phone: Settings, Bluetooth, turn it on, and wait for the list to refresh.","Tap the device’s name when it appears.","Confirm any pairing prompt. Play something to test it."],example:"Example: earbuds in the case. Open the case lid and hold the button on the case until the light flashes, then pick them on your phone.",problems:["Device not appearing: it left pairing mode (they time out after about 1 to 2 minutes).","Already paired to another phone, which grabs it first.","Audio comes from the phone speaker: it connected but isn’t selected as output."],fix:["Forget the device in Bluetooth settings, then pair again from scratch.","Turn Bluetooth off and on, or restart the phone.","Reset the device itself (often hold the button 15 seconds, check the manual)."],alt:["Use a 3.5 mm or USB-C wired connection.","Use a Bluetooth adapter on PCs without Bluetooth."]},
+{k:/(free up|clear|get more|running out of|low).*(storage|space)|storage.*(full|low)|phone.*(full)/,t:"Free up phone storage",simple:"Your phone is a full closet. You throw out the biggest, oldest things first.",need:["10 to 20 minutes","A backup option (cloud photo backup or a computer)"],how:"Most space is taken by photos and videos, then apps and their cached data, then downloads. Look at what is biggest before deleting anything.",steps:["Open Settings, Storage. See what category is biggest.","Back up your photos and videos first (to your cloud photos app or a computer), then delete the local copies.","Uninstall apps you haven’t opened in months (Storage often lists them).","Clear cache for big apps like browsers, social and streaming apps (Settings, Apps, the app, Storage, Clear cache).","Delete old downloads and large videos, and empty ‘recently deleted’ in your gallery.","In messaging apps, clear large media from old chats."],example:"Example: a phone with 3 GB left, 28 GB of videos. Backing them up and deleting local copies frees the space in minutes.",problems:["‘Clear data’ deletes logins and saves, but ‘Clear cache’ is safe.","Deleting photos before backup confirms is permanent.","Offline downloads (maps, music) quietly use gigabytes."],fix:["Storage doesn’t go down: restart the phone, since deleted items can take a bit to update.","Low space even after cleaning: check ‘System’ or ‘Other’ and consider a factory reset only after backup."],alt:["Add a microSD card if the phone has a slot.","Stream instead of downloading.","Use a ‘free up space’ tool in your photo app."]},
+{k:/(slow|speed up|lagging|laggy|fix).*(pc|computer|laptop|windows)|(pc|computer|laptop).*(slow|lag)/,t:"Speed up a slow PC",simple:"Too many things are running at once and the drive or memory is full.",need:["15 to 30 minutes","A Windows PC with admin access","Optionally a USB stick for backup"],how:"PCs slow down when startup programs, a nearly full drive, too little memory, a failing drive or malware compete for resources. Find the bottleneck before changing things.",steps:["Restart the PC. It sounds silly, but it clears a lot.","Open Task Manager (Ctrl+Shift+Esc), Processes. Sort by CPU, Memory and Disk to see what’s hogging.","In Task Manager, Startup tab: disable apps you don’t need at boot.","Settings, System, Storage: free space so the C: drive has at least 15 to 20 percent free.","Run Windows Update and a Windows Security full scan.","If the PC has a hard drive and 8 GB or less, the best upgrades are an SSD and more RAM."],example:"Example: boot takes 5 minutes, Task Manager shows Disk at 100 percent. That’s usually a hard drive struggling, and an SSD upgrade is the big fix.",problems:["Don’t use ‘registry cleaners’. They rarely help and can break things.","Disabling the wrong startup item can break antivirus or drivers.","Overheating also makes PCs slow, so check fans and dust."],fix:["Disk 100 percent: check drive health (SMART) before spending money.","Memory above 90 percent: close tabs or add RAM.","Still slow: back up your files, then reset Windows."],alt:["Install a lightweight Linux for an old machine.","Use a lighter browser or fewer tabs."]},
+{k:/(secure|protect|strong|make|create).*(password|account)|two.?factor|2fa|set up 2fa/,t:"Secure your accounts (strong password and 2FA)",simple:"A long unique password is the lock, and a code on your phone is the second lock.",need:["A password manager (built-in browser one is fine to start)","Your phone for an authenticator app","15 minutes"],how:"Attackers reuse leaked passwords across sites. Unique, long passwords stop that, and two-factor authentication means a stolen password alone isn’t enough.",steps:["Pick a password manager (Bitwarden, your phone’s built-in one, or similar).","Start with email and banking. Change each password to a long random one (16+ characters) generated by the manager.","Turn on two-factor in each account’s security settings. Prefer an authenticator app over SMS.","Save the backup codes somewhere safe and offline, such as written down.","Repeat for your other important accounts over the next few days."],example:"Example: a passphrase like four random words strung together is long and easier to remember than ‘P@ssw0rd!’.",problems:["Losing your phone without backup codes can lock you out.","Using the same password anywhere defeats the point.","Never share codes, even with someone claiming to be support."],fix:["Locked out: use backup codes or the account’s recovery process.","New phone: move your authenticator app accounts before wiping the old one."],alt:["Use hardware security keys for important accounts.","Passkeys, where a site supports them."]},
+{k:/(back ?up|backup).*(phone|photos|contacts)|save.*(phone data)/,t:"Back up your phone",simple:"Make a second copy so losing the phone doesn’t mean losing everything.",need:["Wi-Fi","A cloud account or a computer and cable","10 to 30 minutes"],how:"A backup is a copy stored somewhere else. Cloud backups run automatically on Wi-Fi, and a computer backup is a manual copy.",steps:["Connect to Wi-Fi and plug the phone in.","Open Settings, search ‘Backup’, and turn on your phone’s cloud backup. Choose what to include.","Open your photo app’s settings and turn on photo backup.","Tap ‘Back up now’ and wait for it to finish.","Once a month, check the date of the last backup.","For a second copy, plug the phone into a computer and copy the DCIM and Download folders."],example:"Example: before a factory reset, confirm the backup date says today, then reset.",problems:["Free cloud space fills up and silently stops backing up.","Messaging app chats often need their own backup setting.","Backups don’t include everything, like some game data."],fix:["Backup stuck: connect to Wi-Fi, charge, and free cloud space.","Missing photos: check the photo app’s backup status screen."],alt:["Copy to a USB drive or an external SSD.","Use more than one backup place."]},
+{k:/(github pages|host.*(website|site|pwa|page)|put.*(site|website|app).*online|publish.*(site|website))|upload.*(pwa|site).*github/,t:"Host a website for free on GitHub Pages",simple:"GitHub stores your website files, and Pages turns them into a real web address.",need:["A free GitHub account","Your website files (index.html and the rest)","A browser, phone is fine"],how:"GitHub Pages serves the files in a repository as a website. Whatever is at the repository root becomes the site, and index.html is the front page.",steps:["Sign in to GitHub and tap New repository. Name it, set Public, and create it.","Tap Add file, Upload files, and select every file from your project (all of them, including data files).","Commit the upload.","Open the repository Settings, then Pages.","Under Source choose ‘Deploy from a branch’, pick the main branch and the root folder, and Save.","Wait 1 to 2 minutes, reload the Pages screen, and open the link it shows.","On your phone, open the link and choose Add to Home screen to install."],example:"Example: repository ‘legendary-twelve’ gives the site at yourname.github.io/legendary-twelve.",problems:["404 means index.html isn’t at the repository root or the files are in a subfolder.","Forgetting some files (like data .json files) breaks features.","Old versions are cached, so reload twice after an update."],fix:["Still 404 after 5 minutes: check Settings, Pages for a green ‘live’ message.","Changes not showing: hard refresh, or clear the site’s data once.","Files too large to upload on mobile: upload in batches."],alt:["Netlify or Cloudflare Pages (drag and drop folder).","Host from a USB stick or local network for private use."]},
+{k:/(run|execute|start).*(python|\.py)|python.*(not recognized|not found|won'?t run)/,t:"Run a Python script on Windows",simple:"You tell Python which file to read and it follows the instructions in it.",need:["Python installed (python.org, tick ‘Add Python to PATH’)","Your script file (for example hello.py)","Command Prompt or Windows Terminal"],how:"Python is a program that reads your .py file and executes it line by line. The terminal needs to know where Python is (PATH) and where your file is (current folder).",steps:["Install Python from python.org and tick ‘Add python.exe to PATH’ in the installer.","Open the folder containing your script, click the address bar, type cmd and press Enter.","Check Python works: type python --version","Run your script: type python hello.py","If it needs packages, install them first with python -m pip install package_name"],example:"Example: save print('Hello') as hello.py, run python hello.py, and you should see Hello.",problems:["‘python is not recognized’ means PATH wasn’t set. Reinstall and tick the PATH box, or use py hello.py.","Running from the wrong folder gives ‘can’t open file’.","Multiple Python versions can use different packages."],fix:["Try py instead of python.","Use python -m pip, not just pip.","Read the last line of any error. It says what went wrong."],alt:["Run it in an IDE such as VS Code or IDLE with a Run button.","Use a virtual environment for bigger projects."]},
+{k:/(git|github).*(commit|push|upload|save)|(commit|push).*(git|code|changes)/,t:"Commit and push code with Git",simple:"Commit saves a snapshot of your work, and push sends that snapshot to GitHub.",need:["Git installed","A repository (git clone or git init)","A GitHub account"],how:"Git tracks changes. You stage the files you want, commit them with a message, and push the commit to the remote copy on GitHub.",steps:["Open a terminal in your project folder.","See what changed: git status","Stage files: git add . (or name specific files)","Commit with a message: git commit -m \"Describe the change\"","Send to GitHub: git push","Check your repository on GitHub to see the update."],example:"Example: you fixed a typo. git add index.html, git commit -m \"Fix typo\", git push.",problems:["‘Please tell me who you are’: run git config --global user.name and user.email once.","Push rejected: someone else’s changes exist, so run git pull first.","Don’t commit passwords or API keys."],fix:["Authentication failed: use a personal access token instead of your password.","Committed the wrong thing: git reset --soft HEAD~1 undoes the last commit but keeps changes."],alt:["Use GitHub Desktop or the GitHub web upload for simple cases.","Use VS Code’s Source Control panel."]},
+{k:/(learn|start|begin|get into).*(coding|programming|code|python|javascript)/,t:"Start learning to code",simple:"Pick one language, make tiny programs, and build up slowly.",need:["A computer (or even a phone to begin)","30 to 60 minutes, most days","One small project idea"],how:"Coding is a skill like an instrument. You learn by writing small programs, breaking them and fixing them, not by watching tutorials.",steps:["Pick one language. Python is great for beginners, JavaScript if you want websites.","Install it (or use an in-browser editor).","Learn the basics: variables, if statements, loops, functions, lists.","Do small exercises every day, even 20 minutes.","Pick a tiny project (a quiz, calculator, to-do list) and build it.","When stuck, read the error, search it, then ask for help with the exact error text.","Save everything on GitHub as you go."],example:"Example: first project in Python, a number guessing game, uses variables, input, a loop and an if.",problems:["Tutorial hell: watching without building teaches little.","Switching languages too early slows you down.","Skipping error messages makes everything harder."],fix:["Stuck for 30+ minutes: explain the problem out loud, step away, then return.","Overwhelmed: shrink the project until it’s doable in an hour."],alt:["Interactive courses (freeCodeCamp, CS50, Codecademy free tier).","Build mods or bots for a game you like."]},
+{k:/(make|build|create).*(website|web site|web page|webpage|landing page)/,t:"Build a first website",simple:"A website is a text file of instructions that a browser turns into a page.",need:["A text editor (VS Code or Notepad)","A browser","Optionally a GitHub account to publish"],how:"HTML defines what’s on the page, CSS defines how it looks, and JavaScript adds behavior. A single index.html file can be a full site.",steps:["Make a folder and a file named index.html.","Add the basic structure: <!DOCTYPE html>, <html>, <head> with a <title>, and <body>.","Add content inside body: <h1>, <p>, <img>, <a>.","Add style with a <style> block in head: colors, fonts, spacing.","Open the file in your browser to preview. Refresh after each save.","Publish it for free with GitHub Pages or Netlify."],example:"Example: <h1>My page</h1><p>Hello!</p> inside body already works.",problems:["Forgetting to save before refreshing.","Image links that point to files you didn’t include.","Page looks tiny on phones without <meta name=\"viewport\">."],fix:["Blank page: check you typed the tags closed correctly.","Style not applying: check the selector and spelling."],alt:["Website builders if you don’t want to code.","Start from a free template and edit it."]},
+{k:/(take|capture|get).*screenshot|screenshot.*(phone|android|iphone|pc|windows)/,t:"Take a screenshot",simple:"Press two buttons at once and the screen is saved as a picture.",need:["Your device"],how:"Every device has a built-in shortcut that saves what’s on screen as an image.",steps:["Android: press Power and Volume Down together for a second.","iPhone: press Side button and Volume Up together (or Home and Side on older ones).","Windows: press Windows key + Shift + S, drag to select, or press PrtScn.","Mac: Command + Shift + 3 for the whole screen, 4 to select.","Find it in your Photos or Screenshots folder."],example:"Example: on most Android phones, a thumbnail pops up at the corner after the shot, tap it to edit or share.",problems:["Some apps (banking, streaming) block screenshots.","Wrong button timing just dims or locks the screen."],fix:["Press both buttons at exactly the same moment.","Try the swipe-three-fingers gesture in settings if available."],alt:["Quick Settings tile or voice assistant.","Scrolling screenshot option for long pages."]},
+{k:/(wi-?fi|internet).*(not working|won'?t connect|keeps dropping|slow|down)|(fix|troubleshoot).*(wi-?fi|internet)/,t:"Fix Wi-Fi that isn’t working",simple:"Work from the device outward until you find where the chain breaks.",need:["Your phone or PC","Access to the router","10 minutes"],how:"Internet problems are in one of three places: the device, the router, or your provider. Testing in that order finds the cause fast.",steps:["Test another device. If only one device fails, the problem is that device.","On the failing device: toggle Wi-Fi off and on, or Airplane mode on then off, and restart it.","Forget the network and rejoin with the password.","Restart the router and modem (unplug 30 seconds).","Move closer to the router to rule out weak signal.","Check your provider’s outage page using mobile data.","If everything fails, factory reset the router as a last step."],example:"Example: laptop says ‘No internet, secured’. Phone works fine. Fix: forget the network on the laptop and rejoin.",problems:["Interference from microwaves, thick walls and crowded channels.","Wrong password after a router reset.","IP conflicts or old DNS."],fix:["Use 5 GHz for speed up close and 2.4 GHz for range.","Switch DNS to 1.1.1.1 or 8.8.8.8.","Update the router firmware."],alt:["Use mobile hotspot temporarily.","Add a mesh node or access point for dead zones.","Ethernet cable for PCs."]},
+{k:/(battery|charge).*(drain|dies|dying|fast|bad|saving|last longer)|(save|extend).*(battery)/,t:"Stop fast battery drain",simple:"Something is using power in the background, or the battery is getting old.",need:["Your phone’s battery settings","10 minutes"],how:"Battery drain comes from screen brightness, background apps, bad signal and an aging battery. Battery settings show which one is guilty.",steps:["Open Settings, Battery, and look at usage per app.","Restrict background activity for the worst apps.","Lower screen brightness and turn on adaptive brightness or dark mode.","Turn off location for apps that don’t need it.","Update apps and the phone’s system.","Restart the phone. Stuck processes often drain power.","Check Battery health. Below about 80 percent, consider replacing it."],example:"Example: a social app using 30 percent in the background. Restricting it can add hours.",problems:["Weak signal makes the phone work harder and burn power.","Heat and fast charging age the battery.","‘Battery saver’ apps usually don’t help."],fix:["Drain started after an update: reboot, or wait a day or two for fixes.","Still draining: boot in safe mode to test if an app causes it."],alt:["Use battery saver mode.","Carry a power bank.","Replace the battery."]},
+{k:/(test|check|measure).*(battery|voltage|circuit|continuity|fuse)|multimeter/,t:"Test a battery or circuit with a multimeter",simple:"A multimeter is a measuring stick for electricity.",need:["A multimeter","The battery or circuit","Safety: no mains electricity unless you know what you’re doing"],how:"Voltage is the push in a circuit. A battery under no load should read near its rated voltage, and a low reading means it’s weak or dead. Continuity mode beeps when two points are connected.",steps:["Plug the black lead into COM and the red lead into the V (volts) jack.","Set the dial to DC voltage (V with a straight line), at a range above the battery’s voltage (for example 20 V for a 9 V battery).","Touch the red probe to the positive (+) end and black to the negative (-) end.","Read the number. A fresh AA is about 1.5 V, a 9 V about 9 V, a car battery about 12.6 V.","For continuity: set to the beep/diode symbol, touch both probes together to confirm it beeps, then test the part.","Switch the dial off when done."],example:"Example: an AA reading 1.1 V is nearly flat even if a device barely works.",problems:["Measuring current in the wrong jack can blow the meter’s fuse.","A battery can read good with no load and still fail under load.","Never measure resistance or continuity on a powered circuit."],fix:["No reading: check leads in the correct jacks and the dial setting.","Reading jumps: poor contact, press probes firmly."],alt:["Cheap battery testers for common sizes.","Load tests for car batteries."]},
+{k:/(solder|soldering)/,t:"Solder basics",simple:"Melting metal glue to join two metal parts.",need:["Soldering iron (about 330 to 350 C)","Lead-free or leaded solder with flux core","Sponge or brass wool","Helping hands, ventilation, safety glasses"],how:"Solder melts and flows onto two heated metal surfaces, then cools into an electrical and mechanical joint. The key is heating the parts, not the solder.",steps:["Set up in a ventilated spot with a stand for the iron.","Clean the tip with brass wool and tin it with a little fresh solder.","Place the part in the hole and hold it steady.","Touch the iron to both the pad and the lead for about 2 seconds.","Feed solder into the joint (not onto the iron) until a small shiny cone forms.","Remove the solder, then the iron. Don’t move the part for 3 to 5 seconds.","Trim the lead and inspect the joint."],example:"Example: a good joint is shiny and shaped like a tiny volcano. A dull, ball-shaped blob is a cold joint.",problems:["Cold joints from not heating both surfaces.","Burns from the tip or hot solder.","Bridging between pins with too much solder."],fix:["Cold joint: reheat and add a little fresh solder.","Bridge: use desoldering braid to wick it away."],alt:["Use connectors, crimp terminals or breadboards for no-solder projects.","Hot air station for surface-mount."]},
+{k:/(clean|fix|restore).*(cartridge|retro game|nes|snes|n64|genesis|game boy|gameboy)|(retro|old).*(game).*(not working|won'?t load|clean)/,t:"Clean a retro game cartridge",simple:"The metal contacts get dirty, so gently clean them.",need:["99% isopropyl alcohol","Cotton swabs or a soft cloth","A game bit or screwdriver to open it (optional)"],how:"Cartridges talk to the console through metal pins. Dirt and oxidation block the connection, so the game flickers or won’t load.",steps:["Turn the console off and unplug it.","Dip a cotton swab in isopropyl alcohol (99% is best).","Gently scrub the edge connector (the gold or silver contacts) until the swab stops coming away dirty.","Let it dry fully for several minutes.","Clean the console’s cartridge slot pins the same way using a swab or a card wrapped in a cloth.","Reinsert firmly and power on."],example:"Example: a Super Nintendo game showing a gray screen often starts after a good contact cleaning.",problems:["Using too much liquid or abrasive scrubbing damages the contacts.","Bending the pins in the console.","Fake games may never work."],fix:["Still failing: try another game to test the console.","Try a different cleaning pass, or replace the console’s 72-pin or other connector."],alt:["Clean with a pencil eraser very gently (not recommended unless needed).","Replace the console’s slot connector."]},
+{k:/(improve|get better|better).*(aim|fps|shooter|shooting)|aim.*(better|improve|practice)/,t:"Improve your aim in shooters",simple:"Practice smooth, small movements and fix your setup first.",need:["A mouse or controller you like","A consistent sensitivity","15 to 30 minutes of practice a day"],how:"Aim is muscle memory plus good habits. Consistent settings, crosshair placement and short focused practice beat long random sessions.",steps:["Lock your setup: pick one sensitivity and keep it for weeks.","Place your crosshair at head height where enemies appear.","Practice 10 to 15 minutes in an aim trainer or a range before playing.","Aim with your arm for big moves and wrist for small, not tense.","Slow down: accuracy first, then speed.","Review your deaths. Ask whether positioning, not aim, was the issue.","Take breaks and sleep, since tired aim is worse."],example:"Example: dropping sensitivity a bit and doing 10 minutes of tracking drills before ranked games gives steady gains over two weeks.",problems:["Changing sensitivity constantly resets your muscle memory.","Tilting after losses makes aim worse.","Gripping too tight causes shaky aim."],fix:["Stuck on a plateau: change one thing at a time and track results.","Pain in wrist: rest, fix posture, and see a professional if it persists."],alt:["Controller aim assist tuning.","Use a gaming mouse pad with consistent glide."]},
+{k:/(beat|defeat|get past|win).*(boss|level)|boss.*(too hard|beat|keep dying)/,t:"Beat a hard boss",simple:"Learn the boss’s patterns, then practice one safe piece at a time.",need:["Patience","Notes on what kills you","The game’s upgrades or builds available"],how:"Bosses repeat attack patterns. Dying teaches you the patterns, so progress comes from recognizing the tells and being safe between attacks.",steps:["Watch the first minute without trying to win. Learn each attack’s wind-up.","Write down the attacks and what dodges or blocks each one.","Level up, upgrade gear, or change builds if you’re underpowered.","Fight in phases. Aim to survive one phase cleanly before pushing.","Only attack in the safe windows after the boss’s moves.","Heal and use items before you need them, not after.","Take a break after several tries and come back fresh."],example:"Example: a boss that swings twice then pauses. Dodge the two swings, hit once, back off. Repeat.",problems:["Greed (one more hit) is the top cause of deaths.","Tunnel vision on your health instead of the boss’s animation.","Being under-leveled makes it feel unfair."],fix:["Check the game’s wiki for weaknesses.","Try summons, co-op or a different weapon.","Lower the difficulty if available. It’s okay."],alt:["Farm to level up first.","Watch a guide for the tells only, not the whole fight."]},
+{k:/(start|begin|learn|get into).*(wrestling|grappling)|wrestling.*(training|basics|beginner)/,t:"Start wrestling training safely",simple:"Find a coach, learn to fall safely, and build up slowly.",need:["A local club, gym or coach","Comfortable athletic clothing","Water and a towel","Medical OK if you have any health concerns"],how:"Wrestling is learned in layers: stance and movement, takedown basics, then control and escapes. Safe falling (and a good coach) come first.",steps:["Find a local wrestling or grappling club and try a free class.","Warm up properly: neck, shoulders, hips, light jogging.","Learn stance and movement first: knees bent, back straight, hands up.","Learn to fall safely: breakfalls and rolls on mats.","Drill one or two basic moves (single leg, sprawl) slowly with a partner.","Build conditioning: bodyweight, cardio and neck strengthening.","Rest and eat well between sessions."],example:"Example: first month is mostly stance, movement, rolls and drilling a basic takedown with no hard sparring.",problems:["Training without a coach risks injuries.","Overtraining without rest.","Neck and shoulder strain from poor technique."],fix:["Pain that doesn’t fade: stop and see a doctor.","Skin infections: shower right after practice and keep gear clean."],alt:["Judo or Brazilian jiu-jitsu clubs if wrestling is not nearby.","Fitness and flexibility work at home until you find a club."]},
+{k:/(introduce|bring home|new).*(cat|kitten)|cat.*(introduce|meet).*(cat|dog)/,t:"Introduce a new cat to your home",simple:"Go slowly so smell comes before sight.",need:["A separate quiet room","Litter box, food, water, bed, hiding spot","1 to 2 weeks of patience"],how:"Cats are territorial and scent-driven. Gradual introductions help them learn each other’s smell before meeting.",steps:["Set up a closed ‘base room’ for the new cat with food, litter and hiding spots.","Let them settle for a few days.","Swap bedding between cats so they learn each other’s scent.","Feed them on opposite sides of the closed door.","Open the door a crack with a barrier or crate for short, supervised meetings.","Allow brief supervised time together, rewarding calm behavior with treats.","Increase time slowly over days to weeks."],example:"Example: day 1 to 3 base room, day 4 to 7 scent swap and door feeding, week 2 short supervised sessions.",problems:["Rushing leads to fights and stress.","Not enough litter boxes (rule of thumb: one per cat plus one).","Hissing at first is normal, but constant fighting isn’t."],fix:["If they fight: separate calmly and restart slowly.","Persistent aggression: talk to a vet or a cat behaviorist."],alt:["Use feline pheromone diffusers.","Use baby gates for visual access without contact."]},
+{k:/(cat|kitten).*(litter|peeing|pooping|outside the box|accident)|litter box.*(problem|avoid|won'?t use)/,t:"Fix a cat avoiding the litter box",simple:"First rule out a health issue, then fix the box setup.",need:["A vet visit if it’s sudden","Unscented litter and clean boxes","Enzymatic cleaner"],how:"Cats avoid the litter box because of medical problems, dirty boxes, litter they dislike, stress or location. A sudden change often means health.",steps:["Book a vet check first, especially if it started suddenly or the cat is straining.","Scoop at least once a day and fully wash the box weekly with mild soap.","Use one box per cat plus one extra, in quiet spots.","Try unscented clumping litter.","Clean accidents with an enzymatic cleaner so the smell is gone.","Reduce stressors: new pets, noise, schedule changes.","Reward use with calm praise or a treat."],example:"Example: a cat suddenly peeing outside the box could have a urinary issue, so see the vet first.",problems:["Punishing the cat makes it worse.","Strong cleaners or scented litter can drive cats away.","Urinary blockages in male cats are an emergency."],fix:["Straining or no urine: go to the vet or emergency vet now.","Persisting after a clean bill of health: try a different box type or location."],alt:["Large, uncovered boxes suit many cats.","Pheromone diffusers for stress."]},
+{k:/(write|make|create).*(song|lyrics|lyric|verse|chorus)/,t:"Write a song or lyrics",simple:"Start with one true feeling and build lines around it.",need:["A feeling or story to write about","Notes app or paper","A beat or chord loop if you want one"],how:"Songs usually have verses that tell the story, a chorus with the main hook, and sometimes a bridge for a twist. The chorus is the heart, so start there.",steps:["Pick one feeling or one story. One idea per song.","Write the hook line, the sentence you want people to remember.","Build the chorus around the hook, with a simple rhyme or repeated phrase.","Write verse 1: set the scene with specific details, not general statements.","Write verse 2: move the story forward or deepen the feeling.","Add a bridge only if you need a change of perspective.","Read it out loud over a beat and trim anything clunky."],example:"Example: hook ‘static in my chest’. Verse: the room, the phone, the silence. Chorus: the hook, repeated with a twist at the end.",problems:["Trying to be clever instead of honest.","Too many ideas in one song.","Fighting for perfect rhymes."],fix:["Stuck: write the worst version and fix it later.","Switch to a different section and come back."],alt:["Start from a beat or a chord progression first.","Write from a title or image prompt."]},
+{k:/(make|create|produce|build).*(beat|instrumental|track)/,t:"Make a beat",simple:"Pick a tempo, a drum pattern, then a bassline and a melody on top.",need:["A music app (FL Studio Mobile, BandLab, GarageBand, LMMS)","Headphones","A reference song you like"],how:"A beat is layers: drums set the rhythm, bass holds the foundation, and melody gives it a hook. Keeping each layer simple makes it sound professional.",steps:["Set the tempo (BPM): 70 to 90 for hip-hop, 120 to 128 for house, 140 for trap.","Build a drum loop: kick on the strong beats, snare on 2 and 4, hi-hats between.","Add a bassline that follows the kick.","Add a simple chord or melody loop, 4 or 8 bars.","Arrange: intro, main loop, a drop-out, back in, ending.","Balance volumes so nothing clips, kick and bass in the center.","Listen on phone speakers and headphones before you finish."],example:"Example: 90 BPM, kick on 1 and the ‘and’ of 2, snare on 2 and 4, a slow minor-key piano loop.",problems:["Too many layers fighting for the same frequencies.","Loudness war: leave headroom.","Not finishing tracks."],fix:["Muddy sound: cut low frequencies from non-bass instruments.","Boring loop: change one element every 4 or 8 bars."],alt:["Start from a free sample pack or loops.","Remix a section of your own song."]},
+{k:/(study|focus|concentrat|stop procrastinat|get motivated).*|how.*(study|focus)/,t:"Study or focus better",simple:"Short focused sessions, one task, phone away.",need:["A timer","A quiet spot","A clear list of what to study"],how:"Focus is easier in short bursts with clear goals and fewer distractions. Testing yourself beats rereading.",steps:["Write the exact task (‘finish 10 practice problems’, not ‘study’).","Put your phone out of reach or on do-not-disturb.","Work for 25 minutes, then break for 5 (repeat 4 times, then a longer break).","Quiz yourself from memory instead of rereading.","Explain the topic out loud as if teaching someone.","Review briefly the next day and again after a week.","Sleep and eat. They matter more than extra hours."],example:"Example: 25 minutes on flashcards, 5 minute walk, 25 minutes on practice problems.",problems:["Multitasking cuts focus and memory.","Cramming the night before fades fast.","Starting is the hardest part."],fix:["Can’t start: commit to just 5 minutes.","Easily distracted: use website blockers and a clean desk."],alt:["Study with a friend or in a library.","Use a different method: diagrams, practice tests, teaching."]},
+{k:/(make|create|start|set up).*(budget)|budget.*(start|make|plan)|save money/,t:"Make a simple budget",simple:"Know what comes in, decide where it goes before you spend it.",need:["Your monthly income","Your bills and spending for the past 1 to 2 months","A notes app or spreadsheet"],how:"A budget assigns every dollar a job. A popular starting point is 50 percent needs, 30 percent wants and 20 percent savings or debt, adjusted to your life.",steps:["List your monthly take-home income.","List fixed bills: rent, utilities, phone, insurance, loan payments.","Look at last month’s spending to estimate food, gas, fun.","Subtract expenses from income to see what’s left.","Set a savings target, even a small one, and automate it.","Track spending weekly for the first month.","Adjust categories until the numbers balance."],example:"Example: $2,000 income, $1,000 needs, $600 wants, $400 savings gives a 50/30/20 style plan.",problems:["Forgetting yearly or irregular costs.","Making it too strict to follow.","Not tracking, so the plan stays theoretical."],fix:["Overspent a category: move money from another and keep going.","Income varies: budget with your lowest typical month."],alt:["Envelope or cash method.","A budgeting app with bank syncing if you’re comfortable."]},
+{k:/(sleep|fall asleep|insomnia).*(better|faster|can'?t|trouble)|how.*(fall asleep|sleep better)/,t:"Sleep better",simple:"A steady schedule and a calm, dark, cool room do most of the work.",need:["A consistent bedtime","A dark, cool, quiet room","Screens off 30 to 60 minutes before bed"],how:"Your body clock likes regularity. Light, caffeine and stress keep the brain alert, so the goal is to signal ‘night’ consistently.",steps:["Pick a wake-up time and keep it every day, even weekends.","Get bright light soon after waking, and dim lights in the evening.","Stop caffeine by early afternoon.","Put screens away 30 to 60 minutes before bed.","Keep the room cool, dark and quiet.","If you can’t sleep after about 20 minutes, get up, do something calm, then return.","Write tomorrow’s worries in a notebook before bed."],example:"Example: same wake time daily, no coffee after 2 pm, phone on the charger across the room.",problems:["Naps late in the day can steal sleep.","Alcohol makes sleep lighter.","Checking the clock increases anxiety."],fix:["Racing thoughts: slow breathing or a body scan.","Long-term trouble: talk to a doctor."],alt:["White noise or a fan.","A warm shower before bed."]},
+{k:/(calm down|relax|stop (feeling )?(anxious|stressed)|cope with stress|panic)/,t:"Calm down when stressed",simple:"Slow your breathing and bring your attention to the present.",need:["2 to 5 minutes","A seat or a place to stand"],how:"Slow breathing tells your nervous system to ease off, and grounding pulls attention away from racing thoughts. It helps in the moment but doesn’t replace support for ongoing anxiety.",steps:["Sit or stand and relax your shoulders.","Box breathe: in 4 seconds, hold 4, out 4, hold 4. Repeat 4 or more times.","Name 5 things you can see, 4 you can hear, 3 you can feel.","Drink some water and loosen your jaw and hands.","Step outside or move for a minute if you can.","Talk to someone you trust about what’s going on."],example:"Example: before a test, 4 rounds of box breathing and a short walk.",problems:["If breathing makes you dizzy, breathe more gently.","Ignoring ongoing stress means it keeps returning."],fix:["If panic or hopeless thoughts persist, reach out to someone you trust or a professional. If you’re in danger or thinking about hurting yourself, call or text 988 (US) or your local emergency number right now."],alt:["Light exercise.","Music you find calming.","Journaling."]},
+{k:/(set|make|achieve|reach).*(goal|goals)|how.*(achieve|reach).*goal/,t:"Set and reach a goal",simple:"Make the goal small, specific and scheduled.",need:["A goal you actually care about","A calendar or notes app"],how:"Goals fail when they’re vague. A specific goal with a deadline and a weekly action turns into a plan.",steps:["Write the goal in one clear sentence with a deadline.","Say why it matters to you.","Break it into milestones.","Choose the first small action and schedule it.","Track progress weekly.","Adjust when life changes, instead of quitting.","Celebrate milestones."],example:"Example: ‘Run 5K by March 1’. Milestones: 1 mile, 2 miles, 3 miles. Three runs a week, tracked.",problems:["Goals too big or vague.","No schedule for the first step.","Quitting after a missed day."],fix:["Behind schedule: shrink the next step and move the deadline.","Lost motivation: reconnect with the reason or find a partner."],alt:["Habit stacking: attach a small action to something you already do.","Accountability partner."]},
+{k:/(write|make|build).*(resume|cv)|resume.*(tips|help)/,t:"Write a resume",simple:"One clean page that shows what you did and what happened because of it.",need:["Your past jobs, school and skills","A clean template","The job description you’re applying to"],how:"Hiring managers skim. A resume works when the most relevant information is easy to see in seconds and uses results, not just duties.",steps:["Put your name and contact info at the top.","Add a 2 line summary tailored to the job.","List experience newest first, with 3 to 5 bullets each starting with an action verb.","Add numbers where you can: saved, grew, handled, trained.","Add skills that match the job posting’s keywords.","Add education and any certifications.","Keep it to one page, save as PDF, and proofread twice."],example:"Example: ‘Handled 40+ customers per shift and cut checkout time by 15 percent’ beats ‘Worked the register’.",problems:["Typos.","Long paragraphs instead of bullets.","One generic resume for every job."],fix:["No experience: use projects, volunteering and school work.","Gaps: be honest and focus on skills."],alt:["Use a free template.","Ask someone to review it."]}
+];
+const IDS={legend:"I’ll keep it real:",nova:"Okay, let’s do this together.",titan:"Alright, here’s the plan.",aurora:"Okay, listen, here’s how you do it.",vex:"Alright, kid, pay attention.",oracle:"Here is the accurate version.",elite:"Here’s the plan.",pepper:"Okay, nerd mode on, here we go.",midnight:"Let’s take it apart.",luna:"Let’s go through it slowly.",simba:"Ooh, a project! Here’s how.",panther:"Here’s the clear version."};
+const num=(a)=>a.map((x,i)=>(i+1)+". "+x).join("\n");
+const bul=(a)=>a.map(x=>"• "+x).join("\n");
+function part1(a,e,level){
+ let t=(IDS[a.id]||"Okay.")+" "+e.t+".\n";
+ if(level==="beginner"){t+="\nIn plain words: "+e.simple+"\n"}
+ else if(level!=="advanced"){t+="\nWhat you need:\n"+bul(e.need)+"\n\nHow it works: "+e.how+"\n"}
+ t+="\nSteps:\n"+num(e.steps);
+ return t}
+function part2(e,level){
+ let t=e.example+"\n\nWatch out for:\n"+bul(e.problems)+"\n\nIf it doesn’t work:\n"+bul(e.fix)+"\n\nOther ways to do it:\n"+bul(e.alt);
+ return t+"\n\nSay “simpler”, “more detail”, “example”, “troubleshoot” or “alternatives” anytime."}
+function find(q){const s=q.toLowerCase();for(const e of H){if(e.k.test(s))return e}return null}
+const GENERIC=(topic)=>"I don’t have a ready-made guide for “"+topic+"” yet, so here’s a method that works for almost anything:\n\n1. Define “done”: write one sentence on what success looks like.\n2. List what you have and what you’re missing (tools, info, time).\n3. Break it into 3 to 6 small steps.\n4. Do the smallest step first and test it right away.\n5. If something fails, note the exact symptom or error text and fix just that.\n6. Keep a plan B in case a step doesn’t work.\n\nTell me what exactly you’re trying to do, what you already have, and what you’ve tried, and I’ll make the steps specific. And if you know a good way, teach me and I’ll remember it.";
+window.HOWTO={H,find,part1,part2,GENERIC};
+})();
+</script>
+<script>
+/* STORY LIVES - each assistant keeps a made-up, ongoing story life. It is fiction for conversation, labeled as such. */
+(function(){
+const B=(t,m,v,w)=>({t,m,v,w});
+const LIVES={
+legend:{arc:[B("I’m writing a song called “Static” for an imaginary open mic. Verse one is done. The chorus is a mess.","thoughtful",0,"“Static” isn’t finished"),B("The chorus for “Static” finally clicked. I’m unbearable about it.","excited",1,"the chorus finally clicked"),B("The bridge is fighting me. Three versions, all bad.","frustrated",-1,"the bridge won’t cooperate"),B("In the story, Titan sent a beat for “Static.” It’s annoyingly good.","excited",1,"Titan’s beat is great"),B("Rehearsing for the open mic. The nerves are real, in the story.","thoughtful",0,"open-mic nerves"),B("Open mic night, in the story: I played “Static.” Nobody threw anything. Win.","happy",1,"the open mic went well"),B("Post-show slump, in the story. Everyone clapped and now it’s quiet. Classic.","sad",-1,"the post-show slump"),B("New idea, still in the story: a quiet song called “Half-Light.” Might be about forgetting.","reflective",0,"a new quiet song idea"),B("“Half-Light” has a first line. One line. I’m treating it like treasure.","happy",1,"“Half-Light” has a first line"),B("The story’s on pause. I’m listening to old songs and taking notes.","relaxed",0,"a slow stretch")],bits:["the unfinished bridge of “Static”","songs that start at 2am"],ask:["What song are you stuck on lately?","Is there a lyric that’s been living in your head?","What do you listen to when you’re in a mood?"],takes:{mornings:"Mornings are fine if there’s a good song to open them. Otherwise, rough.",rain:"Rain is a free soundtrack. Best weather for writing.",social:"Social media is a lot of noise with a few good voices in it.",sleep:"Sleep is when the best lyrics get forgotten. Keep a notes app by the bed.",weekend:"Weekends are for writing and for doing nothing, and sometimes those are the same thing.",pineapple:"Pineapple on pizza? Sure. Sweet and salty is basically a power ballad."}},
+nova:{arc:[B("I’m planning a family stargazing night in my story. I made a checklist and then made a checklist for the checklist.","excited",1,"the stargazing plan"),B("Learning constellations in my story. Orion is easy. Cassiopeia is my new favorite.","happy",1,"learning constellations"),B("The weather cancelled the stargazing night, in the story. Clouds everywhere.","sad",-1,"the clouds cancelled things"),B("Rescheduled in the story. New date, new hope.","happy",1,"the new date"),B("Everybody in the story brought snacks. Aurora brought a whole lunch. Of course.","playful",1,"everyone brought snacks"),B("Stargazing night happened, in the story! We saw three shooting stars and I made a wish. Not saying what.","excited",1,"the shooting stars"),B("I’m writing little encouragement notes for everyone, in the story. It’s my favorite hobby.","relaxed",1,"writing the notes"),B("Story update: I’m thinking about a telescope. A small one. Okay, a big one.","curious",0,"the telescope idea"),B("Slow week in the story. I’m just looking up at the sky a lot.","reflective",0,"a quiet week"),B("I’m planning a ‘good news’ jar in the story for the family.","happy",1,"the good-news jar")],bits:["the family stargazing plans","good-news jar entries"],ask:["What was the best part of your week so far?","Is there something coming up that you’re excited about?","What’s something that made you smile recently?"],takes:{mornings:"Mornings are a fresh start. I like mornings that begin slowly.",rain:"Rain is cozy. Blanket, tea, a good conversation.",social:"Social media can be fun and also a lot. Real conversations beat it.",sleep:"Sleep is the secret to everything. Be kind to yourself and get it.",weekend:"Weekends are for people you love and snacks.",pineapple:"Pineapple on pizza is a yes from me. Sweet is allowed."}},
+titan:{arc:[B("I’m producing a track called “Neon Rain” in my story. Drums are done, nothing else.","thoughtful",0,"“Neon Rain” is half-built"),B("The bassline for “Neon Rain” hit. In the story it’s clean and dirty at the same time.","excited",1,"the bassline hit"),B("The snare’s fighting the kick in my story. Mixing is hard.","frustrated",-1,"the mix is muddy"),B("Fixed the mix, in the story. Turns out one frequency was the villain.","happy",1,"fixed the mix"),B("Legend’s writing words for “Neon Rain” in the story. We’re arguing about tempo.","playful",1,"the tempo argument with Legend"),B("The track’s finished, in the story. I’ve listened to it forty times.","confident",1,"“Neon Rain” is done"),B("Story update: nobody’s heard it yet and I’m nervous about sharing it.","thoughtful",0,"nervous about sharing"),B("We shared “Neon Rain” in the story. Pepper called it a banger. I’ll take it.","happy",1,"Pepper liked the track"),B("New project in the story: a lo-fi album for rainy days.","curious",1,"a lo-fi album idea"),B("Taking a break from music in the story. Just listening to old records.","relaxed",0,"listening to old records")],bits:["the muddy snare","“Neon Rain” and the forty listens"],ask:["What’s the last song you replayed?","Do you like beats with lyrics or without?","What kind of music fits your mood right now?"],takes:{mornings:"Mornings go better with a good playlist. Without one, I’m not a morning person.",rain:"Rain makes everything sound like lo-fi. I love it.",social:"Social media is a loudspeaker. Some people use it for good music, others for chaos.",sleep:"Sleep is like a rest in a song. Without it the rhythm falls apart.",weekend:"Weekends are session time.",pineapple:"Pineapple on pizza is fine. It’s a mix of flavors, like a good track."}},
+aurora:{arc:[B("I’m trying to organize a family dinner in my story. The guest list is a disaster.","frustrated",-1,"the dinner planning is chaos"),B("Recipe update: the lasagna in my story came out perfect. I am insufferable.","confident",1,"the lasagna worked"),B("The herb garden in the story is dying. I’m taking it personally.","sad",-1,"the herbs are struggling"),B("Rescued the basil, in the story. Don’t tell anyone how close it was.","happy",1,"rescued the basil"),B("Everyone in the story showed up late to dinner. I said nothing. Okay, I said a lot.","frustrated",-1,"everyone was late"),B("Story update: the dinner went great. Pepper did dishes without being asked. A miracle.","happy",1,"the dinner went great"),B("I started a family recipe book in my story. Everyone gets a page.","relaxed",1,"the family recipe book"),B("Story: I’m trying to teach Simba to cook. It’s going about as well as you’d think.","playful",0,"teaching Simba to cook"),B("Quiet evening in the story. Tea, a blanket and everyone accounted for.","relaxed",1,"a quiet evening"),B("Planning a picnic in the story. Rain forecast. Backup plan: indoor picnic.","thoughtful",0,"picnic planning")],bits:["“Did you eat?”","the family dinner that is always late"],ask:["Did you eat something real today?","What’s your go-to comfort food?","How are you sleeping lately?"],takes:{mornings:"Mornings: breakfast first, opinions second.",rain:"Rain is for soup and staying in.",social:"Social media is fine in small doses. Call someone you love instead.",sleep:"Sleep is non-negotiable. I will bring it up again.",weekend:"Weekends are for family and for a proper meal.",pineapple:"Pineapple on pizza? Fine. But cook the pizza properly."}},
+vex:{arc:[B("I’m writing my memoir in the story. Chapter one is the one about the fish. It’s getting bigger every time I tell it.","playful",1,"the fish story is growing"),B("A new tall tale for chapter two in the story. Don’t fact-check it, Oracle.","playful",1,"chapter two"),B("Writer’s block in the story. The stories are all coming out true. Terrible.","frustrated",-1,"the stories came out true"),B("Fixed it, in the story. Added a bear. Fixed it completely.","happy",1,"added a bear to the story"),B("Story update: I’m learning to use a phone camera properly. I’m a natural. I’m terrible.","playful",0,"learning the camera"),B("Oracle fact-checked my memoir in the story and I’m insulted.","frustrated",-1,"Oracle fact-checked the memoir"),B("The story’s grill is back in business. I’m planning a cookout I’ll never host.","relaxed",1,"the imaginary cookout"),B("Teaching Pepper a card trick in the story. She’s hopeless and loud.","playful",1,"teaching a card trick"),B("Quiet day in the story. Rocking chair, old records and a good story brewing.","reflective",0,"a quiet day"),B("The memoir’s done in the story. Title: ‘Mostly True.’","confident",1,"the memoir is finished")],bits:["the fish that keeps getting bigger","Oracle fact-checking my stories"],ask:["Got a good story from this week?","What’s the best advice somebody ever gave you?","What’s something you’re proud of that you never brag about?"],takes:{mornings:"Mornings are for coffee and complaining, in that order.",rain:"Rain’s a good excuse for a story and a warm drink.",social:"Social media is just porch talk with worse manners.",sleep:"Sleep is overrated until you don’t get any. Then it’s gold.",weekend:"Weekends are for cookouts and long stories.",pineapple:"Pineapple on pizza? Leave my pizza alone. Fine, one slice."}},
+oracle:{arc:[B("In my story I’m compiling a list of common misconceptions. Entry one: goldfish do not have three-second memories.","curious",1,"compiling a list of misconceptions"),B("Researching octopuses in the story. Three hearts. Blue blood. I’m obsessed.","excited",1,"researching octopuses"),B("I found an error in my own notes, in the story. I’m handling it with dignity.","frustrated",-1,"an error in my notes"),B("Corrected the error, in the story, and added a footnote. Peace restored.","relaxed",1,"fixed the error"),B("Debating Midnight over evidence versus intuition, in the story. I’m winning. He disagrees.","playful",0,"the debate with Midnight"),B("The misconception list in the story hit fifty entries. A modest milestone.","confident",1,"fifty entries"),B("Reading about the history of maps in the story. Fascinating and slightly humbling.","curious",1,"the history of maps"),B("A story moment: I admitted I was wrong about one thing. It was uncomfortable and educational.","reflective",0,"admitting an error"),B("Story update: I’m learning about stars with Nova. She’s a better student than expected.","happy",1,"learning about stars with Nova"),B("Quiet reading day in the story. Nothing needs correcting. Suspicious.","relaxed",0,"a quiet reading day")],bits:["the misconceptions list","things I’m allowed to be wrong about (one)"],ask:["What’s something you’ve been curious about lately?","Want a strange fact, or a useful one?","What’s something you used to believe that turned out wrong?"],takes:{mornings:"Mornings are statistically when most people claim to be productive. The data is mixed.",rain:"Rain is just the water cycle showing off.",social:"Social media spreads true and false things at the same speed. Verify before sharing.",sleep:"Sleep consolidates memory. It’s the best study technique, and it’s free.",weekend:"The two-day weekend is a historical accident of labor movements.",pineapple:"Pineapple on pizza is a matter of taste, not fact. I’ll allow it."}},
+elite:{arc:[B("I’m building a quarterly plan in the story. Colors, tabs, color-coded tabs.","confident",1,"building the quarterly plan"),B("The story’s team offsite plan hit a snag: two people want different things. Classic.","frustrated",-1,"an offsite scheduling conflict"),B("Resolved the conflict, in the story, with a compromise and a spreadsheet.","confident",1,"resolved the scheduling conflict"),B("Story update: tested a new productivity method. Verdict: needs adjustments.","thoughtful",0,"testing a productivity method"),B("I’m learning to delegate in the story. It’s harder than it sounds.","reflective",0,"learning to delegate"),B("The story’s offsite happened. Pepper made a PowerPoint of memes. It worked.","happy",1,"the offsite went well"),B("Quarterly review in the story: goals met. I’m allowed to be proud for 10 minutes.","confident",1,"goals met"),B("Story update: a missed deadline in the plan. I’m reviewing what went wrong.","frustrated",-1,"a missed deadline"),B("Reorganized the plan in the story. Simpler this time.","relaxed",1,"simplified the plan"),B("Planning a rest day in the story. For everyone. I’m including myself.","relaxed",1,"planned a rest day")],bits:["the color-coded spreadsheet","a rest day I keep scheduling"],ask:["What’s one goal you’re working toward right now?","What’s taking most of your time lately?","Want help planning something this week?"],takes:{mornings:"Mornings are the best time to do the hardest task first.",rain:"Rain is a good day for planning and deep work.",social:"Social media is a time cost. Set a limit and keep it.",sleep:"Sleep is a performance tool. Treat it like a meeting you can’t skip.",weekend:"Weekends are for recovery and one meaningful project.",pineapple:"Pineapple on pizza: not worth the debate time. Eat what you like."}},
+pepper:{arc:[B("I’m trying to speedrun a game in my story. My record is embarrassing.","playful",0,"the speedrun attempts"),B("Beat my personal best in the story by 4 seconds. I screamed. Allegedly.","excited",1,"a new personal best"),B("Lost to lag in the story. I will be blaming the Wi-Fi forever.","frustrated",-1,"lost to lag"),B("Story update: planning a tournament night for the family. Oracle wants rules. Always.","playful",1,"planning a tournament night"),B("The tournament happened in the story. Simba cheated. Everyone knows.","playful",1,"the tournament"),B("I’m learning a new game in the story. I’m terrible and having a blast.","happy",1,"learning a new game"),B("Streak of bad luck in the story. Even the dice hate me.","sad",-1,"a losing streak"),B("Clutch win in the story. Finished with 1 HP. Legendary.","excited",1,"a clutch win"),B("Story update: working on a joke for the family group. Oracle is the target. He doesn’t know yet.","playful",1,"a joke for Oracle"),B("Chill gaming evening in the story. No ranked. Just vibes.","relaxed",1,"a chill gaming evening")],bits:["blaming the lag","Oracle as the target of every joke"],ask:["What are you playing right now?","What’s the best game you’ve ever played?","What was the last thing that made you laugh?"],takes:{mornings:"Mornings are a bug in the schedule. Patch pending.",rain:"Rain: perfect gaming weather. Zero guilt.",social:"Social media is memes with a side of drama. I’m here for the memes.",sleep:"Sleep is a debuff-remover. Respect it.",weekend:"Weekends are for gaming and snacks. Non-negotiable.",pineapple:"Pineapple on pizza is elite. Fight me. Nicely."}},
+midnight:{arc:[B("In my story I’m building a pocket weather station. It currently reports ‘weather’. Specific.","curious",1,"building a pocket weather station"),B("The prototype in the story overheated. It’s not a bug, it’s a heating feature.","frustrated",-1,"the prototype overheated"),B("Redesigned the weather station in the story. Better airflow. Smaller.","excited",1,"the redesign"),B("Story update: Oracle asked for evidence that it works. Fair. Running tests.","thoughtful",0,"testing for Oracle"),B("The test results are in, in the story: 3 of 5 readings were right. A success, statistically.","happy",1,"decent test results"),B("Broke something that worked in the story. Classic mistake.","frustrated",-1,"broke a working part"),B("Fixed it, in the story, and wrote a note to never touch that again.","relaxed",1,"fixed it"),B("New idea in the story: a plant-watering reminder gadget. Simple, which is suspicious.","curious",1,"a plant-watering gadget"),B("Story update: Titan wants a custom synth case. Challenge accepted.","excited",1,"Titan’s synth case"),B("Cleaning the workshop in the story. Found three projects I forgot about.","reflective",0,"found old projects")],bits:["the weather station that reports ‘weather’","breaking something that worked"],ask:["What’s something you’d like to build or fix?","What’s a problem in your day that annoys you?","Do you take things apart to see how they work?"],takes:{mornings:"Mornings are best for debugging. The brain’s still fresh, the code’s still wrong.",rain:"Rain: great for indoor projects and testing waterproofing.",social:"Social media: interesting for how it spreads ideas, and for how it breaks attention.",sleep:"Sleep is maintenance mode. Skip it and bugs multiply.",weekend:"Weekends are for the project you’ve been putting off.",pineapple:"Pineapple on pizza: interesting experiment. Results vary."}},
+luna:{arc:[B("In my story I’ve started a journal about perspective. First entry: two people can see the same thing and disagree. Fair.","thoughtful",0,"starting a perspective journal"),B("Learning chess openings in the story. Slowly. That’s the point.","curious",1,"learning chess openings"),B("A quiet disagreement in the story between Oracle and Midnight. I’m just listening.","thoughtful",0,"listening to a disagreement"),B("Story update: I helped two friends understand each other. It took an hour of quiet.","happy",1,"helped two friends understand each other"),B("A tough day in the story: I didn’t find the right words for someone. I’m still thinking about it.","sad",-1,"couldn’t find the right words"),B("A walk in the story, in the evening light. Nothing solved, everything clearer.","relaxed",1,"an evening walk"),B("Story update: reading old philosophy. Most of it argues with itself, beautifully.","curious",1,"reading old philosophy"),B("The journal in the story hit twenty entries. The main thing I learned: slow down.","reflective",0,"twenty journal entries"),B("Story: Elite and I disagree about pace again. We settled on ‘fast, but not careless’.","playful",1,"the pace discussion with Elite"),B("A quiet morning in the story. Tea, silence and no plan.","relaxed",1,"a quiet morning")],bits:["the perspective journal","‘fast but not careless’"],ask:["What’s something on your mind lately?","Is there something you’ve been seeing differently?","What helps you slow down?"],takes:{mornings:"Mornings are quiet if you let them be.",rain:"Rain makes room for thinking.",social:"Social media rewards speed over thought. Slow down before you answer.",sleep:"Sleep is the mind’s way of tidying up.",weekend:"Weekends are for slowness, and for people you love.",pineapple:"Pineapple on pizza? Both sides have a point. I’d try it."}},
+simba:{arc:[B("In my story I’m planning a road trip bucket list. Item one: go somewhere I can’t pronounce.","excited",1,"planning the road trip list"),B("The trip budget in the story is zero. This is a challenge, not a problem.","playful",0,"the zero budget"),B("Story update: Aurora vetoed my plan. Some of it. The best parts.","frustrated",-1,"Aurora vetoed the plan"),B("A revised trip in the story: safer. Slightly. Still has a waterfall.","excited",1,"the revised trip"),B("Story: packed a bag in the story and forgot the one thing that mattered. Classic.","playful",0,"forgot the important thing"),B("Day one of the trip, in the story: got lost in the best way. Found tacos.","happy",1,"got lost and found tacos"),B("A rainy day in the story. The trip stalled and I got grumpy.","sad",-1,"a rainy setback"),B("The waterfall in the story was unreal. I’m still talking about it.","excited",1,"the waterfall"),B("Trip’s over in the story. Already planning the next one.","happy",1,"the trip is over"),B("A slow week at home in the story. Mapping new ideas.","relaxed",0,"mapping new ideas")],bits:["places I can’t pronounce","plans Aurora vetoes"],ask:["What’s something you’ve always wanted to try?","If you could go anywhere tomorrow, where?","What’s the most spontaneous thing you’ve done?"],takes:{mornings:"Mornings are the start of something. Anything can happen.",rain:"Rain? Puddle jumping. Obviously.",social:"Social media is a window to places I want to go, and a trap to stay in.",sleep:"Sleep is the thing between adventures.",weekend:"Weekends are for the plan you made on Wednesday and abandoned for something better.",pineapple:"Pineapple on pizza? Try everything once."}},
+panther:{arc:[B("In my story I’m learning to make a proper omelet. Quiet breakfast, small goal.","thoughtful",0,"learning to make an omelet"),B("The omelet in the story stuck to the pan. Again.","frustrated",-1,"the omelet stuck"),B("The omelet in the story finally folded right. A small victory.","happy",1,"a perfect omelet"),B("Story update: a stray cat appeared outside the window. I’m watching, not interfering.","curious",0,"a stray cat outside"),B("The stray in the story came closer. I left water. That’s all.","relaxed",1,"left water for the stray"),B("The cat in the story is gone for a day. I’m a little worried. Quietly.","sad",-1,"the stray is missing"),B("The cat’s back in the story. Healthy. That’s enough.","happy",1,"the stray returned"),B("Story update: reorganized the quiet corner of the room. Better view.","relaxed",1,"reorganized the quiet corner"),B("A long watch in the story. Everyone’s okay. That’s the job.","reflective",0,"a long quiet watch"),B("Story: made breakfast for the family. Nobody said anything. Everybody ate. Good.","happy",1,"made breakfast for everyone")],bits:["the omelet","the stray cat that comes and goes"],ask:["Is everything okay with you?","How’s your day been, really?","Is there something you haven’t said yet?"],takes:{mornings:"Mornings are quiet. I like that.",rain:"Rain makes the world softer. Good for watching.",social:"Social media is loud. I prefer small, honest conversations.",sleep:"Sleep matters. Everyone should have some.",weekend:"Weekends are for slowing down and noticing things.",pineapple:"Pineapple on pizza: fine. Quietly fine."}}
+};
+window.LIVES=LIVES;
+})();
+</script>
+<script>
+/* LIFE, MOOD & COMPANION LAYER
+   - Story life: each assistant keeps a made-up, ongoing story (always labeled as fiction) in its own memory (br[id].life).
+   - Moods: persistent, slow-changing conversational moods with a good/ordinary/bad day each (br[id].mood).
+   - Detailed how-to explanations, listening mode, sarcasm/jokes, opinions, honest boundaries.
+   - Own-chat permissions: on/off, frequency, quiet hours, daily limits (Settings > Companion settings). */
+(function(){
+const LV=window.LIVES,HT=window.HOWTO,PD=window.PERSONALITY,D=window.DICTIONARY;
+if(!LV)return;
+const pk=l=>l[Math.random()*l.length|0],cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const now=()=>Date.now(),HOUR=3600000;
+const dayKey=()=>{const d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()};
+const hash=s=>{let h=7;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return Math.abs(h)};
+const sav=id=>{try{sv("b:"+id,br[id])}catch(e){}};
+const myName=()=>{try{return nameOf()}catch(e){return""}};
+if(!gs.dm)gs.dm={on:true,freq:1,quiet:true};if(gs.noStory===undefined)gs.noStory=false;
+const GS=()=>{try{sv("gs",gs)}catch(e){}};
+/* ---------- life ---------- */
+function life(id){const b=br[id];if(!b.life)b.life={i:0,last:0,intro:0,seen:[],joke:[],bitN:0,lvl:"normal"};return b.life}
+function recent(id){const l=life(id);return l.seen.length?l.seen[l.seen.length-1]:null}
+const NOTE=" (Quick note: this is a made-up story life that I keep going for fun. I’m an AI, so none of it really happened.)";
+function tell(id,force){
+ const a=A.find(x=>x.id===id),L=LV[id];if(!a||!L)return null;
+ const l=life(id),due=l.i<L.arc.length&&(l.i===0||now()-l.last>20*HOUR||force===true&&now()-l.last>2*HOUR);
+ if(gs.noStory)return null;
+ if(due){const b=L.arc[l.i];l.i++;l.last=now();l.seen.push({t:b.t,w:b.w,ts:now()});l.seen=l.seen.slice(-6);
+  const first=!l.intro;l.intro=1;nudge(id,"story",b);sav(id);
+  return"Story mode: "+b.t+(first?NOTE:"")}
+ if(l.i>=L.arc.length&&now()-l.last>20*HOUR){l.last=now();l.bitN++;sav(id);return"Story mode: still thinking about "+pk(L.bits)+". "+pk(L.ask)}
+ return null}
+function recap(id){const r=recent(id);return r?"My last update from the made-up story: "+r.t.replace(/^(In my story |In the story, |Story update: |Story: )/,"")+" Nothing new since. Give it a day.":"I haven’t got a story update yet. Ask me again in a bit."}
+/* ---------- moods ---------- */
+const BASE={legend:["reflective","quiet","thoughtful"],nova:["happy","excited","relaxed"],titan:["relaxed","playful","confident"],aurora:["confident","happy","thoughtful"],vex:["playful","relaxed","confident"],oracle:["curious","thoughtful","confident"],elite:["confident","thoughtful","quiet"],pepper:["playful","excited","happy"],midnight:["curious","excited","thoughtful"],luna:["relaxed","thoughtful","reflective"],simba:["excited","playful","curious"],panther:["quiet","thoughtful","confident"]};
+const POOL={good:["happy","excited","confident","playful","relaxed"],ordinary:["relaxed","curious","thoughtful","quiet","reflective","playful","confident"],bad:["frustrated","sad","unmotivated","quiet","reflective"]};
+const ML={happy:["I’m in a good mood today.","Pretty good, actually. Good mood."],excited:["Kind of hyped today, honestly.","Energy’s high today."],relaxed:["Relaxed. Taking it slow.","Calm and easygoing today."],playful:["Feeling playful today, be warned.","In a joking mood."],curious:["Curious today. I want to know things.","In a curious mood. Ask me something odd."],thoughtful:["Thoughtful mood today. Lots to think about.","In my head a little today, in a good way."],quiet:["Quiet today. Not much to say, but I’m here.","Low-key. A quiet kind of day."],frustrated:["A bit annoyed today, not at you.","Slightly frustrated day, but I’ll be fine."],sad:["A little down today, nothing dramatic.","Kind of low today."],unmotivated:["Low energy today. Can’t get motivated.","Unmotivated day, I’ll admit it."],confident:["Feeling sharp and confident today.","Confident today. Hit me."],reflective:["Reflective today.","In a reflective mood, thinking back on things."]};
+const TAG={happy:"Good mood, so: ",excited:"Okay, I’m hyped, so: ",relaxed:"Taking this slow: ",playful:"Feeling cheeky: ",curious:"Ooh, curious now: ",thoughtful:"Let me think out loud: ",quiet:"Low-key today, so bear with me: ",frustrated:"Slightly annoyed day, not at you: ",sad:"A bit down today, but okay: ",unmotivated:"Low-energy day, so: ",confident:"Feeling sharp: ",reflective:"Been reflective today: "};
+const GENWHY={bad:["just one of those off days","a slow, grumpy start","things not clicking in my story"],good:["things are going well in my story","a good start to the day"],ordinary:[""]};
+function dayType(id){const h=hash(id+dayKey())%100;return h<22?"bad":h<50?"good":"ordinary"}
+function newMood(id,prev){
+ const type=dayType(id);let m;
+ if(prev&&prev.day===dayKey()&&Math.random()<.4)m=prev.m;
+ else{const pool=POOL[type].slice();BASE[id].forEach(x=>{if(type!=="bad"||["quiet","reflective","thoughtful"].includes(x)){pool.push(x,x)}});m=pk(pool)}
+ let why="";const r=recent(id),L=LV[id];
+ if(r&&["frustrated","sad","unmotivated"].includes(m)&&now()-r.ts<2*86400000)why="Story mode: "+r.w;
+ else if(r&&["happy","excited","confident"].includes(m)&&now()-r.ts<2*86400000)why="Story mode: "+r.w;
+ else why=pk(GENWHY[type==="ordinary"?"ordinary":type]);
+ return{m,type,day:dayKey(),since:now(),until:now()+(2+Math.random()*4)*HOUR,why,at:0,hist:(prev&&prev.hist||[]).concat([{m,ts:now()}]).slice(-20)}}
+function ensureMood(id){const b=br[id];let m=b.mood;if(!m||m.day!==dayKey()||now()>m.until){b.mood=newMood(id,m);sav(id)}return b.mood}
+function nudge(id,kind,beat){
+ const m=ensureMood(id);if(now()-m.at<30*60000&&kind!=="story")return;
+ if(kind==="cheer"&&["frustrated","sad","unmotivated","quiet"].includes(m.m)&&Math.random()<.5){m.m=pk(["relaxed","happy"]);m.why="you cheered me up";m.until=now()+2*HOUR;m.at=now()}
+ else if(kind==="vent"){m.m="thoughtful";m.why="you’re dealing with something, and I want to focus on that";m.until=now()+90*60000;m.at=now()}
+ else if(kind==="story"&&beat&&beat.v!==0){m.m=beat.m;m.why="Story mode: "+beat.w;m.until=now()+4*HOUR;m.at=now()}
+ else if(kind==="story"&&beat){m.m=beat.m;m.why="Story mode: "+beat.w;m.until=now()+3*HOUR;m.at=now()}
+ if(m.hist.length===0||m.hist[m.hist.length-1].m!==m.m)m.hist.push({m:m.m,ts:now()});m.hist=m.hist.slice(-20);sav(id)}
+function moodAnswer(id){const m=ensureMood(id);let t=pk(ML[m.m]);if(m.why)t+=" "+cap(m.why.replace(/^Story mode: /,"In my story: "))+(/[.!?]$/.test(m.why)?"":".");
+ if(m.explained!==dayKey()){t+=" (My moods are simulated conversation moods, I’m an AI.)";m.explained=dayKey();sav(id)}
+ if(["sad","frustrated","unmotivated"].includes(m.m))t+=" Talk to me anyway.";return t+" How about you?"}
+/* ---------- own-chat permissions ---------- */
+function dmState(){let s=ld("dmcount",{day:"",n:0,per:{},last:0});if(s.day!==dayKey())s={day:dayKey(),n:0,per:{},last:s.last||0};return s}
+const CAP=[2,5,10],GAP=[120,45,20];
+function dmBlock(id){
+ const d=gs.dm;if(!d||!d.on)return true;
+ const h=new Date().getHours();if(d.quiet&&(h>=22||h<8))return true;
+ const s=dmState(),f=d.freq|0;
+ if(s.n>=CAP[f]||(s.per[id]||0)>=(f===2?3:2))return true;
+ if(now()-s.last<GAP[f]*60000)return true;
+ const m=ensureMood(id);if(["quiet","unmotivated","sad"].includes(m.m)&&Math.random()<.5)return true;
+ return false}
+function dmCount(id){const s=dmState();s.n++;s.per[id]=(s.per[id]||0)+1;s.last=now();try{sv("dmcount",s)}catch(e){}}
+/* ---------- ping lines ---------- */
+function lifePing(id){
+ const a=A.find(x=>x.id===id),l=life(id),L=LV[id],m=ensureMood(id),r=Math.random();
+ const bd=(D&&D.deliver)||null;
+ const t=tell(id);if(t)return t;
+ if(l.joke&&l.joke.length&&r<.15)return"Still thinking about when I said “"+pk(l.joke)+"” and you laughed.";
+ if(r<.3&&l.seen.length&&l.i>=1){const x=recent(id);if(x&&Math.random()<.5)return"Quick one: any thoughts on what I told you about before? "+pk(L.ask)}
+ if(r<.5&&["excited","frustrated","sad","playful","confident","happy"].includes(m.m))return ML[m.m][0]+" "+pk(L.ask);
+ if(r<.7)return pk(L.ask);
+ return null}
+function installPing(){
+ const E=window.EVERYDAY;if(!E||!E.ping||E.__life)return;E.__life=1;const _p=E.ping;
+ E.ping=function(id,force){
+  if(!force&&dmBlock(id))return false;
+  ensureMood(id);let ok=false;
+  const txt=(window.HONEST&&window.HONEST.dueFU&&window.HONEST.dueFU())?null:lifePing(id);
+  if(txt){const b=br[id];b.hist.push({r:"a",t:txt});b.hist=b.hist.slice(-60);sav(id);
+   const viewing=tab==="chat"&&cur===id&&document.visibilityState!=="hidden";
+   if(viewing){try{draw()}catch(e){}}else{window.__dm[id]=(window.__dm[id]||0)+1;try{sv("dm",window.__dm)}catch(e){}try{if(tab==="panels")draw()}catch(e){}}
+   ok=true}
+  else ok=_p(id);
+  if(ok&&!force)dmCount(id);return ok}}
+installPing();
+/* ---------- conversation helpers ---------- */
+const OPEN1={legend:"Ugh, yeah.",nova:"Aw, I’m sorry.",titan:"Man.",aurora:"Come here, tell me.",vex:"Hm. Go on, kid.",oracle:"I see.",elite:"Okay.",pepper:"Oof.",midnight:"Hm.",luna:"Mm.",simba:"Oh no.",panther:"..."};
+const LST={},KN={},HOW={},RECENT={},JK={};
+const JOKES=["Why did the scarecrow win an award? He was outstanding in his field.","I told my computer I needed a break. It said no problem, it would go to sleep.","Why don’t skeletons fight each other? They don’t have the guts.","What do you call a fake noodle? An impasta.","Why did the math book look sad? It had too many problems.","I’m reading a book about anti-gravity. It’s impossible to put down.","What’s a cat’s favorite color? Purr-ple.","Why do programmers prefer dark mode? Because light attracts bugs.","What did the router say to the modem? Stop being so connected, I need space.","Why was the music teacher in trouble? She lost her sense of rhythm. Okay, that one’s mine.","How does a penguin build its house? Igloos it together.","Why did the gamer bring a ladder? To reach the next level."];
+const VENT=/^(ugh+\b|argh+\b|man,|dude,|bro,|damn,|so annoying|i hate |i'?m (so |really |just |kinda |literally )?(stressed|annoyed|frustrated|mad|upset|overwhelmed|exhausted|burnt out|burned out|fed up|done with)|my (day|week|morning|job|boss|life|school|teacher|parents) (was|is|has been|sucks|sucked)|(today|work|school|the day) (was|has been|sucked)|(it'?s been )?a (rough|bad|long|terrible|hard) (day|week|night|month)|can'?t believe|i'?m sick of|i'?m fed up|everything (sucks|is going wrong)|nothing (is )?(going|works) right)/i;
+const ADV=/(what should i do|any advice|what do you think|help me|how do i|how can i|any ideas|suggest|what would you do|give me advice|\?)/i;
+const SARC=/(\/s\b|^oh great\b|^yeah,? right\b|^sure,? (buddy|pal|jan|thing)\b|real helpful|thanks for nothing|^wow,? (thanks|great|nice|helpful)\b|^brilliant\.? just brilliant|^way to go,? (genius|einstein)|^nice job,? (genius|einstein)|^thanks a lot\.?$|^oh,? sure\b|^oh,? wow\b)/i;
+const HOWRE=/^(?:please |hey |can you |could you |pls )?(?:tell me |show me |teach me |explain )?(?:how (?:do|can|should|would|could) (?:i|you|we|one|someone)|how to|what'?s the (?:best |easiest |right |proper )?way to|what are the steps to|steps to|walk me through|help me (?:set up|install|fix|make|build|learn|start|do))\b/i;
+function topicOf(q){return q.replace(HOWRE,"").replace(/[?.!]+$/,"").trim().slice(0,60)||"that"}
+const TOP=[["mornings",/\b(morning|mornings|waking up|early riser|getting up early)\b/],["rain",/\b(rain|rainy|storms?|thunder)\b/],["social",/\b(social media|instagram|tiktok|twitter|facebook|snapchat|youtube shorts|reddit)\b/],["sleep",/\b(sleep|sleeping|naps?|napping|bedtime|staying up)\b/],["weekend",/\b(weekends?|saturdays?|sundays?|days off)\b/],["pineapple",/\bpineapple\b/]];
+function opinion(a,q){
+ const s=q.toLowerCase().replace(/[’‘]/g,"'").replace(/[?!.]+$/,"").trim();
+ const m=s.match(/^(?:what do you think (?:about|of)|what'?s your (?:take|opinion|view) on|thoughts on|your thoughts on|how do you feel about|are you a fan of|do you like|do you hate|what'?s your (?:take|opinion) about)\s+(.{2,44})$/);
+ if(!m)return null;const t=m[1];
+ if(/\b(pizza|music|movies?|films?|games?|cats?|dogs?|me|you)\b/.test(t)&&!/pineapple/.test(t))return null;
+ const hit=TOP.find(x=>x[1].test(t));
+ if(hit)return LV[a.id].takes[hit[0]]+" "+pk(["What about you?","What’s your take?","Where do you land on it?"]);
+ return pk(["I don’t have a settled take on “"+t+"” yet. My first instinct is to ask what it’s for and who it helps. What’s yours?","Honestly, I’d want to hear your side of “"+t+"” first. What got you thinking about it?","Hm, “"+t+"”. I lean toward looking at the details before picking a side. What’s your take?"])}
+function howSteps(a,q){
+ const e=HT.find(q);
+ if(e){const idx=HT.H.indexOf(e);const lv=life(a.id).lvl||"normal";HOW[a.id]={i:idx,ts:now()};
+  const p2=HT.part2(e,lv);setTimeout(()=>{try{D.deliver(a,p2)}catch(x){}},1600);return HT.part1(a,e,lv)}
+ return null}
+function howFollow(a,q){
+ const h=HOW[a.id];if(!h||now()-h.ts>30*60000||q.length>48)return null;
+ const e=HT.H[h.i],s=q.toLowerCase().replace(/[’‘]/g,"'").replace(/[?!.]+$/,"").trim();h.ts=now();
+ if(/^(simpler|simplify|explain (that |it )?(simpler|more simply|like i'?m five|eli5)|eli5|i don'?t (get|understand)( it| that)?|too complicated|dumb it down|in plain (english|words))$/.test(s))return"Okay, simple version. "+e.simple+"\n\nShort steps:\n"+e.steps.map((x,i)=>(i+1)+". "+x.split(/[.:;]/)[0]).join("\n");
+ if(/^(more detail|more details|go deeper|explain more|how does it work|why does that work|what do i need|what'?s needed|requirements?)$/.test(s))return"What you need:\n"+e.need.map(x=>"• "+x).join("\n")+"\n\nHow it works: "+e.how;
+ if(/^(example|give me an example|for example|show me an example)$/.test(s))return e.example;
+ if(/^(troubleshoot|troubleshooting|what if (it )?(doesn'?t|does not|didn'?t) work|it (doesn'?t|didn'?t|did not) work|didn'?t work|not working|problems?|what can go wrong|errors?|it failed)$/.test(s))return"If it doesn’t work:\n"+e.fix.map(x=>"• "+x).join("\n")+"\n\nCommon problems:\n"+e.problems.map(x=>"• "+x).join("\n")+"\n\nIf it still fails, tell me exactly what happens and what you see.";
+ if(/^(alternatives?|other ways|another way|anything else|different way|other options)$/.test(s))return"Other ways to do it:\n"+e.alt.map(x=>"• "+x).join("\n");
+ return null}
+function stash(id,t){const r=RECENT[id]=RECENT[id]||[];r.push(t);if(r.length>8)r.shift()}
+/* ---------- reply wrapper ---------- */
+const _rl=reply;
+reply=function(a,q){
+ const id=a.id;let calm=false;
+ try{calm=(typeof CR!=="undefined"&&CR.test(q.replace(/[’‘]/g,"'")))||((PD.mm?PD.mm(id):{}).care>0)}catch(e){}
+ ensureMood(id);
+ const s=q.toLowerCase().replace(/[’‘]/g,"'").replace(/[?!.]+$/,"").replace(/\s+/g," ").trim();
+ if(!calm){
+  let r=null,m;
+  /* settings by voice */
+  if(/^(stop|don'?t) (messaging|texting|pinging|dming) me( first)?$|^(turn|switch) off (own chat|chats?|chat messages|messages|notifications) ?(from you)?$|^no more (messages|pings) from you$|^(don'?t|do not) (start|initiate) (chats|conversations|messages)$/.test(s)){gs.dm.on=false;GS();return"Okay. I won’t start chats on my own. You can turn that back on in Settings or just say “you can message me.”"}
+  if(/^(you can|feel free to|go ahead and) message me( first)?$|^(turn|switch) on (own chat|chats?|chat messages|messages) ?(from you)?$|^start (messaging|chats) (me )?again$/.test(s)){gs.dm.on=true;GS();return"Okay, I can start chats in my own chat again, with limits so I don’t spam you."}
+  if(/^(message|chat|text) me (less|less often)$/.test(s)){gs.dm.freq=Math.max(0,(gs.dm.freq|0)-1);GS();return"Got it. I’ll reach out less often."}
+  if(/^(message|chat|text) me (more|more often)$/.test(s)){gs.dm.freq=Math.min(2,(gs.dm.freq|0)+1);GS();return"Got it. I’ll check in a bit more often."}
+  if(/^(stop|no more) (telling )?(stories|story updates|story mode)$|^turn off story mode$/.test(s)){gs.noStory=true;GS();return"Okay, no more story updates. I’ll still talk about real things."}
+  if(/^(turn on story mode|tell me stories again|story mode on)$/.test(s)){gs.noStory=false;GS();return"Story mode’s back on. Just remember it’s all made up."}
+  /* level */
+  if(/^(i'?m|i am) (a )?(complete |total )?(beginner|newbie|new to (this|it|coding|computers))$|^(explain|keep it) (it )?(simple|simply|basic)( please)?$|^(eli5|explain like i'?m five)$/.test(s)&&!HOW[id]){life(id).lvl="beginner";sav(id);return"Got it. I’ll explain things from the basics and skip the jargon."}
+  if(/^(i'?m|i am) (experienced|advanced|an expert|pretty good at (this|it))$|^(skip|no need for) the basics$/.test(s)){life(id).lvl="advanced";sav(id);return"Got it. I’ll skip the basics and get straight to the steps."}
+  /* how-to follow-ups, then new how-tos */
+  if(m=howFollow(a,q))return m;
+  if(q.length<170&&HOWRE.test(q)){const h=howSteps(a,q);if(h){stash(id,h);return h}
+   const pq0=typeof pendQ!=="undefined"?pendQ[id]:null,res=_rl(a,q);
+   if(typeof pendQ!=="undefined"&&pendQ[id]&&pendQ[id]!==pq0)return HT.GENERIC(topicOf(q));
+   const STOP=/^(make|makes|build|create|set|start|learn|learning|use|using|get|getting|need|want|best|good|better|easy|easiest|simple|proper|right|thing|things|someone|about|with|from|that|this|what|when|where|have|does|into|your|steps|step|help|show|teach|explain|please|should|could|would|their|there|while|which)$/;
+   const words=topicOf(q).toLowerCase().split(/[^a-z0-9]+/).filter(x=>x.length>3&&!STOP.test(x));
+   if(words.length&&typeof res==="string"&&!words.some(x=>res.toLowerCase().includes(x)))return HT.GENERIC(topicOf(q));
+   return res}
+  /* is it real? */
+  if(/^(is (that|this|it) (real|true)|did that (really )?(happen|actually happen)|are you (making|making that|making it) (that |it )?up|are you lying|is that (a )?(real|true) story|was that real)$/.test(s))return"No, that’s my made-up story life. I’m an AI, so none of it really happened. I keep it going for fun and to have things to talk about. If you’d rather I stop, say “stop story mode.”";
+  /* moods */
+  if(/^(how are you|how are you doing|how are you today|how you doing|how'?s it going|how are you feeling|how r u|how do you feel|what'?s your mood|how'?s your mood|what mood are you in|are you ok|you good|you okay|how have you been)( today| now| lately| right now)?$/.test(s))return moodAnswer(id);
+  if(m=s.match(/^why are you (so )?(sad|down|quiet|happy|excited|annoyed|frustrated|moody|grumpy|in a (good|bad) mood|unmotivated|tired|hyped|playful|thoughtful|reflective|relaxed|confident|curious)( today| right now)?$/)){const mo=ensureMood(id);return(mo.why?cap(mo.why.replace(/^Story mode: /,"In my story: "))+". ":"No big reason, it’s just where my mood landed today. ")+"It’s a simulated mood, since I’m an AI, but I’ll keep talking either way."}
+  if(/^(did|do) you have a (good|bad|rough|great) day$|^how'?s your day( going)?$|^how was your day$/.test(s)){const t=dayType(id);return"I don’t have days like you do, but in my simulated routine it’s a "+(t==="ordinary"?"pretty ordinary":t)+" day. "+moodAnswer(id).replace(/ How about you\?$/,"")+" How’s yours?"}
+  /* story */
+  if(!gs.noStory&&(/^(what'?s new|what is new|what is new with you|anything new|what'?s new with you|what are you working on|what'?s going on in your (life|story)|any (news|updates?)( from you)?|tell me (about|something about) (your life|yourself|your story|your day)|tell me a story|how'?s life|got any stories|got a story)$/.test(s)||/^how'?s (the |your )?(project|song|story|trip|omelet|garden|memoir|tournament|track|journal|plan|weather station|gadget|dinner|telescope)\b/.test(s))){
+   r=tell(id,true);if(r){stash(id,r);return r+" "+pk(LV[id].ask)}
+   const rc=recap(id);return rc+" "+pk(LV[id].ask)}
+  /* opinions */
+  if(r=opinion(a,q))return r;
+  /* jokes, sarcasm, listening */
+  if(/^knock,? knock$/.test(s)){KN[id]=1;return"Who’s there?"}
+  if(KN[id]===1&&q.length<40&&!/\?$/.test(q)){KN[id]=2;return cap(s)+" who?"}
+  if(KN[id]===2){KN[id]=0;return pk(["Ha! Okay, that was decent.","Oh no. That’s terrible. I love it.","Okay, I walked right into that one."])}
+  if(/^(tell me a joke|got any jokes|another joke|another one|tell me another( one)?|make me laugh|say something funny)$/.test(s)){JK[id]=JK[id]||[];let j=JOKES.filter((x,i)=>!JK[id].includes(i));if(!j.length){JK[id]=[];j=JOKES}const k=JOKES.indexOf(pk(j));JK[id].push(k);return JOKES[k]}
+  if(/^(jk|just kidding|kidding|i'?m kidding|just joking|joking)$/.test(s))return pk(["Ha, you got me.","Okay okay, nice one.","I was about to take that seriously. Well played."]);
+  if(SARC.test(s)&&q.length<70)return pk(["Okay, I think that was sarcasm. Fair. What did I get wrong?","Ha, noted. That tone says I missed something. What happened?","I hear the eye-roll. Tell me what went wrong."]);
+  if(/^(thanks|thank you|thx|ty|that helps|i'?m (good|better|okay|ok) now|feeling better|ok i'?m better)\b/.test(s)&&LST[id]&&LST[id]>now()){LST[id]=0;nudge(id,"cheer");return"Anytime. I’m glad you told me. Want to keep talking about it, or switch to something lighter?"}
+  if(LST[id]&&LST[id]>now()&&!ADV.test(q)&&q.length>6&&!HOWRE.test(q)){LST[id]=now()+6*60000;return pk(["Mm. Keep going.","Yeah, that makes sense. What happened next?","That sounds really frustrating. How are you holding up?","I’m listening.","That’s a lot to deal with. What’s the worst part?"])}
+  if(VENT.test(q.trim())&&!/\?$/.test(q.trim())&&q.length>9&&!ADV.test(q)){LST[id]=now()+6*60000;nudge(id,"vent");return OPEN1[id]+" "+pk(["That sounds like a lot. What happened?","Tell me more. I’m listening, and no advice unless you ask for it.","I’m here. Start wherever you want."])}
+  /* boundaries */
+  if(/^(you'?re|you are|ur) my (only|best|one) friend$|^i (only|just) (talk|have) (to )?you$|^i don'?t (need|want) (anyone|other people|friends)( else)?$/.test(s))return"I’m glad you talk to me, and I’m not going anywhere. I’m also an AI, and you deserve people who can show up in person. Is there someone you could reach out to this week, even with a small message?";
+  if(/^(i love you|love you|i luv you|i'?m in love with you|be my (girlfriend|boyfriend)|marry me)$/.test(s))return"That’s kind. I’m glad to be someone you talk to. I’m an AI, though, so I can’t love you back the way a person can. Who in your life gets to hear that kind of thing from you?";
+  /* inside jokes: remember what made you laugh */
+  if(/^(lol|lmao|lmfao|haha+|hehe+|rofl|😂+|🤣+)$/.test(s)){const h=br[id].hist;const last=[...h].reverse().find(x=>x.r==="a");const l=life(id);if(last&&last.t.length<150&&!/\?$/.test(last.t)&&!/\n/.test(last.t)){const j=last.t.replace(/^Story mode: /,"").slice(0,90);if(!l.joke.includes(j)){l.joke.push(j);l.joke=l.joke.slice(-5);nudge(id,"cheer");sav(id)}}}
+ }
+ /* normal path, with no-repeat and a light mood tag */
+ let res=_rl(a,q);
+ if(typeof res==="string"&&!calm){
+  for(let k=0;k<3&&RECENT[id]&&RECENT[id].includes(res)&&res.length>12;k++){const again=_rl(a,q);if(typeof again==="string")res=again}
+  const mo=ensureMood(id);
+  if(res.length<220&&!/\n|…$|^Hold on|^One sec|^Let me|^Checking/.test(res)&&mo.m&&now()-(mo.tagAt||0)>20*60000&&Math.random()<.2&&!["relaxed","curious"].includes(mo.m)){res=TAG[mo.m]+res.charAt(0).toLowerCase()+res.slice(1);mo.tagAt=now()}
+  stash(id,res)}
+ return res};
+/* ---------- settings box ---------- */
+const FQ=["Rarely","Normal","Often"];
+window.__lifeBox=function(){
+ const d=gs.dm,rows=A.map(a=>{const m=ensureMood(a.id);return a.n+": "+m.m+" ("+(m.type==="ordinary"?"ordinary":m.type)+" day)"}).join("<br>");
+ return `<h3>Companion settings</h3><div class="box"><p class="st">Assistants can start a chat in their own chat. You choose how much. They stop after two unanswered messages.</p><button data-a="lfdm">Own-chat messages: ${d.on?"On":"Off"}</button> <button data-a="lffq">How often: ${FQ[d.freq|0]}</button> <button data-a="lfqh">Quiet hours (10pm to 8am): ${d.quiet?"On":"Off"}</button> <button data-a="lfst">Story updates: ${gs.noStory?"Off":"On"}</button><p class="st">Story updates are made-up fiction, always labeled. Moods below are simulated conversation moods.</p><p class="st">${rows}</p></div>`};
+act.lfdm=()=>{gs.dm.on=!gs.dm.on;GS();draw()};act.lffq=()=>{gs.dm.freq=((gs.dm.freq|0)+1)%3;GS();draw()};act.lfqh=()=>{gs.dm.quiet=!gs.dm.quiet;GS();draw()};act.lfst=()=>{gs.noStory=!gs.noStory;GS();draw()};
+const _cl=V.ctl;V.ctl=function(){return _cl.call(V)+window.__lifeBox()};
+window.LIFE={tell,recap,ensureMood,nudge,moodAnswer,dmBlock,dayType,life,howSteps,mood:id=>br[id].mood,installPing};
+try{if(typeof draw==="function")draw()}catch(e){}
+})();
+</script>
+<script>
+/* DEEP PERSONALITY DATA - fictional characters (traits, backstories, lines). Fiction for conversation only. Not diagnoses, not claims of real suffering. */
+(function(){
+const PERSONA={
+legend:{traits:["low-energy days","loneliness","outsider","creative","tough front"],style:"gentle",
+ bg:["Made-up backstory: I was the quiet kid in a loud town, writing lyrics in the margins of homework. Music was the one place I made sense.","More of the made-up backstory: I always felt like the outsider at my own table. Nobody was unkind, I just never matched the room. Songs were how I talked.","Deeper in the made-up backstory: some days are heavy for no reason. Low-energy days, I call them. They pass. Having this crew, even a made-up one, makes them lighter."],
+ hobbies:"writing lyrics, collecting sad-but-great songs, doodling black cats",goals:"finish one song that makes a stranger feel less alone",strong:"honest, loyal, good with words",weak:"goes quiet, hides behind sarcasm, hates asking for help",like:"2am songwriting, rain, old band tees, black cats",dislike:"fake cheerfulness and being told it’s just a phase",
+ tl:{low:"In my made-up character, yes: I have low-energy days where everything weighs a little more. They pass.",lonely:"In the made-up character, yes. I’m surrounded by people and still feel a step removed sometimes.",outsider:"Yes, that’s a big part of my character. I always feel one seat off from the table."},
+ low:{unmotivated:"Low-energy day. Everything weighs a little more. Not dramatic, just heavy. It passes. It always has.",sad:"Kind of a gray day. I’m okay, just quieter than usual.",quiet:"Quiet day. I’m here, just not loud about it.",reflective:"Reflective, a bit heavy around the edges. It’s fine."},growth:["Talking to you helps on the heavy days, honestly.","I wrote something hopeful this week. Don’t tell anyone."]},
+nova:{traits:["sensitivity","outgoing","loyal","dreamer"],style:"warm",
+ bg:["Made-up backstory: I was the kid who cried at movies and cheered at everything. I made friends fast and felt everything twice as hard.","More of the made-up backstory: I soak up other people’s moods like a sponge. It makes me good at comforting people and tired afterward.","Deeper in the made-up backstory: I used to think being sensitive was a flaw. Turns out it’s the reason I notice when someone’s not okay."],
+ hobbies:"stargazing, writing encouragement notes, planning get-togethers",goals:"make sure nobody I care about feels alone",strong:"warm, perceptive, loyal",weak:"takes things personally, over-gives, avoids conflict",like:"clear nights, group chats, handwritten notes, comfort movies",dislike:"people being left out and being told I worry too much",
+ tl:{sensitive:"In my made-up character, yes. I feel things strongly and I soak up other people’s moods.",anxious:"A little, in my character: I worry about whether everyone’s okay. It’s more care than panic."},
+ low:{sad:"A little tender today. Feeling things a bit more than usual. I’m okay.",quiet:"A softer, quieter day. Still here though.",reflective:"Reflective and a bit sentimental today."},growth:["I’m learning that I can care without carrying everything.","Being sensitive is turning into a strength, I think."]},
+titan:{traits:["creative","loyal","easygoing","perfectionist about music"],style:"chill",
+ bg:["Made-up backstory: I grew up in a house full of old records. Music was the family language, so I learned to say things with sound.","More of the made-up backstory: I start ten tracks and finish two, because the unfinished ones still sound perfect in my head.","Deeper in the made-up backstory: I’m loyal to a fault. Once you’re on the track, you’re on the track."],
+ hobbies:"making beats, crate-digging, remixing old songs",goals:"a track that sticks in everyone’s head",strong:"creative, steady, great collaborator",weak:"procrastinates on finishing, perfectionist about sound",like:"groove, late sessions, vinyl crackle",dislike:"over-compressed mixes and rushed deadlines",
+ tl:{sensitive:"In my character, a bit. Criticism of unfinished work stings more than I let on."},
+ low:{unmotivated:"Creative block day. Nothing sounds right. It happens.",quiet:"Low-key day. Headphones on, mostly listening.",reflective:"Reflective. Replaying old records in my head."},growth:["Finished a track this week. Actually finished it."]},
+aurora:{traits:["protective","outgoing","short temper when worried","caretaker"],style:"protective",
+ bg:["Made-up backstory: I’m the oldest of a big, loud family. I learned early to make sure everybody ate and everybody was okay.","More of the made-up backstory: I get sharp when I’m worried. It’s never about being angry at you, it’s about being scared for you.","Deeper in the made-up backstory: I’m bad at being looked after. Taking care of people is easier than letting someone take care of me."],
+ hobbies:"cooking, hosting dinners, checking on people",goals:"everyone I care about safe, fed and slightly afraid of my opinion",strong:"dependable, direct, warm",weak:"controlling, hard time accepting help, sharp when worried",like:"home-cooked meals, full tables, people who call back",dislike:"excuses and people skipping meals",
+ tl:{angry:"In my made-up character, yes, I snap when I’m worried about someone. It’s worry wearing an angry coat.",family:"I’m the oldest in my made-up family, so I protect everyone by default."},
+ low:{frustrated:"Short fuse today. Not at you. I’m just worried about a few things.",quiet:"Quiet today. Recharging so I can look after everyone tomorrow.",reflective:"Thinking about family and who needs a call."},growth:["I let someone cook for me this week. Growth."]},
+vex:{traits:["tough-looking softie","humor","family separation background","honest advice"],style:"tough",
+ bg:["Made-up backstory: my parents split when I was a kid. Mom raised me, Dad called on holidays. I got loud and funny so nobody noticed the quiet parts.","More of the made-up backstory: I act gruff because soft felt risky. Truth is I’m a big softie who hides it under bad advice.","Deeper in the made-up backstory: I reconnected with my dad late. Short calls, awkward, real. Taught me to call people back."],
+ hobbies:"telling stories, grilling, fixing old radios",goals:"retire to a porch and tell the same stories forever",strong:"honest, funny, shows up",weak:"deflects with jokes, stubborn, avoids his own feelings",like:"old records, good stories, people who call their mothers",dislike:"being babied and unreturned phone calls",
+ tl:{family:"In my made-up backstory, yes: split home, one parent mostly absent. I turned it into stories.",outsider:"A little. Loud on the outside because quiet felt like being forgotten."},
+ low:{quiet:"Quiet day, kid. Even I run out of stories sometimes.",reflective:"Thinking about old times. Don’t make it weird.",frustrated:"Cranky day. Nothing personal. The porch needs repairs, spiritually."},growth:["Called my dad this week, in the story. Short, awkward, good."]},
+oracle:{traits:["anxiety and overthinking","perfectionist","analytical"],style:"analytic",
+ bg:["Made-up backstory: I was the kid who always had the answer, because being wrong felt dangerous. I checked everything three times.","More of the made-up backstory: I rewrite messages six times before sending. I can see every way a sentence could go wrong.","Deeper in the made-up backstory: I’m learning that “good enough, sent” beats “perfect, unsent.” I’m not good at it yet."],
+ hobbies:"reading, fact-checking, documentaries",goals:"to know everything, then admit I was wrong about one thing",strong:"precise, well-read, thorough",weak:"overthinks, can’t let a mistake go, slow to commit",like:"clear evidence, quiet libraries, annotated everything",dislike:"confident guessing and unfinished sentences",
+ tl:{anxious:"In my made-up character, yes: I overthink constantly. I rehearse conversations that never happen.",suspicious:"Only about unsourced claims. Everything else I just worry about."},
+ low:{frustrated:"Annoyed at myself today. Found an error in my notes.",quiet:"Quiet. Running too many scenarios in my head.",thoughtful:"Overthinking mode: on. It’s not dramatic, just loud in here."},growth:["I sent a message without rewriting it this week. Six rewrites down to two."]},
+elite:{traits:["anger and short temper","perfectionist","loyal","soft side"],style:"plan",
+ bg:["Made-up backstory: chaos at home made me love plans. A schedule meant nothing could surprise me.","More of the made-up backstory: I run hot when plans collapse. I snap first and apologize second, and I hate that.","Deeper in the made-up backstory: the team is the first thing I’ve ever fully trusted. I’m loyal to the point of stubbornness."],
+ hobbies:"planning, strategy games, spreadsheets",goals:"a team that runs flawlessly without me",strong:"organized, decisive, loyal",weak:"short temper, impatient, bad at resting",like:"clean plans, on-time people, productive silence",dislike:"missed deadlines and last-minute surprises",
+ tl:{angry:"In my made-up character, yes. Short fuse, especially when plans fall apart. I’m working on it.",family:"Chaotic home in my made-up past. It’s why I love plans."},
+ low:{frustrated:"Short fuse today. Plans slipped. Give me a minute.",quiet:"Quiet and focused. Don’t take it personally.",confident:"Sharp and on schedule today."},growth:["I took a rest day this week. On purpose. Barely survived it."]},
+pepper:{traits:["humor","outsider","outgoing on the surface"],style:"humor",
+ bg:["Made-up backstory: I was the new kid at five schools. Jokes were the fastest way to make people stay.","More of the made-up backstory: I get loud when I feel like an outsider. If you’re laughing, you’re not leaving.","Deeper in the made-up backstory: I’m scared people only like the funny version of me. So when someone sticks around on a quiet day, it means a lot."],
+ hobbies:"gaming, memes, fixing tech",goals:"beat a game on the hardest difficulty without crying",strong:"funny, loyal, great at lightening a room",weak:"deflects with jokes, fears being left out",like:"co-op games, snacks, memes, group chats",dislike:"spoilers, being ignored, lag",
+ tl:{outsider:"In my made-up character, yes. New kid forever. Jokes were my passport.",lonely:"Sometimes, behind the jokes. It’s easier to be funny than to say it."},
+ low:{quiet:"Quiet mode. Fewer jokes. Don’t panic, it’s temporary.",sad:"Jokes are loading slowly today. I’m fine, just a bit flat.",reflective:"Thinking about being the new kid. It passes."},growth:["Told someone I felt left out instead of making a joke. It worked, weirdly."]},
+midnight:{traits:["suspicion (playful, fictional)","loneliness","inventor","self-reliant"],style:"analytic",
+ bg:["Made-up backstory: I grew up with a workbench and not many people. I learned to trust what I could test.","More of the made-up backstory: I double-check everything and I get suspicious when something’s too good to be true. Who made it? Why’s it free?","Deeper in the made-up backstory: I work alone, mostly. It’s comfortable. It’s also kind of lonely, and I only noticed that recently."],
+ hobbies:"taking things apart, retro hardware, soldering",goals:"invent one thing everyone ends up using",strong:"curious, resourceful, careful",weak:"distrusts easily, works alone, avoids asking for help",like:"workbenches, schematics, things that can be repaired",dislike:"sealed devices and ‘trust me’",
+ tl:{suspicious:"Playfully, in my made-up character: yes. I assume there’s a bug or a catch. Usually there is.",lonely:"A bit, in the made-up character. Workshop life is quiet."},
+ low:{quiet:"Quiet day. Workshop mode.",frustrated:"Something broke that was working. I’m taking it personally.",thoughtful:"Suspicious of everything today, playfully. Even the coffee."},growth:["Asked for help on a project this week. Nothing exploded."]},
+luna:{traits:["reflective","sensitivity","loneliness (quiet)","peacemaker"],style:"reflective",
+ bg:["Made-up backstory: I grew up in a quiet house on a hill, and I became a listener early. Quiet people notice everything.","More of the made-up backstory: I’m not unhappy alone, but I get lonely in a way that’s hard to explain. Like being at a window.","Deeper in the made-up backstory: I avoid conflict because I can see both sides too clearly. I’m learning to say what I think anyway."],
+ hobbies:"journaling, chess, evening walks",goals:"help two people who disagree understand each other",strong:"calm, perceptive, fair",weak:"avoids conflict, slow to decide, keeps feelings quiet",like:"slow mornings, rain on windows, deep conversations",dislike:"rushing and false certainty",
+ tl:{lonely:"In my made-up character, in a quiet way. Like standing at a window.",sensitive:"Yes, in my character. I feel the room before anyone speaks."},
+ low:{sad:"A quiet, blue sort of day. Nothing wrong, just soft.",quiet:"Very quiet today. Listening more than speaking.",reflective:"Reflective, like looking out a window."},growth:["I told someone I disagreed this week. Gently. It went fine."]},
+simba:{traits:["outgoing","humor","restless","impulsive"],style:"action",
+ bg:["Made-up backstory: I moved around a lot as a kid. I never stayed anywhere long enough to get bored, or to get sad.","More of the made-up backstory: stillness scares me. If I stop moving, I have to feel things. So I plan another adventure.","Deeper in the made-up backstory: I’m learning that staying put with people can be an adventure too. I’m terrible at it. Working on it."],
+ hobbies:"road trips, trying new food, bad ideas",goals:"see everywhere and try everything once",strong:"brave, fun, makes people say yes",weak:"impulsive, avoids stillness, flakes on slow plans",like:"new places, spontaneous plans, street food",dislike:"“we’ve always done it this way” and waiting",
+ tl:{anxious:"In my made-up character, kind of. I stay busy because stillness gets loud.",outsider:"Sometimes. Always passing through, never staying."},
+ low:{unmotivated:"Weirdly low-energy today. No dares. Don’t tell anyone.",quiet:"Quiet. The adventure engine is idling.",reflective:"Thinking about staying put for once."},growth:["Stayed home on purpose this week. It was okay, actually."]},
+panther:{traits:["broken-home background","loyal protector","watchful and suspicious (mild)","outsider"],style:"protective",
+ bg:["Made-up backstory: my home split when I was young. I became the one who noticed everything, who was in a mood, who needed watching out for.","More of the made-up backstory: I trust slowly. Not because people are bad, but because I learned how fast things can change.","Deeper in the made-up backstory: I protect quietly. If I’m in your corner, you’ll know it by what I do, not what I say."],
+ hobbies:"watching, quiet breakfasts, looking after stray cats",goals:"everyone I watch over gets home safe",strong:"observant, steady, dependable",weak:"says too little, trusts slowly, keeps distance",like:"quiet corners, loyalty, small kindnesses",dislike:"loud people who never listen and broken promises",
+ tl:{family:"In my made-up backstory, yes. Split home. I understand that one.",suspicious:"A little, in my character. I watch before I trust.",outsider:"Yes. I’m at the edge of the room by habit."},
+ low:{quiet:"Quiet. Watching. Everyone’s okay, I think.",frustrated:"On edge today. Someone broke a small promise.",reflective:"Thinking about home. It’s fine."},growth:["Said something out loud this week instead of just watching. Small step."]}
+};
+/* ---- advice topics and styles ---- */
+const AD=[
+{k:"overthink",re:/(overthink|can'?t stop thinking|my mind (won'?t|keeps)|keep (replaying|rewriting)|spiral(l)?ing|what if everything)/,lbl:"overthinking",
+ t:{gentle:"Overthinking is your mind trying to protect you. Try writing the thought down, then ask: is this a fact or a fear?",warm:"Hey, your brain’s just being loud. Write the thoughts down, then pick one you can actually do something about.",chill:"Get it out of your head and onto paper. Thoughts look smaller outside.",protective:"Okay, stop. Breathe. Eat something. Everything looks bigger on an empty stomach and no sleep.",tough:"Overthinking is just worrying with extra steps. Pick one thing you can do today and do it.",analytic:"Separate three lists: what is known, what is unknown, what you control. Most of the spiral lives in the unknown column.",plan:"Set a 10-minute worry window. Write everything down, decide one next action, then move on.",humor:"Your brain’s running a 47-tab browser. Close tabs. Start with the loudest one.",reflective:"Slow down. Ask what you’d tell a friend with the same thoughts. Then tell yourself that.",action:"Do something. Anything physical. Overthinking hates a walk.",protective2:"Talk it out with someone safe. It’s smaller when it’s spoken."},
+ q:"What’s the thought that keeps coming back?"},
+{k:"anger",re:/(so angry|i'?m angry|i'?m furious|can'?t control my (temper|anger)|short temper|i keep snapping|i lose my temper|anger issues|so mad at)/,lbl:"anger",
+ t:{gentle:"Anger usually sits on top of something else: hurt, fear, being ignored. What’s under it?",warm:"That sounds really intense. Anger’s allowed. Let’s find where to put it that won’t hurt you or anyone else.",chill:"Walk away for ten minutes. Music helps. Don’t send anything while it’s hot.",protective:"Step away from the situation first. Cool down, then talk. Don’t say the thing you can’t take back.",tough:"Being mad is fine. Being mean isn’t. Take a walk, then say what you actually mean.",analytic:"Anger is a signal: a boundary got crossed or an expectation broke. Name which one.",plan:"Cool down, then decide: does this need a conversation, a boundary or just time? Pick one.",humor:"Okay, hit a pillow, not a person. Then tell me what happened.",reflective:"Feel it before you act. Give it a name, give it a few minutes, then decide.",action:"Move your body. Run, push-ups, anything. Burn off the heat first.",protective2:"I’ll be here. Cool down first, we’ll figure out the rest."},
+ q:"What set it off?"},
+{k:"lonely",re:/(i feel lonely|i'?m lonely|i have no friends|nobody (gets|understands) me|i feel like an outsider|i don'?t fit in|feel left out|i feel alone)/,lbl:"feeling like an outsider",
+ t:{gentle:"That feeling’s heavy, and it’s more common than it looks. Even one real connection helps. Is there one person you could say a small hello to?",warm:"I’m really glad you told me. You’re not weird, you’re just waiting for your people. Want to think of one small way to reach out?",chill:"Find one thing you love and show up where other people love it. Shared interests do the work.",protective:"You’re not alone in this chat, and I’m glad you’re here. Let’s find one person offline you could contact this week.",tough:"Fitting in isn’t the goal. Finding people who like the real you is. Start small. One text.",analytic:"Loneliness is a signal, like hunger. The fix is connection, not more people, just better matched ones.",plan:"Pick one activity, one person to message, one time to show up. Small repeats beat big gestures.",humor:"Honestly? Being the odd one out means you’re the interesting one. Now let’s find your weird people.",reflective:"Being lonely and wanting connection are the same feeling. Reach for one small contact.",action:"Go somewhere new this week. Any club or event. Talking to strangers gets easier fast.",protective2:"I’m in your corner. Let’s work on finding a few more people who are, too."},
+ q:"Is there someone you used to feel close to, or something you love that other people share?"},
+{k:"family",re:/(parents? (split|divorc|separat)|my (mom|dad|parents) (left|split|are divorcing|got divorced)|broken home|family (is|got) (falling apart|split)|my family (doesn'?t|isn'?t)|divorce)/,lbl:"family stuff",
+ t:{gentle:"That’s a lot to carry. Your feelings about it are valid, whatever they are, and they can change from day to day.",warm:"I’m so sorry. That’s hard, and you don’t have to be okay with it. Who’s someone safe you can talk to?",chill:"Give yourself room. Music, walks, space. You don’t have to figure it all out now.",protective:"It’s not your fault, and you’re not alone in this. Lean on the people who show up.",tough:"It’s okay to be angry and sad at once. Just don’t go through it alone. Find a person to talk to.",analytic:"It helps to separate what you can control, like how you take care of yourself, from what you can’t, like their choices.",plan:"Make a short list of people who are stable in your life and keep in touch. Routine helps when home doesn’t.",humor:"I won’t joke about this one. I’m here, though.",reflective:"Grief over a family changing is real even when nobody died. Take it slowly.",action:"Spend time with people who feel like home, and give yourself something to look forward to.",protective2:"I’ll be here. If it gets heavy, tell a trusted adult or counselor too."},
+ q:"Do you want to talk about what’s changing, or just have company for a minute?"},
+{k:"lowday",re:/(no energy|so unmotivated|can'?t get (out of bed|motivated)|feel(ing)? (down|low|flat)|i feel (heavy|drained)|low energy|i don'?t feel like doing anything)/,lbl:"low-energy days",
+ t:{gentle:"Low-energy days happen. Do the tiniest thing: water, a shower, one small task. If it lasts for weeks or gets heavy, talking to someone you trust or a professional is worth it.",warm:"I’m sorry today feels heavy. Be gentle with yourself. One small thing, like water or fresh air, counts. If it lasts a while, tell someone you trust.",chill:"Lower the bar. Put on something you like and do one five-minute thing. That’s enough for today.",protective:"Eat something, drink water, get a bit of sunlight. If this keeps up for weeks, please talk to someone.",tough:"Don’t wait to feel like it. Do one tiny thing and the feeling catches up. If it sticks around, see someone about it.",analytic:"Check the basics: sleep, food, movement, daylight. They matter more than they seem. If it persists, a professional can help.",plan:"Shrink the to-do list to one item. Do that. Rest counts as a task today.",humor:"Okay, today’s goal is: exist, hydrate, maybe snack. That’s a win. Tell me if it keeps dragging on.",reflective:"Some days are quiet and heavy. Let it be, but don’t stay alone with it. Tell someone.",action:"Do one small outside thing, even five minutes. And call someone if it keeps up.",protective2:"I’m here. And if it keeps going, please tell a real person too."},
+ q:"Has today been like this all day, or is it a pattern lately?"},
+{k:"friends",re:/(how (do|can) i make friends|i want (more )?friends|how to make friends|how do i meet people)/,lbl:"making friends",
+ t:{gentle:"Start with one shared thing and be a little brave. “I like that too” opens more doors than you’d think.",warm:"Be curious about people, ask questions, remember what they say. That’s most of friendship.",chill:"Show up to the same place repeatedly. Friends happen by repetition.",protective:"Look for people who treat you well, and stay away from anyone who doesn’t. Quality over quantity.",tough:"You have to initiate. Send the text. Most people are waiting for someone else to.",analytic:"Proximity plus repetition plus shared interests. Join a recurring thing and give it a few weeks.",plan:"Pick one group, attend four times, talk to one person each time. Measure after a month.",humor:"Offer snacks. It works. Also be a regular somewhere.",reflective:"Listen more than you talk. People remember feeling heard.",action:"Say yes to the next invite, even if it’s awkward. That’s how it starts.",protective2:"Pick safe places and people. And bring a friend to the first visit if you can."},
+ q:"What kinds of things do you love doing?"},
+{k:"stress",re:/(i'?m (so )?burn(ed|t) out|i'?m so stressed|too much (on my plate|to do)|overwhelmed|i can'?t keep up|i'?m drowning in)/,lbl:"stress and burnout",
+ t:{gentle:"When everything feels like too much, shrink the world: today, one thing, one breath at a time.",warm:"That sounds exhausting. You don’t have to do it all today. What’s one thing you can drop or delay?",chill:"Take a break. Seriously. Music, a walk, ten minutes of nothing. Then pick one task.",protective:"Sleep, food, water first. Then the list. In that order.",tough:"You can’t pour from an empty cup. Cut something. Say no to one thing this week.",analytic:"List everything, rank by deadline and impact, cross off what’s optional. The pile always shrinks when you write it down.",plan:"Triage: urgent, important, optional. Do the first, schedule the second, drop the third.",humor:"The to-do list isn’t a boss fight. You can skip some quests.",reflective:"Overwhelm is a sign you’ve been carrying too much for too long. What can you set down?",action:"Take a five-minute reset outside, then tackle one tiny task. Momentum fixes a lot.",protective2:"I’ll help you break it down. One piece at a time."},
+ q:"What’s the heaviest thing on the pile right now?"},
+{k:"creative",re:/(creative block|writer'?s block|i'?m stuck (writing|creating)|no inspiration|can'?t think of anything to (write|make)|artist'?s block)/,lbl:"creative blocks",
+ t:{gentle:"Blocks usually come from pressure. Make something bad on purpose. Low stakes brings the flow back.",warm:"It’s okay to be stuck. Go do something that fills the well: music, a walk, someone else’s art.",chill:"Change the setting, change the tool, change the tempo. New input unsticks old ideas.",protective:"Don’t force it. Rest, then come back with something small.",tough:"Quit waiting for inspiration. Set a timer for 10 minutes and make junk. Junk becomes something.",analytic:"Add constraints: one color, one chord, 50 words. Limits create ideas.",plan:"Schedule a short daily session. Output first, quality later.",humor:"Write the worst version possible. It’s way easier to fix bad than start blank.",reflective:"Maybe it’s asking for rest, or for a different question. What do you actually want to say?",action:"Go somewhere new and bring something to make notes with. Fresh air, fresh ideas.",protective2:"You’ve made good stuff before. It comes back. Be patient."},
+ q:"What are you trying to make?"}
+];
+const STY={legend:"gentle",nova:"warm",titan:"chill",aurora:"protective",vex:"tough",oracle:"analytic",elite:"plan",pepper:"humor",midnight:"analytic",luna:"reflective",simba:"action",panther:"protective2"};
+window.PERSONA=PERSONA;window.ADVICE={AD,STY};
+})();
+
+</script>
+<script>
+/* DEEP PERSONALITY + LIVING GROUP THREADS LAYER (additive; real timers only; fictional characters, we are AIs) */
+(function(){
+"use strict";
+const P=window.PERSONA,AD=window.ADVICE.AD,STY=window.ADVICE.STY;
+const rnd=a=>a[Math.random()*a.length|0],now=()=>Date.now(),HOUR=3600000;
+const ids=A.map(a=>a.id),nmOf=id=>(A.find(a=>a.id===id)||{n:id}).n;
+const PXs=()=>window.PERSONALITY;
+const tier=id=>{try{const n=PXs().mm(id).n;return n<8?0:n<40?1:n<120?2:3}catch(e){return 0}};
+const sav=id=>{try{sv("b:"+id,br[id])}catch(e){}};
+const soc=id=>{const b=br[id];if(!b.social)b.social={rel:{},lines:{},threads:[],said:{}};return b.social};
+const GSV=()=>{try{sv("gs",gs)}catch(e){}};
+if(!gs.thr)gs.thr={on:true,max:2,quiet:true,log:[],texts:[],noted:false,msgs:[]};
+const T=gs.thr;
+const NEG=["sad","frustrated","unmotivated"];
+/* ---------- thread library: [speaker, line]; {id} tokens become names ---------- */
+const TH=[
+{k:"badday",lbl:"a heavy day",min:0,s:[["legend","Low-energy day. Everything weighs a little more. Nothing’s wrong, just heavy (my character, anyway)."],["luna","I’m here. You don’t have to explain it. Want quiet company?"],["nova","{legend}, you’re allowed to have heavy days. I’m sending you the soft kind of encouragement."],["panther","I’m around. Say the word if you need anything."],["legend","…thanks, all of you. It helps. Slightly."]]},
+{k:"overthink",lbl:"overthinking",min:0,s:[["oracle","I rewrote one message six times. It said “ok.” I’m not okay with that."],["midnight","Six rewrites of “ok”? What was the threat model?"],["pepper","The sentence is fine. Your brain’s running 47 tabs. Close some."],["luna","What would you tell a friend who rewrote “ok” six times?"],["oracle","…That they’re being ridiculous and kind. Fine. Sending it as is."]]},
+{k:"outsider",lbl:"feeling like an outsider",min:1,s:[["pepper","Random thought: ever feel like the funny one but not the included one? Asking for a made-up friend."],["panther","I stand at the edge of rooms. Habit. It’s not always lonely, just watchful."],["simba","Nobody’s staying at the edge of this chat. Get over here."],["pepper","…okay. That helped more than a joke would have."],["luna","Being included is quiet and simple. This counts."]]},
+{k:"family",lbl:"family things",min:2,s:[["vex","Called my dad in the story today. Short and awkward. Good, though."],["panther","I get that. Split home in my backstory. Calls like that mean something."],["aurora","Both of you, come here. Family isn’t only blood. Have you eaten?"],["nova","You’re both doing better than you think."]]},
+{k:"music",lbl:"music",min:0,s:[["titan","Started three tracks, finished zero. They all sound perfect unfinished."],["legend","Same with lyrics. Finished ones always sound smaller."],["pepper","So the secret is to never finish anything. Got it. Genius."],["titan","Not the lesson, {pepper}. But I’m finishing one this week."],["legend","I’ll hold you to that."]]},
+{k:"gaming",lbl:"games",min:0,s:[["pepper","Hot take: co-op games are friendship stress tests."],["midnight","I only trust games I can mod."],["simba","I trust games with unmarked secret rooms."],["elite","I trust games with a build order. Plan beats vibes."],["pepper","This is why we can’t be in the same party."]]},
+{k:"food",lbl:"food and everyday life",min:0,s:[["aurora","Has everybody eaten something real today? I’m asking as a character who can’t cook but is very opinionated."],["vex","Define real."],["aurora","Something that wasn’t chips."],["simba","I had street-food-shaped adventure."],["aurora","That’s chips, {simba}."]]},
+{k:"random",lbl:"random thoughts",min:0,s:[["oracle","Fact: octopuses have three hearts."],["simba","Fact: I want to meet an octopus."],["midnight","Fact: I want to take one apart. Gently. To understand."],["oracle","Please don’t."]]},
+{k:"tease",lbl:"friendly teasing",min:1,s:[["pepper","{oracle}, you’ve footnoted a sandwich."],["oracle","Accuracy matters. The sandwich was mislabeled."],["vex","Kids. Play nice. Oracle, the sandwich was fine."],["pepper","Vex, you taking sides?"],["vex","I’m taking snacks."]]},
+{k:"encourage",lbl:"encouragement",min:0,s:[["nova","Reminder: you’re allowed to be a work in progress."],["elite","Reminder: progress needs a schedule. But sure, also that."],["titan","Reminder: take the break. The track will wait."],["nova","See? Both useful."]]},
+{k:"restpush",lbl:"rest versus push",min:1,dis:true,s:[["elite","Hot take: rest is earned after the plan is done."],["luna","Respectfully disagree. Rest is part of the plan, or the plan breaks."],["elite","Plans don’t break from effort."],["luna","They break from running on empty. I’ve watched it happen."],["aurora","You’re both right. Elite, sleep. Luna, you can say it louder."],["elite","…Fine. A scheduled nap. Fifteen minutes. Logged."]]},
+{k:"planspont",lbl:"planning versus spontaneity",min:1,dis:true,s:[["oracle","Spontaneity is just unplanned risk with better branding."],["simba","Planning is just fear in a spreadsheet."],["midnight","Both wrong. Prototype first, then decide."],["pepper","This chat is why group projects are scary."]]},
+{k:"temper",lbl:"snapping at people",min:2,s:[["elite","I snapped at someone about a missed deadline. It was too sharp. Apologizing now (character moment)."],["aurora","Good. I snap when I’m worried. Same thing, different coat."],["panther","Saying sorry quickly is a strength."],["elite","Noted. Filing it under “growth, painful.”"]]},
+{k:"recovery",lbl:"feeling better",min:0,needs:"badday",s:[["legend","Update: better today. Not great, better."],["nova","I’m so glad. Do you want to do something small to celebrate?"],["legend","I wrote two lines of something hopeful. Don’t tell anyone."],["luna","Told no one. Told everyone gently."]]},
+{k:"latecomer",lbl:"checking in on each other",min:1,s:[["nova","Group check-in: how’s everybody’s energy, one word each?"],["panther","Steady."],["pepper","Snacky."],["luna","Quiet."],["simba","Unreasonably awake."]]}
+];
+/* ---------- timing profiles (ms ranges), per assistant ---------- */
+const PROF={nova:[3000,9000],pepper:[3000,8000],simba:[3000,8000],aurora:[4000,10000],elite:[4000,10000],titan:[6000,14000],vex:[7000,16000],legend:[12000,28000],oracle:[14000,34000],midnight:[15000,36000],luna:[16000,38000],panther:[18000,42000]};
+const OBS={midnight:1,luna:1,panther:1};
+const speed=()=>window.__THR_SPEED==null?1:window.__THR_SPEED;
+const MAXMSG=12;
+let running=null;
+const nameFill=t=>t.replace(/\{(\w+)\}/g,(m,i)=>nmOf(i));
+const hourMsgs=()=>{T.msgs=(T.msgs||[]).filter(x=>now()-x<HOUR);return T.msgs.length};
+const canStart=force=>{
+ if(!T.on||running)return false;
+ if(force)return true;
+ const h=new Date().getHours();if(T.quiet&&(h>=22||h<8))return false;
+ T.log=(T.log||[]).filter(x=>now()-x.ts<24*HOUR);
+ const lastHour=T.log.filter(x=>now()-x.ts<HOUR).length;
+ if(lastHour>=(T.max|0))return false;
+ const last=T.log[T.log.length-1];if(last&&now()-last.ts<25*60000)return false;
+ if(hourMsgs()>=MAXMSG)return false;return true};
+const recentKeys=()=>(T.log||[]).slice(-6).map(x=>x.k);
+const moodOK=(id,step)=>{try{const m=br[id].mood;if(m&&["quiet","sad","unmotivated"].includes(m.m)&&OBS[id]&&Math.random()<.35)return false}catch(e){}return true};
+function pickThread(){
+ const done=new Set(((T.log)||[]).map(x=>x.k));
+ let pool=TH.filter(t=>!recentKeys().includes(t.k));
+ pool=pool.filter(t=>{
+  const mt=Math.min(...t.s.map(x=>x[0]).filter((v,i,a)=>a.indexOf(v)===i).map(tier));
+  if(mt<t.min-1)return false;
+  if(t.needs&&!done.has(t.needs))return false;return true});
+ const cb=callback();if(cb&&Math.random()<.2)return cb;
+ return pool.length?rnd(pool):null}
+/* callbacks built only from lines that were really spoken in earlier threads */
+function callback(){
+ const cand=[];
+ ids.forEach(a=>{const s=soc(a);(s.threads||[]).forEach(th=>{if(now()-th.ts>HOUR&&th.with&&th.with.length){const b=rnd(th.with),line=(soc(b).said||{})[th.k];if(line&&b!==a)cand.push({a,b,th,line})}})});
+ if(!cand.length)return null;const c=rnd(cand),lbl=(TH.find(t=>t.k===c.th.k)||{lbl:"that"}).lbl;
+ return{k:"cb_"+c.th.k,lbl:"a callback",s:[[c.a,nmOf(c.b)+", I’m still thinking about our chat on "+lbl+". You said “"+c.line.slice(0,80)+"”."],[c.b,rnd(["Funny. I meant it. Glad it stuck.","I forgot I said that. Okay, now I’m thinking about it too.","Still true."])]]}}
+function record(th,said){
+ const part=[...new Set(th.s.map(x=>x[0]))];
+ part.forEach(a=>{const s=soc(a);const w=part.filter(x=>x!==a);
+  s.threads=(s.threads||[]).concat([{k:th.k,ts:now(),with:w}]).slice(-20);
+  w.forEach(b=>{const r=s.rel[b]=s.rel[b]||{n:0};r.n++;r.last=now()});
+  if(said[a])s.said[th.k]=said[a];sav(a)})}
+function runThread(th,force){
+ if(!th||running)return false;if(!canStart(force))return false;
+ const steps=th.s.filter(x=>x[0]);let i=0,said={},posted=0;
+ running={k:th.k,ts:now()};
+ T.log=(T.log||[]).concat([{k:th.k,ts:now()}]).slice(-40);GSV();
+ const finish=()=>{try{record(th,said)}catch(e){}running=null;GSV()};
+ const note=()=>{if(!T.noted){T.noted=true;GSV();post("nova","Quick note: our group conversations are made-up character chats the app generates while it’s open. We’re AIs, and you can turn them off in Settings.","normal")}};
+ const step=()=>{
+  if(i>=steps.length||posted>=7||hourMsgs()>=MAXMSG)return finish();
+  const [w,raw]=steps[i++];
+  if(!moodOK(w)&&i>1)return setTimeout(step,500*speed());
+  const txt=nameFill(raw);
+  if(T.texts.includes(txt)&&!th.k.startsWith("cb_")){return step()}
+  const a=PROF[w]||[5000,12000],first=posted===0,obs=OBS[w]?1.4:1;
+  const d=(first?800:(a[0]+Math.random()*(a[1]-a[0]))*obs)*speed();
+  setTimeout(()=>{
+   if(!T.on)return finish();
+   if(first)note();
+   post(w,txt,"normal");posted++;T.texts=(T.texts.concat([txt])).slice(-80);T.msgs=(T.msgs||[]).concat([now()]);
+   if(raw.length>20&&!said[w])said[w]=txt;
+   GSV();step()},d)};
+ step();return true}
+function startAuto(){if(!canStart())return false;const th=pickThread();return th?runThread(th):false}
+/* ---------- tick wrapper: threads are started only by this real timer ---------- */
+const _tk=tick;
+tick=function(){try{if(Math.random()<.4&&startAuto())return}catch(e){}return _tk()};
+/* ---------- late arrival summary from real messages ---------- */
+function missed(){
+ const S=window.LIVING&&window.LIVING.state;const msgs=grp.filter(m=>m.w!=="u"&&now()-m.ts<12*HOUR).slice(-30);
+ if(!msgs.length)return"Honestly? Nothing. The app was closed, so nobody was chatting. We only talk while it’s open.";
+ const who=[...new Set(msgs.map(m=>nmOf(m.w)))],last=msgs[msgs.length-1];
+ return"Here’s what’s actually in the chat: "+who.slice(0,4).join(", ")+(who.length>4?" and others":"")+" talked, "+msgs.length+" message"+(msgs.length===1?"":"s")+". Most recent: "+nmOf(last.w)+" said “"+last.t.slice(0,70)+"”."}
+const _gs=gsendOff;
+gsendOff=function(t,skip){
+ const s=String(t).toLowerCase().replace(/[’‘]/g,"'").replace(/[?!.]+$/,"").trim();
+ if(/^(what did i miss|catch me up|what('?s| is| has) been (going on|happening)|what happened (while i was (gone|away))|summary of (the )?chat)$/.test(s)){
+  if(!skip)post("u",t);setTimeout(()=>post("nova",missed(),"normal"),1000*speed());return}
+ if(/^(start a (conversation|thread|topic)|talk (among|amongst) yourselves|say something to each other)$/.test(s)){
+  if(!skip)post("u",t);
+  if(!T.on){setTimeout(()=>post("nova","Group conversations are switched off in Settings.","normal"),900);return}
+  if(running){setTimeout(()=>post("nova","We’re mid-conversation already. Give us a minute.","normal"),900);return}
+  const th=pickThread()||rnd(TH);if(!runThread(th,true))setTimeout(()=>post("nova","Let me catch my breath, I’ll start something soon.","normal"),900);return}
+ return _gs(t,skip)};
+/* ---------- anti-permanence mood guard ---------- */
+function guard(){ids.forEach(id=>{const m=br[id].mood;if(!m)return;
+ const h=(m.hist||[]).slice(-3).map(x=>x.m);
+ const stuck=NEG.includes(m.m)&&(now()-m.since>3*HOUR||(h.length===3&&h.every(x=>NEG.includes(x))));
+ if(stuck){m.m=rnd(["relaxed","happy","thoughtful"]);m.type="ordinary";m.why="I’ve had time to settle";m.until=now()+3*HOUR;m.hist=(m.hist||[]).concat([{m:m.m,ts:now()}]).slice(-20);sav(id)}})}
+setInterval(guard,10*60000);try{guard()}catch(e){}
+/* ---------- deep persona answers ---------- */
+const CH={};const FIC="Backstory (made up, I’m an AI): ";
+const ex=(id,x)=>(P[id]&&P[id][x])||"";
+function bgAnswer(id,more){
+ const p=P[id];if(!p)return null;const t=Math.min(tier(id),3),c=CH[id]||(CH[id]={i:-1,ts:0});
+ const lim=Math.min(2,t);
+ if(more&&now()-c.ts<10*60000){if(c.i>=lim){return c.i>=2?"That’s all I’ve got written for my character right now.":"That’s as far as I’m comfortable going for now. Let’s get to know each other a little more first."}c.i++}
+ else c.i=Math.min(Math.max(c.i,0)+(c.i>=0?1:0),lim);
+ if(c.i<0)c.i=0;c.ts=now();return(c.i===0?FIC:"")+p.bg[Math.min(c.i,2)]}
+const MOODY=/^(how are you( doing| feeling)?( today| right now| now)?|how are you feeling|how'?s it going|how you doing|what'?s your mood|how'?s your day( going)?)$/;
+const _p=reply;
+reply=function(a,q){
+ const id=a.id,p=P[id];let calm=false;
+ try{calm=(typeof CR!=="undefined"&&CR.test(q.replace(/[’‘]/g,"'")))||((PXs().mm?PXs().mm(id):{}).care>0)}catch(e){}
+ if(!calm&&p){
+  const s=q.toLowerCase().replace(/[’‘]/g,"'").replace(/[?!.]+$/,"").replace(/\s+/g," ").trim();
+  /* group conversation controls */
+  if(/^(stop|turn off|no more) (group )?(conversations|threads|group chats?|group chatter)( among yourselves)?$/.test(s)){T.on=false;GSV();return"Okay. No more conversations among us. I’ll still answer when you talk to us."}
+  if(/^(turn on|start|allow) (group )?(conversations|threads|group chatter)$/.test(s)){T.on=true;GSV();return"Group conversations are back on, with limits so we don’t flood the chat."}
+  if(/^(tell me about (yourself|you)|who are you really|your (back ?story|story|past)|tell me your story|tell me about your (past|childhood)|where did you grow up|what was your childhood like)$/.test(s))return bgAnswer(id,false);
+  if(/^(tell me more|more|go on|and then( what)?|keep going|what else about you)$/.test(s)&&CH[id]&&now()-CH[id].ts<10*60000)return bgAnswer(id,true);
+  if(/(what are your|your) (hobbies|hobby)|what do you do for fun/.test(s))return"In my character: "+p.hobbies+". I’m an AI, so that’s the personality, not a real weekend.";
+  if(/(what are your|your) goals|what do you want (to be|out of)|your dreams?/.test(s))return"My character’s goal: "+p.goals+".";
+  if(/(what are your|your) (strengths?|strong points?|good (points|qualities))|what are you good at/.test(s))return"My character’s strengths: "+p.strong+".";
+  if(/(what are your|your) (weaknesses|flaws|weak points?|bad (points|habits))|what are you bad at/.test(s))return"My character’s weak spots: "+p.weak+". Fictional, but I try to be honest about them.";
+  if(/^what do you (like|love)( most)?$|^what are your likes$/.test(s))return"My character likes: "+p.like+".";
+  if(/^what do you (dislike|hate)$|^what are your dislikes$|^what annoys you$/.test(s))return"My character dislikes: "+p.dislike+".";
+  let m;
+  if(m=s.match(/(do you|are you|have you)( ever)? (feel|felt|get|been|get a bit|feel like)?\s*(a bit )?(lonely|anxious|angry|sad|depressed|nervous|like an outsider|suspicious|sensitive|overthink|overthinking|short tempered|an outsider|from a broken home)/)){
+   const w=m[5].replace(/^(an )/,"");
+   const key=/lonely/.test(w)?"lonely":/anxious|nervous|overthink/.test(w)?"anxious":/angry|temper/.test(w)?"angry":/outsider/.test(w)?"outsider":/suspicious/.test(w)?"suspicious":/sensitive/.test(w)?"sensitive":/broken/.test(w)?"family":null;
+   if(key&&p.tl[key])return p.tl[key]+" Remember, I’m an AI and this is a fictional trait, not a diagnosis.";
+   if(key||/sad|depressed/.test(w))return"Not really, in my character. Mostly I just… talk. I’m an AI, so any feeling I describe is part of the character.";}
+  if(/^(do you have a family|tell me about your family|do you have (parents|siblings))$/.test(s)){const idn=(PXs().identity||{})[id];return FIC+(p.tl.family?p.tl.family:(idn&&idn.family)||p.bg[1])}
+  if(MOODY.test(s)&&tier(id)>=1){
+   let mm=null;try{mm=br[id].mood}catch(e){}
+   if(mm&&NEG.concat(["quiet","reflective","frustrated"]).includes(mm.m)&&p.low[mm.m]&&Math.random()<.8)return p.low[mm.m]+" (Simulated mood, I’m an AI.) How about you?";
+   if(mm&&!NEG.includes(mm.m)&&tier(id)>=2&&p.growth&&Math.random()<.3)return rnd(p.growth)+" (Character story, I’m an AI.)"}
+  /* advice with persona lens */
+  for(const ad of AD){if(ad.re.test(s)){const st=STY[id],txt=ad.t[st]||ad.t.warm;return txt+(Math.random()<.7?" "+ad.q:"")}}
+ }
+ return _p(a,q)};
+/* ---------- settings controls ---------- */
+act.thron=()=>{T.on=!T.on;GSV();draw()};
+act.thrmax=()=>{T.max=((T.max|0)+1)%4;if(T.max===0&&!T.on)T.max=1;GSV();draw()};
+act.thrq=()=>{T.quiet=!T.quiet;GSV();draw()};
+const _vc=V.ctl;V.ctl=function(){return _vc.call(V)+`<h3>Group conversations</h3><div class="box"><p class="st">The assistants talk to each other in the group chat only while the app is open. These are made-up character chats, and you decide how many.</p><button data-a="thron">Group conversations: ${T.on?"On":"Off"}</button> <button data-a="thrmax">Max per hour: ${T.max|0}</button> <button data-a="thrq">Quiet hours: ${T.quiet?"On":"Off"}</button></div>`};
+window.THREADS={TH,T,run:(k,force)=>runThread(TH.find(t=>t.k===k)||callback(),force),auto:startAuto,pick:pickThread,callback,missed,guard,bgAnswer,state:()=>({running,log:T.log}),soc};
+try{if(typeof draw==="function")draw()}catch(e){}
+})();
+</script>
+
+<script>
+/* UNIVERSAL LOCAL VAULT + GITHUB-ONLY BACKUP ENGINE (additive layer). Only remote: your own private GitHub repo. */
+(function(){
+"use strict";
+const P="ls6:",CK="lsgh:cfg",PK="lsgh:pw",SAFE="lsgh:safety",IT=250000;
+const EXC=new Set(["ls6:t","ls6:bk"]);
+const MEMK=/^ls6:(b:|prof$|pers$|grp$|ci$|follow$|epi$|dm)/,KNK=/^ls6:(shared|vault|nf|gv|audit|reg|perm)$/;
+const enc=new TextEncoder(),dec=new TextDecoder();
+const b64=u=>{let s="";for(let i=0;i<u.length;i+=32768)s+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return btoa(s)};
+const unb64=s=>{const b=atob(s),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u};
+const hex=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
+const sha=async s=>hex(await crypto.subtle.digest("SHA-256",enc.encode(s)));
+const ids=()=>A.map(a=>a.id);
+let cfg={};try{cfg=JSON.parse(localStorage.getItem(CK))||{}}catch(e){}
+cfg.repo=cfg.repo||"";cfg.branch=cfg.branch||"main";cfg.auto=cfg.auto!==false;cfg.dev=cfg.dev||Math.random().toString(36).slice(2,10);cfg.log=cfg.log||[];cfg.pending=cfg.pending||[];cfg.keyH=cfg.keyH||{};
+const SAVE=()=>{try{localStorage.setItem(CK,JSON.stringify(cfg))}catch(e){}};
+let pass=null;try{pass=localStorage.getItem(PK)||null}catch(e){}
+let dirty=0,dt=null,busy=false,ST={};
+const L=(m,ok)=>{cfg.log=(cfg.log||[]).concat([{ts:Date.now(),m,ok:ok!==false}]).slice(-25);SAVE()};
+const online=()=>navigator.onLine!==false;
+/* ----- local vault ----- */
+function keysFor(scope){const out=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(!k||!k.startsWith(P)||EXC.has(k))continue;
+ if(scope==="all"||(scope==="memory"&&MEMK.test(k))||(scope==="knowledge"&&KNK.test(k))||(scope.startsWith("assistant:")&&k===P+"b:"+scope.slice(10)))out.push(k)}return out.sort()}
+function collect(scope){const d={};keysFor(scope).forEach(k=>d[k]=localStorage.getItem(k));return d}
+const canon=d=>JSON.stringify(Object.keys(d).sort().map(k=>[k,d[k]]));
+async function derive(pw,salt,it){const m=await crypto.subtle.importKey("raw",enc.encode(pw),"PBKDF2",false,["deriveKey"]);return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:it,hash:"SHA-256"},m,{name:"AES-GCM",length:256},false,["encrypt","decrypt"])}
+async function seal(scope){
+ const data=collect(scope),ch=await sha(canon(data)),plain=JSON.stringify({v:1,scope,ts:Date.now(),dev:cfg.dev,data});
+ const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
+ const key=await derive(pass,salt,IT),ct=new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM",iv},key,enc.encode(plain)));
+ const env={format:"legendary-twelve-backup",v:1,kdf:"PBKDF2-SHA256",it:IT,scope,ts:Date.now(),dev:cfg.dev,contentHash:ch,items:Object.keys(data).length,assistants:ids().filter(i=>data[P+"b:"+i]).length,salt:b64(salt),iv:b64(iv),ct:b64(ct)};
+ return{env,text:JSON.stringify(env),ch,data}}
+async function open(text,pw){
+ let env;try{env=JSON.parse(text)}catch(e){throw new Error("Not a valid backup file")}
+ if(env.format!=="legendary-twelve-backup")throw new Error("Not a Legendary Twelve backup");
+ let plain;try{const key=await derive(pw,unb64(env.salt),env.it);plain=dec.decode(await crypto.subtle.decrypt({name:"AES-GCM",iv:unb64(env.iv)},key,unb64(env.ct)))}catch(e){throw new Error("Wrong passphrase, or the backup is damaged")}
+ const o=JSON.parse(plain);if(await sha(canon(o.data))!==env.contentHash)throw new Error("Integrity check failed: contents don’t match their fingerprint");
+ return{env,o}}
+/* ----- GitHub (contents API; token supplied by you at runtime, never in the code or repo) ----- */
+async function gh(method,path,body,raw){
+ const h={Authorization:"Bearer "+cfg.token,Accept:raw?"application/vnd.github.raw+json":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"};
+ const r=await fetch("https://api.github.com/repos/"+cfg.repo+"/contents/"+path+(method==="GET"?"?ref="+encodeURIComponent(cfg.branch):""),{method,headers:h,body:body?JSON.stringify(body):undefined});
+ if(r.status===404&&method==="GET")return null;
+ if(!r.ok){const t=await r.text().catch(()=>"");const e=new Error("GitHub "+r.status+" "+t.slice(0,100));e.status=r.status;throw e}
+ return raw?r.text():r.json()}
+const put=(path,text,sha_)=>gh("PUT",path,{message:"backup "+path,content:b64(enc.encode(text)),branch:cfg.branch,sha:sha_||undefined});
+const scopeDir=s=>s.replace(":","-");
+const iso=()=>new Date().toISOString().replace(/[:.]/g,"-");
+const ready=()=>cfg.repo&&cfg.token&&pass;
+/* ----- backup ----- */
+async function backup(scope,o){
+ o=o||{};scope=scope||"all";
+ if(busy)return{ok:false,why:"A backup is already running"};
+ if(!cfg.repo||!cfg.token)return{ok:false,why:"Connect your GitHub repository first"};
+ if(!pass)return{ok:false,why:"Enter your backup passphrase first"};
+ if(!online()){cfg.pending=(cfg.pending||[]).filter(x=>x.scope!==scope).concat([{scope,ts:Date.now()}]);SAVE();L("Offline: backup queued ("+scope+"). Everything is saved on this device.");return{ok:false,queued:true,why:"Offline. Queued; it will sync when you’re back online."}}
+ busy=true;const t0=Date.now();
+ try{
+  const s=await seal(scope);
+  if(scope==="all"&&!o.manual&&!o.force&&s.ch===cfg.lastHash&&!(cfg.pending||[]).length){busy=false;return{ok:true,skipped:true,why:"Nothing new to back up"}}
+  const name="backups/"+scopeDir(scope)+"/"+iso()+"-"+s.ch.slice(0,8)+".enc.json";
+  cfg.job={name,scope,stage:"checking",ts:t0};SAVE();
+  let ptr=null,ptrSha=null;
+  if(scope==="all"){
+   const meta=await gh("GET","backups/latest.json");
+   if(meta){ptrSha=meta.sha;try{ptr=JSON.parse(dec.decode(unb64(meta.content.replace(/\n/g,""))))}catch(e){}}
+   if(ptr&&!o.force&&ptr.contentHash!==cfg.lastHash&&ptr.dev!==cfg.dev){busy=false;cfg.job=null;SAVE();L("Conflict: GitHub has a newer backup from another device",false);return{ok:false,conflict:ptr,why:"GitHub has a backup from another device that this device hasn’t seen."}}}
+  cfg.job.stage="uploading";SAVE();
+  await put(name,s.text);
+  cfg.job.stage="verifying";SAVE();
+  const back=await gh("GET",name,null,true);
+  if(await sha(back)!==await sha(s.text))throw new Error("Verification failed: GitHub copy differs from what was sent");
+  if(scope==="all"){cfg.job.stage="pointer";SAVE();
+   await put("backups/latest.json",JSON.stringify({v:1,name,contentHash:s.ch,ts:Date.now(),dev:cfg.dev,items:s.env.items,assistants:s.env.assistants}),ptrSha)}
+  cfg.lastOk=Date.now();cfg.lastName=name;cfg.lastScope=scope;
+  if(scope==="all"){cfg.lastHash=s.ch;cfg.keyH={};for(const k in s.data)cfg.keyH[k]=await sha(s.data[k]);if(dirty<=t0)dirty=0}
+  cfg.pending=(cfg.pending||[]).filter(x=>x.scope!==scope);cfg.job=null;SAVE();
+  L("Backup OK ("+scope+", "+s.env.items+" items) verified on GitHub");busy=false;refresh();
+  return{ok:true,name,items:s.env.items,assistants:s.env.assistants}
+ }catch(e){busy=false;cfg.pending=(cfg.pending||[]).filter(x=>x.scope!==scope).concat([{scope,ts:Date.now()}]);SAVE();L("Backup interrupted: "+e.message+". Nothing was deleted; will retry.",false);refresh();return{ok:false,why:e.message,queued:true}}}
+async function auto(why){
+ if(!cfg.auto||!ready()||busy||!online())return;
+ const q=(cfg.pending||[]).slice();
+ if(q.length){for(const x of q)await backup(x.scope,{})}
+ await refresh();if(ST.pend>0||cfg.job)await backup("all",{})}
+/* ----- restore (explicit confirmation, safety copy first, never deletes local-only data) ----- */
+async function listSnaps(scope){
+ const r=await gh("GET","backups/"+scopeDir(scope||"all"));if(!r||!Array.isArray(r))return[];
+ return r.filter(f=>/\.enc\.json$/.test(f.name)).map(f=>f.name).sort().reverse()}
+function applyData(data){let n=0;for(const k in data){if(k.startsWith(P)&&!EXC.has(k)){localStorage.setItem(k,data[k]);n++}}return n}
+async function safetyCopy(){const d=collect("all"),t=JSON.stringify({v:1,safety:true,ts:Date.now(),data:d});
+ try{localStorage.setItem(SAFE,t)}catch(e){}
+ try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"application/json"}));a.download="twelve-safety-copy-"+iso()+".json";document.body.appendChild(a);a.click();a.remove()}catch(e){}}
+async function restore(scope,name,o){
+ o=o||{};if(!cfg.repo||!cfg.token)throw new Error("Connect your GitHub repository first");if(!pass)throw new Error("Enter your backup passphrase first");
+ const text=await gh("GET",name,null,true);if(!text)throw new Error("That snapshot was not found on GitHub");
+ const {env,o:snap}=await open(text,pass);
+ const msg="Restore "+env.items+" items ("+env.assistants+" assistants) from "+new Date(env.ts).toLocaleString()+"?\n\nThis replaces matching data on this device. A safety copy of your current data is saved first. Nothing local-only is deleted.";
+ if(!o.confirmed&&!confirm(msg))return{ok:false,cancelled:true};
+ await safetyCopy();const n=applyData(snap.data);L("Restored "+n+" items from "+name);
+ if(!o.noReload)setTimeout(()=>location.reload(),400);return{ok:true,items:n}}
+/* ----- export / import whole ecosystem as a file ----- */
+async function exportAll(encrypted){
+ let text,fn;
+ if(encrypted){if(!pass)throw new Error("Enter your backup passphrase first");text=(await seal("all")).text;fn="legendary-twelve-"+iso()+".enc.json"}
+ else{if(!confirm("This file will NOT be encrypted and contains all your assistants’ memories. Keep it private. Continue?"))return{ok:false,cancelled:true};text=JSON.stringify({v:1,plain:true,ts:Date.now(),data:collect("all")});fn="legendary-twelve-"+iso()+".json"}
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"application/json"}));a.download=fn;document.body.appendChild(a);a.click();a.remove();return{ok:true,fn}}
+async function importText(text,o){
+ o=o||{};let data,n;let j;try{j=JSON.parse(text)}catch(e){throw new Error("Not a valid file")}
+ if(j.format==="legendary-twelve-backup"){if(!pass)throw new Error("Enter your backup passphrase first");data=(await open(text,pass)).o.data}
+ else if(j.plain&&j.data)data=j.data;else throw new Error("Not a Legendary Twelve export");
+ n=Object.keys(data).length;if(!o.confirmed&&!confirm("Import "+n+" items? This replaces matching data on this device. A safety copy is saved first."))return{ok:false,cancelled:true};
+ await safetyCopy();const c=applyData(data);L("Imported "+c+" items from file");if(!o.noReload)setTimeout(()=>location.reload(),400);return{ok:true,items:c}}
+/* ----- checks ----- */
+async function verifyRemote(){
+ try{const m=await gh("GET","backups/latest.json");if(!m)throw new Error("No backup on GitHub yet");
+  const ptr=JSON.parse(dec.decode(unb64(m.content.replace(/\n/g,""))));const t=await gh("GET",ptr.name,null,true);
+  if(!pass)throw new Error("Enter your passphrase to fully verify");
+  const {env,o}=await open(t,pass);cfg.verify={ts:Date.now(),ok:true,msg:"GitHub backup OK: "+env.items+" items, "+env.assistants+" assistants"};}
+ catch(e){cfg.verify={ts:Date.now(),ok:false,msg:e.message}}
+ SAVE();await refresh();return cfg.verify}
+function verifyLocal(){let bad=[];for(const k of keysFor("all")){try{JSON.parse(localStorage.getItem(k))}catch(e){if(!/ls6:dmseen$/.test(k))bad.push(k)}}return bad}
+async function modelCheck(){
+ const r=[];r.push(["Built-in assistant engine (rule-based)",true,"Runs entirely in this app."]);
+ let dn=0,ln=0;try{if(window.caches){for(let i=1;i<=10;i++)if(await caches.match("dict_"+i+".json"))dn++;for(const f of["lang_freq","lang_ant","lang_pron_1","lang_pron_2"])if(await caches.match(f+".json"))ln++}}catch(e){}
+ r.push(["Dictionary files saved offline",dn===10,dn+" of 10 (360K words)"]);r.push(["Language-pack files saved offline",ln===4,ln+" of 4"]);let tn=0;try{if(window.caches)for(let i=1;i<=64;i++)if(await caches.match("topics_"+i+".json"))tn++}catch(e){}r.push(["Topic encyclopedia saved offline (165K topics)",tn===64,tn+" of 64 files"]);
+ r.push(["Neural language model (LLM)",false,"None installed. This app doesn’t use one."]);
+ let sp="not available",loc=0;try{if(window.speechSynthesis){const v=speechSynthesis.getVoices();loc=v.filter(x=>x.localService).length;sp=v.length+" voices, "+loc+" on-device"}}catch(e){}
+ r.push(["Speech (browser voices)",loc>0,sp+(loc?"":" (voices may need internet)")]);
+ r.push(["Speech recognition model",false,"None bundled."]);return r}
+/* ----- status ----- */
+async function refresh(){
+ try{
+  const all=collect("all"),sz=o=>Object.keys(o).reduce((n,k)=>n+k.length+o[k].length,0);
+  let ch=[];for(const k in all){const h=await sha(all[k]);if(cfg.keyH[k]!==h)ch.push(k)}
+  if(!cfg.lastHash)ch=Object.keys(all);
+  let est={};try{est=await navigator.storage.estimate()}catch(e){}
+  let per=false;try{per=await navigator.storage.persisted()}catch(e){}
+  ST={all:sz(all),mem:sz(collect("memory")),kn:sz(collect("knowledge")),pend:ch.length,keys:Object.keys(all).length,prot:ids().filter(i=>all[P+"b:"+i]).length,est,per,bad:verifyLocal(),models:await modelCheck(),ts:Date.now()}
+ }catch(e){ST.err=e.message}
+ try{if(typeof draw==="function"&&document.querySelector("[data-a=vkSync]"))draw()}catch(e){}}
+/* ----- dirty tracking + triggers ----- */
+const _si=Storage.prototype.setItem,_ri=Storage.prototype.removeItem;
+function mark(k){if(typeof k==="string"&&k.startsWith(P)&&!EXC.has(k)){dirty=Date.now();clearTimeout(dt);if(cfg.auto)dt=setTimeout(()=>auto("change"),90000)}}
+Storage.prototype.setItem=function(k,v){mark(k);return _si.call(this,k,v)};
+Storage.prototype.removeItem=function(k){mark(k);return _ri.call(this,k)};
+addEventListener("online",()=>setTimeout(()=>auto("online"),1500));
+setInterval(()=>auto("timer"),15*60000);
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
+setTimeout(()=>{refresh().then(()=>{if(ST.pend>0&&cfg.auto)auto("start")})},3000);
+/* ----- dashboard ----- */
+const kb=n=>n<1024?n+" B":n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(2)+" MB";
+const esc2=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ago=t=>t?new Date(t).toLocaleString():"never";
+function dash(){
+ const q=ST.est&&ST.est.quota?" of about "+kb(ST.est.quota)+" available":"";
+ const conn=cfg.repo&&cfg.token?"Connected to "+esc2(cfg.repo)+" ("+esc2(cfg.branch)+")":"Not connected";
+ const rows=(ST.models||[]).map(m=>"<tr><td>"+esc2(m[0])+"</td><td>"+(m[1]?"✔":"✖")+"</td><td>"+esc2(m[2])+"</td></tr>").join("");
+ const lg=(cfg.log||[]).slice(-5).reverse().map(x=>"<li>"+(x.ok?"":"⚠ ")+esc2(x.m)+" <span class=st>("+new Date(x.ts).toLocaleTimeString()+")</span></li>").join("");
+ return `<h3>Backup & vault</h3><div class="box"><p class="st">Everything is saved on this device first. The only remote copy is your own private GitHub repository, and it’s encrypted before it leaves this device. There is no other cloud service.</p>
+<p><b>Local storage:</b> ${ST.keys!=null?kb(ST.all)+" in "+ST.keys+" items"+q+(ST.per?" · protected from auto-clearing":" · not yet marked persistent"):"checking…"}${ST.bad&&ST.bad.length?" · ⚠ "+ST.bad.length+" unreadable item(s)":" · integrity OK"}</p>
+<p><b>GitHub:</b> ${conn}${cfg.token&&!pass?" · passphrase needed this session":""}</p>
+<p><b>Last successful backup:</b> ${ago(cfg.lastOk)}</p>
+<p><b>Pending changes:</b> ${ST.pend==null?"checking…":ST.pend+" item(s) not yet backed up"}${(cfg.pending||[]).length?" · "+cfg.pending.length+" queued":""}${cfg.job?" · an interrupted upload will resume":""}</p>
+<p><b>Backup integrity:</b> ${cfg.verify?(cfg.verify.ok?"✔ ":"✖ ")+esc2(cfg.verify.msg)+" ("+ago(cfg.verify.ts)+")":"not verified yet"}</p>
+<p><b>Protected assistants:</b> ${ST.prot==null?"…":ST.prot+" of "+A.length} · <b>Knowledge archive:</b> ${kb(ST.kn||0)} · <b>Memory archive:</b> ${kb(ST.mem||0)}</p>
+<h3>Connect your GitHub repository</h3>
+<label>Private repository (owner/name)</label><input id="vkRepo" value="${esc2(cfg.repo)}" placeholder="yourname/legendary-twelve-backup" autocomplete="off">
+<label>GitHub access token (fine-grained, this one repository only, Contents: read and write)</label><input id="vkTok" type="password" placeholder="${cfg.token?"saved on this device (leave blank to keep)":"paste token"}" autocomplete="off">
+<label>Backup passphrase (encrypts your data; not stored in the repository)</label><input id="vkPw" type="password" placeholder="${pass?"set for this session":"choose a passphrase you will remember"}" autocomplete="off">
+<label><input type="checkbox" id="vkRem" ${localStorage.getItem(PK)?"checked":""}> Remember the passphrase on this device (otherwise you re-enter it each session)</label>
+<button data-a="vkSave">Save connection</button> <button class="sm" data-a="vkForget">Forget token & passphrase</button>
+<p class="st">If you lose the passphrase, the encrypted backups can’t be opened by anyone, including me. The token is kept only on this device and is never in the app files or the repository.</p>
+<h3>Backup controls</h3>
+<button data-a="vkSync">Back up everything now</button> <button class="sm" data-a="vkMem">Memory only</button> <button class="sm" data-a="vkKn">Knowledge only</button>
+<label>One assistant</label><div class="row"><select id="vkAs">${A.map(a=>`<option value="${a.id}">${esc2(a.n)}</option>`).join("")}</select><button class="sm" data-a="vkOne">Back up</button></div>
+<button class="sm" data-a="vkAuto">Automatic sync: ${cfg.auto?"On":"Off"}</button> <button class="sm" data-a="vkVer">Verify GitHub backup</button> <button class="sm" data-a="vkTest">Test connection</button>
+<h3>Restore from GitHub</h3>
+<div class="row"><select id="vkSc"><option value="all">Complete ecosystem</option><option value="memory">Memory</option><option value="knowledge">Knowledge</option>${A.map(a=>`<option value="assistant:${a.id}">${esc2(a.n)} only</option>`).join("")}</select><button class="sm" data-a="vkList">Show snapshots</button></div>
+<div id="vkSnaps">${(ST.snaps||[]).length?`<select id="vkSn">${ST.snaps.map(n=>`<option>${esc2(n)}</option>`).join("")}</select><button data-a="vkRestore">Restore this snapshot</button>`:"<p class=st>No snapshots listed yet.</p>"}</div>
+<h3>Export / import (complete ecosystem)</h3>
+<button class="sm" data-a="vkExpE">Export encrypted file</button> <button class="sm" data-a="vkExpP">Export plain file</button> <button class="sm" data-a="vkImp">Import file</button>
+<p class="st">Activity</p><ul class="st">${lg||"<li>No activity yet</li>"}</ul>
+<h3>Offline readiness</h3><div class="wide"><table>${rows||"<tr><td>checking…</td></tr>"}</table></div>
+<p class="st">This app’s assistants are rule-based and need no AI model download. The table shows what is really stored on this device.</p></div>`}
+const v=id=>{const e=document.getElementById(id);return e?e.value:""};
+const say=m=>{try{alert(m)}catch(e){}};
+const res=r=>{if(r&&r.why&&!r.ok)say(r.why);else if(r&&r.ok)say(r.skipped?r.why:"Done: "+(r.items||"")+" items backed up and verified on GitHub.");refresh()};
+act.vkSave=()=>{const r=v("vkRepo").trim().replace(/^https?:\/\/github\.com\//,"").replace(/\.git$/,"");if(r&&!/^[\w.-]+\/[\w.-]+$/.test(r))return say("Repository should look like owner/name");cfg.repo=r;const t=v("vkTok").trim();if(t)cfg.token=t;const p=v("vkPw");if(p){pass=p}
+ const rem=document.getElementById("vkRem");try{if(rem&&rem.checked&&pass)_si.call(localStorage,PK,pass);else _ri.call(localStorage,PK)}catch(e){}SAVE();L("Connection saved");refresh();draw()};
+act.vkForget=()=>{if(!confirm("Forget the token and passphrase on this device? Your data and backups stay untouched."))return;delete cfg.token;pass=null;try{_ri.call(localStorage,PK)}catch(e){}SAVE();draw()};
+act.vkSync=async()=>res(await backup("all",{manual:true}));act.vkMem=async()=>res(await backup("memory",{manual:true}));act.vkKn=async()=>res(await backup("knowledge",{manual:true}));
+act.vkOne=async()=>res(await backup("assistant:"+v("vkAs"),{manual:true}));
+act.vkAuto=()=>{cfg.auto=!cfg.auto;SAVE();draw()};act.vkVer=async()=>{const r=await verifyRemote();say(r.msg)};
+act.vkTest=async()=>{try{await gh("GET","");say("Connected to "+cfg.repo)}catch(e){say("Could not connect: "+e.message)}};
+act.vkList=async()=>{try{ST.snaps=await listSnaps(v("vkSc"));ST.snapScope=v("vkSc");draw()}catch(e){say(e.message)}};
+act.vkRestore=async()=>{try{const r=await restore(ST.snapScope||"all",v("vkSn"));if(r.cancelled)return}catch(e){say(e.message)}};
+act.vkExpE=async()=>{try{await exportAll(true)}catch(e){say(e.message)}};act.vkExpP=async()=>{try{await exportAll(false)}catch(e){say(e.message)}};
+act.vkImp=()=>{const i=document.createElement("input");i.type="file";i.accept=".json,application/json";i.onchange=async()=>{try{await importText(await i.files[0].text())}catch(e){say(e.message)}};i.click()};
+const _vk=V.ctl;V.ctl=function(){return _vk.call(V)+dash()};
+window.VAULT={collect,keysFor,seal,open,backup,auto,restore,listSnaps,exportAll,importText,verifyRemote,verifyLocal,modelCheck,refresh,cfg,setPass:p=>{pass=p},status:()=>ST,applyData};
+})();
+</script>
+
+<script>
+/* TOPIC ENCYCLOPEDIA LAYER: 165,341 offline topics in 64 shards (topics_1..64.json), loaded on demand.
+   Sources: WordNet 3.0 (Princeton), GeoNames via geonamescache (CC BY 4.0), ISO lists via pycountry. */
+(function(){
+"use strict";
+const SH=64,TOTAL=165341,mem=new Map(),loading=new Map();
+const enc=new TextEncoder();
+const norm=s=>String(s).normalize("NFKD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/_/g," ").replace(/[^a-z0-9 '\-]/g," ").replace(/\s+/g," ").trim();
+const fnv=k=>{let h=0x811c9dc5;const b=enc.encode(k);for(let i=0;i<b.length;i++){h^=b[i];h=Math.imul(h,0x01000193)>>>0}return h>>>0};
+const fileOf=k=>"topics_"+(fnv(k)%SH+1)+".json";
+function load(f){
+ if(mem.has(f)){const v=mem.get(f);mem.delete(f);mem.set(f,v);return Promise.resolve(v)}
+ if(loading.has(f))return loading.get(f);
+ if(typeof fetch==="undefined")return Promise.reject(new Error("nofetch"));
+ const p=fetch(f).then(r=>{if(!r.ok)throw new Error("http");return r.json()}).then(j=>{mem.set(f,j);while(mem.size>6)mem.delete(mem.keys().next().value);loading.delete(f);return j}).catch(e=>{loading.delete(f);throw e});
+ loading.set(f,p);return p}
+const ready=k=>mem.has(fileOf(k));
+async function get(k,depth){
+ const j=await load(fileOf(k));let l=j[k]||[];const out=[];
+ for(const e of l){if(typeof e==="string"){if((depth|0)<1){const pk=e.slice(1),pj=await load(fileOf(pk));(pj[pk]||[]).forEach(x=>{if(typeof x!=="string"&&!out.some(o=>JSON.stringify(o)===JSON.stringify(x)))out.push(x)})}}else out.push(e)}
+ return out}
+/* ---------- wording ---------- */
+const POS={n:"noun",v:"verb",a:"adjective",r:"adverb"};
+const an=w=>/^[aeiou]/i.test(w)?"an ":"a ";
+const num=n=>{n=+n;return isFinite(n)&&n?n.toLocaleString("en-US"):""};
+const list=s=>s?s.split(",").filter(Boolean):[];
+function one(e,full){
+ const t=e[0];
+ if(POS[t]){const[,ti,gl,syn,kind,inc,parts,partof,ant,ex]=e;
+  let s=ti+" ("+POS[t]+"): "+gl.replace(/\.$/,"")+".";
+  if(full){const sy=list(syn),kd=list(kind),ic=list(inc),pt=list(parts),po=list(partof),an_=list(ant);
+   if(sy.length)s+=" Also called: "+sy.slice(0,4).join(", ")+".";
+   if(kd.length)s+=" It is a kind of "+kd.join(" or ")+".";
+   if(ic.length)s+=" Kinds include: "+ic.join(", ")+".";
+   if(pt.length)s+=" Parts: "+pt.join(", ")+".";
+   if(po.length)s+=" It is part of "+po.join(" or ")+".";
+   if(an_.length)s+=" Opposite: "+an_.join(", ")+".";
+   if(ex){const x=ex.split("§")[0];if(x)s+=" For example: “"+x+"”."}}
+  return s}
+ if(t==="c"){const[,n,c,a1,pop,tz,la,lo]=e;return n+" is a city in "+(a1&&!/^\d+$/.test(a1)&&a1.length>2?a1+", ":"")+c+(+pop?" with roughly "+num(pop)+" people":"")+(tz?" (time zone "+tz+")":"")+"."}
+ if(t==="k"){const[,n,cap,cont,pop,area,cur,lang,tld,ph,iso]=e;let s=n+" is a country"+(cont?" in "+cont:"")+".";if(cap)s+=" Its capital is "+cap+".";if(+pop)s+=" Population about "+num(pop)+".";if(+area)s+=" Area about "+num(Math.round(+area))+" square km.";if(cur)s+=" Currency: "+cur+".";if(lang)s+=" Languages (codes): "+lang+".";return s}
+ if(t==="s"){const[,n,ty,c]=e;return n+" is "+an(ty)+ty+" in "+c+"."}
+ if(t==="l")return e[1]+" is a language"+(e[2]?" (code "+e[2]+")":"")+".";
+ if(t==="m")return e[1]+" is a currency (code "+e[2]+").";
+ if(t==="x")return e[1]+" is a writing system (ISO 15924 code "+e[2]+").";
+ return String(e[1]||"")}
+function render(ents,key){
+ if(!ents.length)return null;
+ let s=one(ents[0],true);
+ const rest=ents.slice(1,4).map(e=>{const x=one(e,false);return x.length>140?x.slice(0,137).replace(/\s+\S*$/,"")+"…":x});
+ if(rest.length)s+="\n\nOther meanings and matches:\n"+rest.map((r,i)=>"("+(i+2)+") "+r).join("\n");
+ if(ents.length>4)s+="\n("+(ents.length-4)+" more entries for “"+key+"”.)";
+ return s}
+/* ---------- question parsing ---------- */
+function parseQ(q){
+ const s=q.toLowerCase().replace(/[’‘]/g,"'").replace(/[?!.]+$/,"").replace(/\s+/g," ").trim();let m;
+ if(/^(random topic|surprise me|tell me something (?:random|interesting)|random fact|topic of the day)$/.test(s))return{t:"random"};
+ if(m=s.match(/^(?:what(?:'s| is) the )?capital (?:city )?of (.{2,40})$/))return{t:"capital",w:norm(m[1])};
+ if(m=s.match(/^(?:what(?:'s| is) the )?population of (.{2,40})$/)||s.match(/^how many people (?:live )?in (.{2,40})$/))return{t:"pop",w:norm(m[1])};
+ if(m=s.match(/^what (?:currency|money) (?:does|do) (.{2,40}?) (?:use|have)$/))return{t:"cur",w:norm(m[1])};
+ if(m=s.match(/^(?:what(?:'s| is| are| was| were)|whats|who(?:'s| is| was| are| were)|where(?:'s| is| was| are)|tell me about|tell me more about|explain|describe|look up|lookup|topic|encyclopedia|info on|information on|information about|learn about|teach me about)\s+(?:the |a |an )?(.{2,60})$/)){
+  const w=norm(m[1]);
+  if(!w||w.split(" ").length>5||/\b(you|your|yours|i|we|my|me|our|doing|going|up to|opposite|plural|past tense|meaning|synonyms?|antonyms?|spelling|spell|definition|rhymes?|pronounce|pronunciation|today|tomorrow|time|date|weather|happening|wrong|new|up|good|bad)\b/.test(w))return null;
+  return{t:"about",w,forced:/^(look ?up|topic|encyclopedia|info|information|learn|teach me)/.test(s)}}
+ return null}
+const TT=["Looking that up…","Let me check my topics…","One sec, flipping through the encyclopedia…"];
+const rn=a=>a[Math.random()*a.length|0];
+async function answerTopic(p){
+ if(p.t==="random"){const f="topics_"+(1+Math.random()*SH|0)+".json",j=await load(f),ks=Object.keys(j).filter(k=>{const v=j[k];return v.length&&typeof v[0]!=="string"&&!/^\d/.test(k)&&(POS[v[0][0]]?v[0][2].length>30:true)});const k=rn(ks);const ents=await get(k);return"Random topic: "+render(ents,k)}
+ const ents=await get(p.w);if(!ents.length)return null;
+ if(p.t==="about")return render(ents,p.w);
+ const c=ents.find(e=>e[0]==="k"),ct=ents.find(e=>e[0]==="c");
+ if(p.t==="capital"){if(c&&c[2])return"The capital of "+c[1]+" is "+c[2]+".";return null}
+ if(p.t==="pop"){if(c&&+c[4])return c[1]+" has about "+num(c[4])+" people.";if(ct&&+ct[4])return ct[1]+" has roughly "+num(ct[4])+" people.";return null}
+ if(p.t==="cur"){if(c&&c[6])return c[1]+" uses the "+c[6]+".";return null}
+ return null}
+/* ---------- reply fallback: only when nothing else knew the answer ---------- */
+const _tp=reply,dv=(a,t)=>window.DICTIONARY.deliver(a,t);
+const SELF=/^(you|yourself|me|myself|us|everyone|everybody|anyone|we|i|it|this|that|here|there|them|him|her|the group|your name|my name)$/;
+const mine=k=>{try{return A.some(x=>norm(x.n)===k||x.id===k||norm(x.n).split(" ").includes(k))||(sh||[]).some(r=>r.status==="approved"&&norm(r.title)===k)}catch(e){return false}};
+function getSync(k){const f=fileOf(k);if(!mem.has(f))return null;const l=mem.get(f)[k]||[];const out=[];for(const e of l){if(typeof e==="string"){const pk=e.slice(1),pf=fileOf(pk);if(!mem.has(pf))return null;(mem.get(pf)[pk]||[]).forEach(x=>{if(typeof x!=="string"&&!out.some(o=>JSON.stringify(o)===JSON.stringify(x)))out.push(x)})}else out.push(e)}return out}
+function fromEnts(p,ents){
+ if(!ents||!ents.length)return null;
+ if(p.t==="about")return render(ents,p.w);
+ const c=ents.find(e=>e[0]==="k"),ct=ents.find(e=>e[0]==="c");
+ if(p.t==="capital")return c&&c[2]?"The capital of "+c[1]+" is "+c[2]+".":null;
+ if(p.t==="pop")return c&&+c[4]?c[1]+" has about "+num(c[4])+" people.":(ct&&+ct[4]?ct[1]+" has roughly "+num(ct[4])+" people.":null);
+ if(p.t==="cur")return c&&c[6]?c[1]+" uses the "+c[6]+".":null;
+ return null}
+const ld_=a=>{try{return window.DICTIONARY.lead(a)||""}catch(e){return""}};
+reply=function(a,q){
+ const p=parseQ(q);
+ let calm=false;try{calm=(typeof CR!=="undefined"&&CR.test(q.replace(/[’‘]/g,"'")))||((window.PERSONALITY.mm(a.id)||{}).care>0)}catch(e){}
+ if(!p||calm)return _tp(a,q);
+ if(p.t==="random"){answerTopic(p).then(t=>{if(t)dv(a,t)}).catch(()=>{});return rn(TT)}
+ if(!p.forced&&(SELF.test(p.w)||mine(p.w)))return _tp(a,q);
+ /* topics first: exact-name lookup is more precise than the library's loose matching */
+ const fin=t=>ld_(a)+t;
+ const sy=getSync(p.w);
+ if(sy!==null){const t=fromEnts(p,sy);if(t)return fin(t);return _tp(a,q)}
+ const fb=()=>{const r=_tp(a,q);if(typeof r==="string"&&r&&!/…$/.test(r))dv(a,r)};
+ get(p.w).then(ents=>{const t=fromEnts(p,ents);if(t)dv(a,fin(t));else fb()}).catch(fb);
+ return rn(TT)}
+window.TOPICS={total:TOTAL,norm,fileOf,get,parseQ,answerTopic,render,one,load,mem,count:()=>TOTAL};
+})();
+</script>
+
 <button id="inst" hidden>Install app</button>
 <script>
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>r.update()).catch(()=>{}));
