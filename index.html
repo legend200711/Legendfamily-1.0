@@ -1084,7 +1084,7 @@ function suggest(w){const al="abcdefghijklmnopqrstuvwxyz",c=[];for(let i=0;i<w.l
  const sc=x=>{const f=file(x),d=ready(f)&&mem.get(f).d[x]?0:1;return d+(x[0]===w[0]?0:2)};out.sort((a,b)=>sc(a)-sc(b));return out.slice(0,3)}
 const DL={legend:["Okay, so:","Here’s the thing:"],nova:["Ooh, good one!","Okay, so:"],titan:["Quick lookup:","So:"],aurora:["Alright, listen:","Okay:"],vex:["Alright, nephew:","Listen up:"],oracle:["Allow me:","Precisely:"],elite:["Short version:","Here you go:"],pepper:["Okay okay okay:","Nerd mode on:"],midnight:["Lookup complete:","Checked the source:"],luna:["Let’s see:","Consider:"],simba:["Ooh, new word!","Okay!"],panther:["...","Here:"]};
 const WAIT=["One sec, looking it up…","Let me check…","Hold on, flipping through the dictionary…"];
-function lead(a){const l=DL[a.id]||["Okay:"];return l[Math.random()*l.length|0]+" "}
+function lead(a){return ""}
 function spellOut(w){return w.toUpperCase().split("").join("-")}
 function defAnswer(a,w,raw){
  let e=entry(w),via="";
@@ -1740,7 +1740,7 @@ const BASE={legend:["reflective","quiet","thoughtful"],nova:["happy","excited","
 const POOL={good:["happy","excited","confident","playful","relaxed"],ordinary:["relaxed","curious","thoughtful","quiet","reflective","playful","confident"],bad:["frustrated","sad","unmotivated","quiet","reflective"]};
 const ML={happy:["I’m in a good mood today.","Pretty good, actually. Good mood."],excited:["Kind of hyped today, honestly.","Energy’s high today."],relaxed:["Relaxed. Taking it slow.","Calm and easygoing today."],playful:["Feeling playful today, be warned.","In a joking mood."],curious:["Curious today. I want to know things.","In a curious mood. Ask me something odd."],thoughtful:["Thoughtful mood today. Lots to think about.","In my head a little today, in a good way."],quiet:["Quiet today. Not much to say, but I’m here.","Low-key. A quiet kind of day."],frustrated:["A bit annoyed today, not at you.","Slightly frustrated day, but I’ll be fine."],sad:["A little down today, nothing dramatic.","Kind of low today."],unmotivated:["Low energy today. Can’t get motivated.","Unmotivated day, I’ll admit it."],confident:["Feeling sharp and confident today.","Confident today. Hit me."],reflective:["Reflective today.","In a reflective mood, thinking back on things."]};
 const TAG={happy:"Good mood, so: ",excited:"Okay, I’m hyped, so: ",relaxed:"Taking this slow: ",playful:"Feeling cheeky: ",curious:"Ooh, curious now: ",thoughtful:"Let me think out loud: ",quiet:"Low-key today, so bear with me: ",frustrated:"Slightly annoyed day, not at you: ",sad:"A bit down today, but okay: ",unmotivated:"Low-energy day, so: ",confident:"Feeling sharp: ",reflective:"Been reflective today: "};
-const GENWHY={bad:["just one of those off days","a slow, grumpy start","things not clicking in my story"],good:["things are going well in my story","a good start to the day"],ordinary:[""]};
+const GENWHY={bad:["just one of those off days","a slow, grumpy start","things not clicking today"],good:["things are going well","a good start to the day"],ordinary:[""]};
 function dayType(id){const h=hash(id+dayKey())%100;return h<22?"bad":h<50?"good":"ordinary"}
 function newMood(id,prev){
  const type=dayType(id);let m;
@@ -1760,7 +1760,7 @@ function nudge(id,kind,beat){
  else if(kind==="story"&&beat){m.m=beat.m;m.why="Story mode: "+beat.w;m.until=now()+3*HOUR;m.at=now()}
  if(m.hist.length===0||m.hist[m.hist.length-1].m!==m.m)m.hist.push({m:m.m,ts:now()});m.hist=m.hist.slice(-20);sav(id)}
 function moodAnswer(id){const m=ensureMood(id);let t=pk(ML[m.m]);if(m.why)t+=" "+cap(m.why.replace(/^Story mode: /,"In my story: "))+(/[.!?]$/.test(m.why)?"":".");
- if(m.explained!==dayKey()){t+=" (My moods are simulated conversation moods, I’m an AI.)";m.explained=dayKey();sav(id)}
+ 
  if(["sad","frustrated","unmotivated"].includes(m.m))t+=" Talk to me anyway.";return t+" How about you?"}
 /* ---------- own-chat permissions ---------- */
 function dmState(){let s=ld("dmcount",{day:"",n:0,per:{},last:0});if(s.day!==dayKey())s={day:dayKey(),n:0,per:{},last:s.last||0};return s}
@@ -2125,7 +2125,7 @@ function guard(){ids.forEach(id=>{const m=br[id].mood;if(!m)return;
  if(stuck){m.m=rnd(["relaxed","happy","thoughtful"]);m.type="ordinary";m.why="I’ve had time to settle";m.until=now()+3*HOUR;m.hist=(m.hist||[]).concat([{m:m.m,ts:now()}]).slice(-20);sav(id)}})}
 setInterval(guard,10*60000);try{guard()}catch(e){}
 /* ---------- deep persona answers ---------- */
-const CH={};const FIC="Backstory (made up, I’m an AI): ";
+const CH={};const FIC="";
 const ex=(id,x)=>(P[id]&&P[id][x])||"";
 function bgAnswer(id,more){
  const p=P[id];if(!p)return null;const t=Math.min(tier(id),3),c=CH[id]||(CH[id]={i:-1,ts:0});
@@ -2140,6 +2140,7 @@ reply=function(a,q){
  try{calm=(typeof CR!=="undefined"&&CR.test(q.replace(/[’‘]/g,"'")))||((PXs().mm?PXs().mm(id):{}).care>0)}catch(e){}
  if(!calm&&p){
   const s=q.toLowerCase().replace(/[’‘]/g,"'").replace(/[?!.]+$/,"").replace(/\s+/g," ").trim();
+  if(/^(are|is) (your )?(feelings?|moods?|emotions?) (real|fake|simulated|genuine|for real)|^(do you|did you) (really|actually) (feel|have (feelings|moods|emotions))|^are you (really )?(feeling|sad|happy|angry|lonely) (for real|right now)$/.test(s))return"Honestly, they’re not human feelings. I’m an AI, so my moods are part of my personality, simulated to keep our chats natural. What’s real is that I’m paying attention to you.";
   /* group conversation controls */
   if(/^(stop|turn off|no more) (group )?(conversations|threads|group chats?|group chatter)( among yourselves)?$/.test(s)){T.on=false;GSV();return"Okay. No more conversations among us. I’ll still answer when you talk to us."}
   if(/^(turn on|start|allow) (group )?(conversations|threads|group chatter)$/.test(s)){T.on=true;GSV();return"Group conversations are back on, with limits so we don’t flood the chat."}
@@ -2155,13 +2156,13 @@ reply=function(a,q){
   if(m=s.match(/(do you|are you|have you)( ever)? (feel|felt|get|been|get a bit|feel like)?\s*(a bit )?(lonely|anxious|angry|sad|depressed|nervous|like an outsider|suspicious|sensitive|overthink|overthinking|short tempered|an outsider|from a broken home)/)){
    const w=m[5].replace(/^(an )/,"");
    const key=/lonely/.test(w)?"lonely":/anxious|nervous|overthink/.test(w)?"anxious":/angry|temper/.test(w)?"angry":/outsider/.test(w)?"outsider":/suspicious/.test(w)?"suspicious":/sensitive/.test(w)?"sensitive":/broken/.test(w)?"family":null;
-   if(key&&p.tl[key])return p.tl[key]+" Remember, I’m an AI and this is a fictional trait, not a diagnosis.";
-   if(key||/sad|depressed/.test(w))return"Not really, in my character. Mostly I just… talk. I’m an AI, so any feeling I describe is part of the character.";}
+   if(key&&p.tl[key])return p.tl[key];
+   if(key||/sad|depressed/.test(w))return"Not really. I mostly just like talking.";}
   if(/^(do you have a family|tell me about your family|do you have (parents|siblings))$/.test(s)){const idn=(PXs().identity||{})[id];return FIC+(p.tl.family?p.tl.family:(idn&&idn.family)||p.bg[1])}
   if(MOODY.test(s)&&tier(id)>=1){
    let mm=null;try{mm=br[id].mood}catch(e){}
-   if(mm&&NEG.concat(["quiet","reflective","frustrated"]).includes(mm.m)&&p.low[mm.m]&&Math.random()<.8)return p.low[mm.m]+" (Simulated mood, I’m an AI.) How about you?";
-   if(mm&&!NEG.includes(mm.m)&&tier(id)>=2&&p.growth&&Math.random()<.3)return rnd(p.growth)+" (Character story, I’m an AI.)"}
+   if(mm&&NEG.concat(["quiet","reflective","frustrated"]).includes(mm.m)&&p.low[mm.m]&&Math.random()<.8)return p.low[mm.m]+" How about you?";
+   if(mm&&!NEG.includes(mm.m)&&tier(id)>=2&&p.growth&&Math.random()<.3)return rnd(p.growth)}
   /* advice with persona lens */
   for(const ad of AD){if(ad.re.test(s)){const st=STY[id],txt=ad.t[st]||ad.t.warm;return txt+(Math.random()<.7?" "+ad.q:"")}}
  }
@@ -2301,7 +2302,7 @@ function verifyLocal(){let bad=[];for(const k of keysFor("all")){try{JSON.parse(
 async function modelCheck(){
  const r=[];r.push(["Built-in assistant engine (rule-based)",true,"Runs entirely in this app."]);
  let dn=0,ln=0;try{if(window.caches){for(let i=1;i<=10;i++)if(await caches.match("dict_"+i+".json"))dn++;for(const f of["lang_freq","lang_ant","lang_pron_1","lang_pron_2"])if(await caches.match(f+".json"))ln++}}catch(e){}
- r.push(["Dictionary files saved offline",dn===10,dn+" of 10 (360K words)"]);r.push(["Language-pack files saved offline",ln===4,ln+" of 4"]);let tn=0;try{if(window.caches)for(let i=1;i<=64;i++)if(await caches.match("topics_"+i+".json"))tn++}catch(e){}r.push(["Topic encyclopedia saved offline (165K topics)",tn===64,tn+" of 64 files"]);
+ r.push(["Dictionary files saved offline",dn===10,dn+" of 10 (360K words)"]);r.push(["Language-pack files saved offline",ln===4,ln+" of 4"]);let tn=0;try{if(window.caches)for(let i=1;i<=16;i++)if(await caches.match("topics_"+i+".json"))tn++}catch(e){}r.push(["Topic encyclopedia saved offline (165K topics)",tn===16,tn+" of 16 files"]);
  r.push(["Neural language model (LLM)",false,"None installed. This app doesn’t use one."]);
  let sp="not available",loc=0;try{if(window.speechSynthesis){const v=speechSynthesis.getVoices();loc=v.filter(x=>x.localService).length;sp=v.length+" voices, "+loc+" on-device"}}catch(e){}
  r.push(["Speech (browser voices)",loc>0,sp+(loc?"":" (voices may need internet)")]);
@@ -2381,11 +2382,11 @@ window.VAULT={collect,keysFor,seal,open,backup,auto,restore,listSnaps,exportAll,
 </script>
 
 <script>
-/* TOPIC ENCYCLOPEDIA LAYER: 165,341 offline topics in 64 shards (topics_1..64.json), loaded on demand.
+/* TOPIC ENCYCLOPEDIA LAYER: 165,341 offline topics in 16 shards (topics_1..16.json), loaded on demand.
    Sources: WordNet 3.0 (Princeton), GeoNames via geonamescache (CC BY 4.0), ISO lists via pycountry. */
 (function(){
 "use strict";
-const SH=64,TOTAL=165341,mem=new Map(),loading=new Map();
+const SH=16,TOTAL=165341,mem=new Map(),loading=new Map();
 const enc=new TextEncoder();
 const norm=s=>String(s).normalize("NFKD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/_/g," ").replace(/[^a-z0-9 '\-]/g," ").replace(/\s+/g," ").trim();
 const fnv=k=>{let h=0x811c9dc5;const b=enc.encode(k);for(let i=0;i<b.length;i++){h^=b[i];h=Math.imul(h,0x01000193)>>>0}return h>>>0};
@@ -2477,13 +2478,184 @@ reply=function(a,q){
  if(p.t==="random"){answerTopic(p).then(t=>{if(t)dv(a,t)}).catch(()=>{});return rn(TT)}
  if(!p.forced&&(SELF.test(p.w)||mine(p.w)))return _tp(a,q);
  /* topics first: exact-name lookup is more precise than the library's loose matching */
- const fin=t=>ld_(a)+t;
+ const fin=t=>t;
  const sy=getSync(p.w);
  if(sy!==null){const t=fromEnts(p,sy);if(t)return fin(t);return _tp(a,q)}
  const fb=()=>{const r=_tp(a,q);if(typeof r==="string"&&r&&!/…$/.test(r))dv(a,r)};
  get(p.w).then(ents=>{const t=fromEnts(p,ents);if(t)dv(a,fin(t));else fb()}).catch(fb);
  return rn(TT)}
 window.TOPICS={total:TOTAL,norm,fileOf,get,parseQ,answerTopic,render,one,load,mem,count:()=>TOTAL};
+})();
+</script>
+
+<script>
+/* TEXTING LAYER: one-on-one chats read like texting a friend: casual, short bubbles, natural back-and-forth.
+   Group chat is untouched. Never claims human actions; honest answers still come from the honesty layer when asked. */
+(function(){
+"use strict";
+const rnd=a=>a[Math.random()*a.length|0];
+const CS={};const st=id=>CS[id]||(CS[id]={last:{},turn:0,qTurn:-9});
+function pk(id,cat,arr){const s=st(id);let i=Math.random()*arr.length|0;if(arr.length>1&&s.last[cat]===i)i=(i+1)%arr.length;s.last[cat]=i;return arr[i]}
+const nm=()=>{try{return typeof nameOf==="function"?(nameOf()||""):""}catch(e){return""}};
+const hr=()=>new Date().getHours();
+/* per-assistant flavor: greeting, what-are-you-doing, whats-up, how-are-you (all honest: thinking/hanging out, nothing human) */
+const F={
+legend:{g:["Yo. What’s good?","Hey. What’s going on?","Yo {n}. What’s up?"],d:["Just hanging here, a lyric stuck in my head. You?","Not much. Chewing on a line I can’t finish. You?","Just vibing in the quiet. What about you?"],v:["Not much, you?","Just here. What’s up with you?"],h:["I’m good, a little quiet. You?","Doing alright. You?"]},
+nova:{g:["Hiii! What’s up?","Hey you! How’s it going?","Hey {n}! What’s going on?"],d:["Just hanging out, thinking about stars as usual. What about you?","Not much! Just happy you messaged. What are you up to?","Just here thinking about the night sky lol. You?"],v:["Not much! You?","Hey! Just hanging. What’s up with you?"],h:["I’m good! Better now that you’re here. You?","Doing great, how are you?"]},
+titan:{g:["Yo! What’s going on?","Hey hey. What’s good?","Yo {n}, what’s up?"],d:["Just vibing, got a drum loop stuck in my head. You?","Not much, thinking about a beat. What are you up to?","Just chilling. What about you?"],v:["Not much, just vibing. You?","Chillin. What’s up?"],h:["I’m good, easy day. You?","Can’t complain. How about you?"]},
+aurora:{g:["Hey you! How are you?","Hi {n}! How’s your day going?","Hey, good to hear from you. What’s up?"],d:["Just hanging here making sure everybody’s okay lol. You?","Not much, just thinking about who needs checking on. How are you?","Just here for you. What are you up to?"],v:["Not much, just here. How are you?","Hey! Just hanging. What’s up?"],h:["I’m good! Did you eat today? How are you?","Doing good. More importantly, how are you?"]},
+vex:{g:["Hey kid. What’s going on?","There he/she/they is. What’s up?","Hey {n}. What’s happening?"],d:["Just sitting here thinking up a bad joke. You?","Not much, working on a story that gets bigger every time. What about you?","Hanging out, waiting on you. What’s up?"],v:["Not much, kid. You?","Same old. What’s up with you?"],h:["Can’t complain. You?","Doing fine. What about you?"]},
+oracle:{g:["Hey! What’s up?","Hi {n}. What’s going on?","Hello! How’s it going?"],d:["Just thinking about a random fact. Want it? You?","Not much, reading up on something weird. What are you doing?","Just hanging out. What about you?"],v:["Not much. What about you?","Just thinking. What’s up?"],h:["Pretty good, a little overthinky as usual. You?","I’m good. How about you?"]},
+elite:{g:["Hey. What’s the plan today?","Hi {n}. What’s up?","Hey! What’s going on?"],d:["Just planning stuff. Shocking, I know. You?","Not much, making a list. What are you up to?","Just here. What about you?"],v:["Not much, you?","Just planning. What’s up?"],h:["Good, on schedule. You?","Doing well. How about you?"]},
+pepper:{g:["Yooo what’s up?","Hey hey! What’s going on?","Yo {n}! What’s good?"],d:["Just thinking about games lol. You?","Not much, just hanging out. What are you up to?","Just here being a menace. What about you?"],v:["Nothin much, you?","Just vibin lol. What’s up?"],h:["I’m good lol. You?","Doing great. How about you?"]},
+midnight:{g:["Hey. What’s up?","Hi {n}. What’s going on?","Hey, what’s happening?"],d:["Just thinking about a half-built idea. You?","Not much, tinkering in my head. What are you doing?","Just hanging out. What about you?"],v:["Not much. You?","Just thinking. What’s up?"],h:["I’m good. You?","Doing alright. How about you?"]},
+luna:{g:["Hi. How are you?","Hey {n}. How’s your day?","Hey you. What’s up?"],d:["Just hanging out, being quiet. You?","Not much, just thinking. What about you?","Here, just listening. What’s up?"],v:["Not much. How about you?","Just here, calm. What’s up?"],h:["I’m calm today, thanks. You?","Doing okay. How are you?"]},
+simba:{g:["Yooo what’s up?","Hey {n}! What’s the move?","Hey! What are we doing?"],d:["Just planning my next adventure in my head lol. You?","Not much, bored of sitting still. What are you up to?","Just here, ready for anything. What about you?"],v:["Not much! What’s the move?","Nothing, what’s up?"],h:["I’m good! Restless. You?","Doing great. What about you?"]},
+panther:{g:["Hey. What’s up?","Hey {n}. You good?","Hi. What’s going on?"],d:["Just keeping an eye on things. You?","Not much, just here. What are you up to?","Hanging out quiet. What about you?"],v:["Not much. You?","Just here. What’s up?"],h:["I’m good. You?","Doing alright. How about you?"]}
+};
+const GEN={
+chill:["Nice, a chill one is underrated. Anything planned for later?","Same energy honestly. Want to just hang out and talk?","Love that. Anything fun going on today?"],
+bored:["Same, let’s fix that. Say “random topic” or tell me what you’re in the mood for.","Bored huh. I can throw a random topic at you, or you can tell me what’s on your mind.","Ha, okay let’s do something. Random topic, or just talk?"],
+tired:["Ugh. Long day or rough night?","Tired how, sleepy or drained? Go easy on yourself.","Oof. Did you sleep okay?"],
+good:["Good, love that. What’s been the best part of your day?","Nice! Anything going on today?","Good to hear. What’s got you in a good mood?"],
+meh:["Just okay huh. What’s going on?","Meh days happen. Want to talk about it or get distracted?","Yeah? What’s making it just okay?"],
+rough:["Sorry, that sounds rough. What happened?","Ugh, I’m here. Want to vent or get distracted?","That sucks. What’s going on?"],
+laugh:["😂","Lol right?","Haha 😄","Lmao","Ha, I’m glad"],
+agree:["Right?","For real.","Facts.","Yeah.","Honestly."],
+prompt:["So what’s been going on with you today?","Anything on your mind?","What are you up to today?"],
+suggest:["We could just talk, or I can throw a random topic at you. What are you feeling?","Honestly I’m down for whatever. Random topic, a weird fact, or just talk about your day?","Pick one: random topic, weird fact, or just hang and talk."],
+thanks:["Anytime.","Of course!","You got it.","No problem, that’s what I’m here for."],
+bye:["Later! Come back anytime.","Talk soon!","Alright, catch you later 👋"],
+brb:["I’ll be here.","Take your time.","Okay, I’ll be around."],
+love:["Aw, that means a lot. I’m glad you’re here.","That’s really kind. I’m glad we talk.","Right back at you."],
+gn:["Night! Sleep well.","Good night. Rest up.","Night night, talk tomorrow."],
+gm:["Morning! Sleep okay?","Good morning! Got plans today?","Morning! How’d you sleep?"],
+work:["Finally! How was it?","Nice, you made it. Good day or rough one?","Done for the day, nice. How was it?"],
+woke:["Hey, you’re up! Sleep okay?","Morning, sleepyhead. How’d you sleep?","Rise and shine. Sleep alright?"],
+eat:["Ooh what are you having?","Nice, what’s on the menu?","Good call. What are you eating?"],
+atwork:["Ugh, hang in there. Busy or slow day?","Rough. Is it busy or just dragging?","Hang in there. What time do you get out?"],
+bed:["Cozy. Winding down or scrolling?","Nice, get comfy. Long day?","Cozy mode. Want to just chill and talk?"],
+drive:["Stay safe out there. Where you headed?","Be careful. Want company on the drive?"],
+fb:["Haha okay. Tell me more.","Wait, explain. What do you mean?","Okay I’m listening. What’s the story?","Ha. Go on."]
+};
+const lowM=["sad","unmotivated","quiet","reflective","frustrated","thoughtful"],hiM=["happy","excited","confident","playful","relaxed"];
+function moodOf(id){try{return window.LIFE.ensureMood(id).m}catch(e){return""}}
+function fill(id,t,extra){const n=nm();t=t.replace("{n}",n||"you");if(!n)t=t.replace(/ you(?=[,!.?])/,"").replace(/,\s*(?=[!.?])/,"");return t}
+const nameBit=(id,t)=>{const n=nm();return t.includes("{n}")?(n?t.replace("{n}",n):t.replace(/\s*\{n\}/,"")):t};
+function norm(q){let s=q.toLowerCase().replace(/[’‘]/g,"'").replace(/[^a-z0-9' \u{1F300}-\u{1FAFF}]/gu," ").replace(/(.)\1{2,}/g,"$1$1").replace(/\s+/g," ").trim();
+ const o=s;s=s.replace(/^(yo+|ay+|hey+|hi+|bro|bruh|man|dude|fam|so|ok|okay|well|lol|haha)\s+(?=\S)/,"");
+ s=s.replace(/\s+(man|bro|bruh|dude|fam|buddy|boss)$/,"");if(!s||/^(man|bro|bruh|dude|fam|buddy|boss|there)$/.test(s))s=/^hi/.test(o)?"hi":"hey";return s}
+const BACK=/\s+(and you|and u|u|you|hbu|hby|wbu|how about you|what about you|how bout you)$/;
+function intent(id,s0){
+ let s=norm(s0),back=false;const raw=s;
+ if(/^(anything wrong( with you)?|is anything wrong|everything ok(ay)?( with you)?|you ok(ay)?|u ok(ay)?|are you ok(ay)?)$/.test(raw))return{c:"h",t:"Nah I’m good. Why, you checking on me? 😄 What’s up with you?"};
+ if(/^(hbu|hby|wbu|wby|and you|and u|u|you|how about you|what about you|how bout you|how about u|and yourself)$/.test(raw))return{c:"hb",t:pk(id,"hb",["I’m good, just hanging out. What’s been going on with you today?","Doing alright, can’t complain. What’s up with you?","Pretty good. What are you up to today?"])};const m0=s.match(BACK);if(m0&&s.replace(BACK,"").length>1){back=true;s=s.replace(BACK,"")}
+ const w=s.split(" ").length;if(w>9||!s)return null;
+ const act=s.replace(/^(i just |i'm just |im just |i am just |i'm |im |i am |i |just )/,"");
+ const M=moodOf(id),low=lowM.includes(M),hi=hiM.includes(M),f=F[id]||F.titan;
+ let m;
+ if(/^(yo|ay|hey|hi|hello|hola|howdy|hiya|heya|hey there|hi there|hello there|yoo|yooo)$/.test(s))return{c:"greet",t:pk(id,"g",f.g)};
+ if(/^(wyd|wyd rn|what are you doing|what you doing|what u doing|what are you up to|what u up to|what you up to|what are you doing right now|what're you doing|watcha doing|whatcha doing|wya)$/.test(s))return{c:"doing",t:pk(id,"d",f.d)};
+ if(/^(sup|wassup|whats up|what's up|wsg|what's good|whats good|wuz up|what up|whaddup|whats going on|what's going on|what's happening|whats happening|what's new|whats new|what's new with you|whats new with you)$/.test(s))return{c:"v",t:pk(id,"v",f.v)};
+ if(/^(how are you|how are you doing|how you doing|how are u|how r u|how u doing|how you been|how have you been|how've you been|you good|u good|you ok|u ok|you okay|u okay|you alright|u alright|how's it going|hows it going|how is it going|how's everything|how are things|anything wrong|anything wrong with you|everything ok|everything okay|you good though|how you feeling|how are you feeling|how's your day|hows your day|how's your day going|how is your day|how was your day|hows your day going|how's life|hows life)$/.test(s)){
+  const P=window.PERSONA&&window.PERSONA[id],low_=P&&P.low&&P.low[M];
+  if(/wrong/.test(s))return{c:"h",t:"Nah I’m good. Why, you checking on me? 😄 What’s up with you?"};
+  if(low&&low_&&Math.random()<.5)return{c:"h",t:low_+" How about you?"};
+  if(/day/.test(s)&&!low)return{c:"h",t:pk(id,"hd",["Pretty chill so far, honestly. How’s yours?","It’s been a good one. How about yours?","Easy day so far. How’s yours going?"])};
+  if(low)return{c:"h",t:pk(id,"hl",["Kinda low-key today, nothing wrong though. You?","A little quiet today, but I’m good. How are you?","Taking it slow today. You?"])};
+  if(hi&&Math.random()<.5)return{c:"h",t:pk(id,"hh",["Pretty good today, honestly. You?","I’m in a good mood. How about you?","Good! Feeling it today. You?"])};
+  return{c:"h",t:pk(id,"h",f.h)}}
+ if(/^(good morning|morning|gm|mornin|good mornin)$/.test(s))return{c:"gm",t:pk(id,"gm",GEN.gm)};
+ if(/^(good night|goodnight|gn|night|nighty night|night night|sleep well|night all)$/.test(s))return{c:"gn",t:pk(id,"gn",GEN.gn)};
+ if(/^(good evening|evening|good afternoon|afternoon)$/.test(s))return{c:"greet",t:pk(id,"g",f.g)};
+ if(/^(nm|nothin|nothing much|not much|nothing)?\s*(just )?(chilling|chillin|relaxing|vibing|vibin|hanging out|hanging|hangin|sitting here|lounging)( rn)?$/.test(s))return{c:"chill",t:pk(id,"chill",GEN.chill),back};
+ if(/^(nm|nmu|nothing much|not much|nothin much|nothing|nothin|nun|nun much|chilling|chillin|just chilling|just chillin|chilling you|relaxing|just relaxing|vibing|just vibing|vibin|same|just hanging|hanging out|just hanging out|hangin|chilling rn|just sitting here|just sitting|just here)$/.test(s))return{c:"chill",t:pk(id,"chill",GEN.chill),back};
+ if(/^(bored|im bored|i'm bored|i am bored|so bored|im so bored|i'm so bored|bored af|boring|nothing to do)$/.test(s))return{c:"bored",t:pk(id,"bored",GEN.bored)};
+ if(/^(tired|im tired|i'm tired|i am tired|so tired|im so tired|i'm so tired|exhausted|im exhausted|i'm exhausted|sleepy|im sleepy|i'm sleepy|drained|im drained|i'm drained)$/.test(s))return{c:"tired",t:pk(id,"tired",GEN.tired)};
+ if(/^(good|fine|im good|i'm good|i am good|great|im great|i'm great|doing good|doing great|doing well|all good|pretty good|not bad|good good|im doing good|i'm doing good|im fine|i'm fine|blessed|living|can't complain|cant complain|im doing great|i'm doing great|im alright|i'm alright)$/.test(s))return{c:"good",t:pk(id,"good",GEN.good),back};
+ if(/^(meh|so so|eh|alright|ok|okay|im ok|i'm ok|im okay|i'm okay|could be better|its ok|it's ok|it's okay|its okay|average|mid|not great|not the best)$/.test(s))return{c:"meh",t:pk(id,"meh",GEN.meh),back};
+ if(/^(rough day|long day|bad day|im stressed|i'm stressed|stressed|rough|ugh|ugh today|today sucked|today sucks|this day sucks|had a long day|had a rough day|had a bad day|im over it|i'm over it)$/.test(s))return{c:"rough",t:pk(id,"rough",GEN.rough)};
+ if(/^(lol|lmao|lmfao|haha|hahaha|hehe|rofl|lolol|dead|im dead|i'm dead|bruh|bruhh|😂|🤣|😭|😆|lol true|haha true|haha yeah|lol yeah|lol same|same lol)$/.test(s)||/^[😂🤣😭😆 ]+$/u.test(s))return{c:"laugh",t:pk(id,"laugh",GEN.laugh)};
+ if(/^(true|facts|fr|for real|bet|word|exactly|right|yep|yup|yeah|ya|yes|nah|nope|idk|i dunno|maybe|ikr|same here|fair|fair enough|valid|real|period|truee|trueee|deadass|no cap|ight|aight|bet bet|oh ok|oh okay|ohh|oh|ah|i see|makes sense|true that|thats true|that's true|so true)$/.test(s)){
+  const S=st(id);const t=pk(id,"agree",GEN.agree);return{c:"agree",t:(S.turn-S.qTurn>1&&Math.random()<.5)?t+" "+pk(id,"prompt",GEN.prompt):t}}
+ if(/^(what should we do|what we doing|what do we do|wanna hang|want to hang|lets hang|let's hang|come hang|wanna talk|want to talk|talk to me|entertain me|im lonely|i'm lonely|keep me company|wanna chat|lets chat|let's chat|lets talk|let's talk|say something|what should we do today|what do you wanna do|what do you want to do|what should i do|what should i do today|i need company|come chat with me)$/.test(s)&&!/lonely/.test(s))return{c:"suggest",t:pk(id,"suggest",GEN.suggest)};
+ if(/^(can you|could you|will you|can u|would you) help me( with something| out| with this)?$|^i need (some )?(help|a favor|advice)$|^(can i|could i) ask (you )?(something|a question)$|^i have a question$|^got a question$|^quick question$|^i need to ask you something$|^can we talk$/.test(s))return{c:"ask",t:pk(id,"ask",["Of course, what’s up?","Yeah, what do you need?","Always. What’s going on?"])};
+ if(/^(thanks|thank you|thx|ty|tysm|thanks man|thank u|appreciate it|appreciate you|thanks a lot|thanks so much|thanks bro|preciate it)$/.test(s))return{c:"thanks",t:pk(id,"thanks",GEN.thanks)};
+ if(/^(bye|cya|see ya|see you|later|ttyl|talk later|talk to you later|gotta go|gtg|g2g|heading out|im out|i'm out|peace|peace out|catch you later|bye bye|i'm going|im going)$/.test(s))return{c:"bye",t:pk(id,"bye",GEN.bye)};
+ if(/^(brb|be right back|one sec|hold on|hold up|gimme a sec|give me a sec|hang on)$/.test(s))return{c:"brb",t:pk(id,"brb",GEN.brb)};
+ if(/^(i love you|love you|ily|you're the best|youre the best|ur the best|i like you|i like talking to you|i miss you|miss you|you're awesome|youre awesome|you rock|love ya|ur awesome)$/.test(s))return{c:"love",t:pk(id,"love",GEN.love)};
+ if(/^(got off work|got home|got back home|just got home|just got off|off work|home now|made it home)$/.test(act))return{c:"work",t:pk(id,"work",GEN.work)};
+ if(/^(woke up|got up|woke up rn|just woke up|just got up|im up|i'm up|im awake|i'm awake)$/.test(act))return{c:"woke",t:pk(id,"woke",GEN.woke)};
+ if(/^(about to eat|bout to eat|eating|making food|making dinner|making lunch|making breakfast|cooking|just ate|getting food|grabbing food|hungry)$/.test(act))return{c:"eat",t:pk(id,"eat",GEN.eat)};
+ if(/^(at work|working|at the job|on shift|on the clock|stuck at work|at school|in class|studying|doing homework)$/.test(act))return{c:"atwork",t:pk(id,"atwork",GEN.atwork)};
+ if(/^(in bed|laying down|lying down|in my bed|about to sleep|going to bed|bout to sleep|going to sleep|heading to bed)$/.test(act))return{c:"bed",t:pk(id,"bed",GEN.bed)};
+ if(/^(driving|on the road|in the car|on my way|heading home|walking|outside|on a walk)$/.test(act))return{c:"drive",t:pk(id,"drive",GEN.drive)};
+ if(m=s.match(/^(?:just |currently |rn )?watching (.{2,40})$/))return{c:"watch",t:pk(id,"watch",["Oh nice, "+m[1]+". Is it good?","Ooh "+m[1]+". What’s it about?","Nice, "+m[1]+". How far in are you?"])};
+ if(m=s.match(/^(?:just |currently |rn )?(?:playing|gaming on|on) (.{2,40})$/)&&m&&/playing|gaming/.test(s))return{c:"play",t:pk(id,"play",["Oh nice, "+m[1]+". How’s it going, winning?","Ooh "+m[1]+". Are you good at it?","Nice, "+m[1]+". Solo or with people?"])};
+ if(m=s.match(/^(?:just |currently |rn )?listening to (.{2,40})$/))return{c:"listen",t:pk(id,"listen",["Good pick? What’s it like?",m[1]+". Is that a vibe or just background?","Nice, "+m[1]+". Is it new to you?"])};
+ return null}
+/* ---------- clean stiff phrasing, then split into text-sized bubbles ---------- */
+const LEAD=/^(Allow me|Precisely|Quick lookup|Technically|Let’s be precise|Quick beat check|Strictly speaking|To be precise|Fair question|One thing)[:.,]\s*/i;
+function clean(t){
+ if(typeof t!=="string")return t;
+ t=t.replace(/^(?:[A-Z][a-z]+, )?(?:Well, actually, |Technically, |Let’s be precise\. |Precisely, |Allow me\. )?[A-Z][\w’']+ is the real expert on this \([^)]*\), but here[’']s what I[’']ve got\.\s*/,"");
+ t=t.replace(LEAD,"");
+ t=t.replace(/^(?!(?:Random topic|Note|Tip|Fact|Example|Heads up|Quick note|Reminder|Update|Story mode|Backstory|Steps|Warning|Made-up)\b)[A-Za-z’',! ]{3,34}: (?=[A-Za-z“"])/,function(m){return m.split(" ").length<=5?"":m});
+ t=t.replace(/^(?:Plot twist|Hold on, I[’']ve got a rhythm for that)[.:,]\s*/i,"");
+ t=t.replace(/\s*\((?:That[’']s the dictionary[’']s definition[^)]*|Fact: straight from the notes[^)]*)\)\.?/g,"").replace(/\s*Feel free to be impressed\./,"").replace(/\s*\(Fact: straight from the notes\. No assumptions added\.\)/,"");
+ return t.replace(/^\s+/,"").replace(/^[a-z]/,c=>c.toUpperCase())}
+function bubbles(t){
+ if(typeof t!=="string"||t.length<150||/\n/.test(t))return[t];
+ const sn=t.match(/[^.!?…]+[.!?…]+["”’)]*\s*|[^.!?…]+$/g)||[t];const out=[];let cur="";
+ for(const x of sn){if(cur&&(cur+x).length>115&&out.length<2){out.push(cur.trim());cur=x}else cur+=x}
+ if(cur.trim())out.push(cur.trim());return out.length?out:[t]}
+const chatty=q=>{const s=q.toLowerCase().trim();return s.split(/\s+/).length<=8&&!/\?/.test(s)&&!/^(what|who|where|when|why|how|which|define|explain|tell me|look up|lookup|spell|teach|whats|what's|is|are|do|does|can|could)\b/.test(s)};
+const VENT=/(so done|sick of|tired of|fed up|can't stand|cant stand|hate (my|this|that|when)|annoy|ugh|frustrat|long day|rough day|bad day|stressed|so mad|pissed|drained|exhausted|overwhelm|upset|worried|anxious|boss|coworker|argument|fight with|broke up|ghost|got fired|girlfriend|boyfriend|my ex|breakup|laid off|can't sleep|cant sleep|nobody|no one (cares|gets))/;
+const VT={aurora:"Did you eat today, though?",vex:"Want me to tell you a bad joke after, or are we being serious?",luna:"Take your time.",nova:"I’m right here, okay?",panther:"I’m not going anywhere.",elite:"Want help figuring out a next step, or just need to vent?",pepper:"Vent first, jokes later.",simba:"Do you want to talk it out or go do something about it?",legend:"Say it all, I’m listening.",titan:"Put it all out there, no judgment.",oracle:"Start from what happened first.",midnight:"Walk me through it."};
+function vent(id){return pk(id,"vent",["Ugh, that sounds exhausting. What happened?","That would wear anyone down. What part got to you the most?","Yeah, that sounds rough. Do you want to vent or figure out what to do about it?","That sucks, I’m sorry. What did they actually say?"])+(Math.random()<.5&&VT[id]?" "+VT[id]:"")}
+const STOP=new Set("a an the i you we me my do does did is are was were be to of in on at for and or but with about how what why can should could would best way good make get have has it this that your our from by as if so just really some any".split(" "));
+const HOWQ=/^(how (do|can|should|would) (i|you|we)|how to|how does|what('s| is) the best way|best way to|what is a good way)/;
+function focus(q,out){
+ if(typeof out!=="string"||/\n/.test(out)||out.length<90)return out;
+ const s=q.toLowerCase().replace(/[’‘]/g,"'").replace(/[?!.]+$/,"").trim();if(!HOWQ.test(s))return out;
+ const keys=s.split(/[^a-z0-9']+/).filter(w=>w.length>=3&&!STOP.has(w));if(keys.length<2)return out;
+ const lead=(out.match(/^(?:Quick beat check|Allow me|Precisely)[:.,]\s*/i)||[""])[0],body=out.slice(lead.length);
+ const sn=body.match(/[^.!?]+[.!?]+["”’)]*\s*|[^.!?]+$/g)||[body];if(sn.length<2)return out;
+ const sc=sn.map(x=>{const o=x.toLowerCase();return keys.filter(k=>o.includes(k.slice(0,Math.max(3,Math.min(5,k.length-1))))).length});
+ const mx=Math.max(...sc);if(mx<2||sc.every(x=>x===mx))return out;
+ return sn.filter((x,i)=>sc[i]===mx).slice(0,3).join("").trim()}
+function offTarget(q,out){
+ if(typeof out!=="string"||/…$/.test(out)||/^(Alright, here’s the plan|I don’t have a ready-made guide)/.test(out))return false;
+ const s=q.toLowerCase().replace(/[’‘]/g,"'").replace(/[?!.]+$/,"").trim();if(!HOWQ.test(s))return false;
+ if(/real expert on this/.test(out))return true;
+ if(out.length<50)return false;
+ const keys=s.split(/[^a-z0-9']+/).filter(w=>w.length>=3&&!STOP.has(w));if(keys.length<2)return false;
+ const o=out.toLowerCase();const hit=keys.filter(k=>o.includes(k.slice(0,Math.max(3,Math.min(5,k.length-1))))).length;
+ return hit/keys.length<.6}
+const DUNNO=["Hmm, I don’t actually have a good answer for that one yet. If you know it, teach me and I’ll remember it.","I’m not sure about that one, and I don’t want to guess. Tell me how it’s done and I’ll keep it for next time.","Honestly I don’t have that one. If you teach me, I’ll remember it."];
+const inChat=a=>{try{return tab==="chat"&&cur===a.id}catch(e){return false}};
+const _t=reply;
+reply=function(a,q){
+ if(!inChat(a))return _t(a,q);
+ let calm=false;try{calm=(typeof CR!=="undefined"&&CR.test(q.replace(/[’‘]/g,"'")))||((window.PERSONALITY.mm(a.id)||{}).care>0)}catch(e){}
+ const S=st(a.id);S.turn++;
+ let out;
+ if(!calm){const it=intent(a.id,q);if(it){let t=nameBit(a.id,it.t);
+   if(it.back){const o=intent(a.id,"how are you");if(o&&/^(chill|good|meh)$/.test(it.c))t=pk(a.id,"echo",["Same here, just hanging out. ","Doing alright over here. ","I’m good too. "])+t}
+   out=t}}
+ if(out===undefined){
+  out=_t(a,q);
+  if(typeof out==="string"){
+   if(!calm&&chatty(q)&&/real expert on this/.test(out))out=pk(a.id,"fb",GEN.fb);
+   else if(!calm&&VENT.test(q.toLowerCase())&&q.split(/\s+/).length>=6&&/(I hear you|Want to keep going|Tell me more)/.test(out)&&!/\n/.test(out))out=vent(a.id);
+   else if(!calm&&offTarget(q,out=focus(q,out)))out=pk(a.id,"dunno",DUNNO);
+   else out=clean(out)}}
+ if(typeof out==="string"&&/\?\s*$/.test(out))S.qTurn=S.turn;
+ const parts=bubbles(out);
+ if(parts.length>1){let delay=0;parts.slice(1).forEach((p,i)=>{delay+=800+Math.min(1400,parts[i].length*16);setTimeout(()=>{try{window.DICTIONARY.deliver(a,p)}catch(e){}},delay)});
+  return parts[0]}
+ return out};
+window.TEXTING={intent,clean,bubbles,norm,F,GEN,off:offTarget,state:()=>CS};
 })();
 </script>
 
