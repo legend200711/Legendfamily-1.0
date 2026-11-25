@@ -2267,7 +2267,7 @@ async function listSnaps(scope){
  const r=await gh("GET","backups/"+scopeDir(scope||"all"));if(!r||!Array.isArray(r))return[];
  return r.filter(f=>/\.enc\.json$/.test(f.name)).map(f=>f.name).sort().reverse()}
 function applyData(data){let n=0;for(const k in data){if(k.startsWith(P)&&!EXC.has(k)){localStorage.setItem(k,data[k]);n++}}return n}
-async function safetyCopy(){const d=collect("all"),t=JSON.stringify({v:1,safety:true,ts:Date.now(),data:d});
+async function safetyCopy(){try{if(window.SNAPS)await SNAPS.take("pre")}catch(e){}const d=collect("all"),t=JSON.stringify({v:1,safety:true,ts:Date.now(),data:d});
  try{localStorage.setItem(SAFE,t)}catch(e){}
  try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"application/json"}));a.download="twelve-safety-copy-"+iso()+".json";document.body.appendChild(a);a.click();a.remove()}catch(e){}}
 async function restore(scope,name,o){
@@ -2656,6 +2656,119 @@ reply=function(a,q){
   return parts[0]}
  return out};
 window.TEXTING={intent,clean,bubbles,norm,F,GEN,off:offTarget,state:()=>CS};
+})();
+</script>
+
+<script>
+/* ORCHESTRATOR LAYER: local versioned snapshots (independent of GitHub), per-assistant memory consolidation and reflection
+   (non-destructive, isolated), honest system status. Background work runs only while this page is open. */
+(function(){
+"use strict";
+const P="ls6:",enc=new TextEncoder(),HOUR=3600000;
+const hex=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
+const sha=async s=>hex(await crypto.subtle.digest("SHA-256",enc.encode(s)));
+const canon=d=>JSON.stringify(Object.keys(d).sort().map(k=>[k,d[k]]));
+const O={log:[],lastTick:0,snaps:[],view:null,idb:typeof indexedDB!=="undefined"};
+let OC={};try{OC=JSON.parse(localStorage.getItem("lsor:cfg"))||{}}catch(e){}
+const SAVEC=()=>{try{localStorage.setItem("lsor:cfg",JSON.stringify(OC))}catch(e){}};
+const L=m=>{O.log=O.log.concat([{ts:Date.now(),m}]).slice(-20)};
+const ids=()=>A.map(a=>a.id);
+/* ---------- local snapshots (IndexedDB) ---------- */
+const DB="twelve-snap";
+const db=()=>new Promise((res,rej)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>r.result.createObjectStore("s",{keyPath:"ts"});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const run=async(mode,f)=>{const d=await db();return new Promise((res,rej)=>{const t=d.transaction("s",mode),s=t.objectStore("s");let q;try{q=f(s)}catch(e){rej(e);return}t.oncomplete=()=>{res(q&&q.result);d.close()};t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error)})};
+function collect(){const d={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith(P)&&k!=="ls6:bk"&&k!=="ls6:t")d[k]=localStorage.getItem(k)}return d}
+const KEEP={auto:7,manual:5,pre:3};
+async function list(){if(!O.idb)return[];const a=await run("readonly",s=>s.getAll());return(a||[]).sort((x,y)=>y.ts-x.ts)}
+async function take(label){
+ if(!O.idb)return{ok:false,why:"Local snapshots aren’t available in this browser"};
+ label=label||"manual";const data=collect(),hash=await sha(canon(data)),all=await list();
+ if(label==="auto"&&all[0]&&all[0].hash===hash)return{ok:true,skipped:true};
+ const rec={ts:Date.now(),label,hash,items:Object.keys(data).length,bytes:Object.values(data).reduce((n,v)=>n+v.length,0),data};
+ await run("readwrite",s=>s.put(rec));
+ const now=await list(),by={};for(const r of now){(by[r.label]=by[r.label]||[]).push(r)}
+ for(const k in by){const n=KEEP[k]||5;for(const r of by[k].slice(n))await run("readwrite",s=>s.delete(r.ts))}
+ OC.lastSnap=rec.ts;SAVEC();L("Local snapshot saved ("+label+", "+rec.items+" items)");await refresh();return{ok:true,ts:rec.ts,items:rec.items,hash}}
+async function verify(ts){const a=(await list()).find(r=>r.ts===ts);if(!a)return{ok:false,why:"not found"};const h=await sha(canon(a.data));return{ok:h===a.hash,items:a.items}}
+async function restore(ts,o){
+ o=o||{};const a=(await list()).find(r=>r.ts===ts);if(!a)throw new Error("Snapshot not found");
+ if(!(await verify(ts)).ok)throw new Error("That snapshot failed its integrity check, so I didn’t restore it");
+ if(!o.confirmed&&!confirm("Restore "+a.items+" items from "+new Date(a.ts).toLocaleString()+"?\n\nA snapshot of your current data is taken first. Nothing local-only is deleted."))return{ok:false,cancelled:true};
+ await take("pre");for(const k in a.data)localStorage.setItem(k,a.data[k]);L("Restored snapshot "+new Date(a.ts).toLocaleString());
+ if(!o.noReload)setTimeout(()=>location.reload(),400);return{ok:true,items:a.items}}
+/* ---------- memory consolidation + reflection: reads only that assistant's own history, never edits it ---------- */
+const STOPW=new Set("the and but with about that this have has had was were are you your yours for from what when where which would could should there their them they then than just like really very some any can will not dont don't i'm its it's ive i've also into over under been being does did doing going get got make made want need know think say said tell told ask asked okay yeah yes nope hey lol haha thanks please one two how why who whom much many more most still even only well here today tonight tomorrow gonna gotta wanna thing things something anything because maybe actually pretty right left back down away".split(" "));
+const FACT=[
+ [/\bmy name is ([a-z]{2,20})/i,m=>"your name is "+cap(m[1])],
+ [/\bi (?:really |also )?(like|love|enjoy|hate|dislike|prefer) ([a-z0-9 '\-]{3,32}?)(?: and |,|\.|!|$| but | so | because )/i,m=>"you "+m[1].toLowerCase()+" "+m[2].trim()],
+ [/\bmy (dog|cat|mom|dad|mother|father|brother|sister|wife|husband|girlfriend|boyfriend|son|daughter|boss|best friend|friend|job|car|band|roommate|grandma|grandpa) (?:is |was |named |called )?([a-z]{2,20})?/i,m=>"you mentioned your "+m[1].toLowerCase()+(m[2]&&!/^(is|was|and|has|had|just|so|the|a|got|keeps|never|always|said|says)$/i.test(m[2])?" ("+m[2]+")":"")],
+ [/\bi (work|live|study|go to school) (?:at|in|as|for) ([a-z0-9 '\-]{3,30}?)(?: and |,|\.|!|$| but )/i,m=>"you "+m[1].toLowerCase()+" "+(/^work$/.test(m[1])?"at/as ":"in ")+m[2].trim()]
+];
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const HEAVY=/(so done|sick of|tired of|fed up|stressed|overwhelm|anxious|worried|lonely|upset|sad|exhausted|rough day|bad day|long day|hate my|can't sleep|cant sleep|broke up|fight with)/i;
+function consolidate(id,force){
+ const b=br[id];if(!b)return null;const h=b.hist||[],users=h.filter(x=>x.r==="u").map(x=>String(x.t||""));
+ const R=b.reflect=b.reflect||{n:0,ts:0,facts:[],notes:[],themes:{},heavy:0};
+ if(!force&&users.length-R.n<6)return null;
+ const th={},facts=new Set(R.facts||[]);let heavy=0;
+ users.forEach(t=>{
+  t.toLowerCase().replace(/[^a-z' ]/g," ").split(/\s+/).forEach(w=>{if(w.length>=4&&!STOPW.has(w))th[w]=(th[w]||0)+1});
+  for(const[re,fn]of FACT){const m=t.match(re);if(m)facts.add(fn(m))}
+  if(HEAVY.test(t))heavy++});
+ const top=Object.entries(th).filter(x=>x[1]>=2).sort((a,b)=>b[1]-a[1]).slice(0,4).map(x=>x[0]);
+ R.themes=th&&Object.fromEntries(Object.entries(th).filter(x=>x[1]>=2).sort((a,b)=>b[1]-a[1]).slice(0,25));
+ R.facts=[...facts].slice(-40);R.heavy=heavy;
+ const txt="We’ve talked "+users.length+" times."+(top.length?" You keep coming back to: "+top.join(", ")+".":"")+(R.facts.length?" Things you’ve told me: "+R.facts.slice(-3).join("; ")+".":"")+(heavy?" Some of our talks were heavy ones, and I’ve kept that in mind.":"");
+ R.notes=(R.notes||[]).concat([{ts:Date.now(),n:users.length,text:txt}]).slice(-20);R.n=users.length;R.ts=Date.now();
+ try{sv("b:"+id,b)}catch(e){}return R}
+function maintain(force){let c=0;ids().forEach(id=>{if(consolidate(id,force))c++});OC.lastMaint=Date.now();SAVEC();if(c)L("Consolidated memory for "+c+" assistant"+(c>1?"s":""));return c}
+/* ---------- answer "what do you remember" from the assistant's own consolidated memory ---------- */
+const _o=reply;
+reply=function(a,q){
+ const s=q.toLowerCase().replace(/[’‘]/g,"'").replace(/[?!.]+$/,"").trim();
+ let ok=false;try{ok=tab==="chat"&&cur===a.id}catch(e){}
+ if(ok&&/^(what do you (remember|know) about me|what have you noticed about me|what do you remember|do you remember me|what do you know about me|what have i told you)$/.test(s)){
+  consolidate(a.id,true);const R=br[a.id].reflect;
+  if(R&&R.facts.length)return "Here’s what I’ve got from our chats: "+R.facts.slice(-5).join("; ")+"."+(Object.keys(R.themes||{}).length?" You also keep coming back to "+Object.keys(R.themes).slice(0,3).join(", ")+".":"")+" Anything I got wrong?"}
+ return _o(a,q)};
+const _t=tick;tick=function(){O.lastTick=Date.now();return _t()};
+/* ---------- status + dashboard ---------- */
+const kb=n=>n<1024?n+" B":n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(2)+" MB";
+const ago=t=>t?new Date(t).toLocaleString():"never";
+const esc2=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+async function refresh(){try{O.snaps=await list()}catch(e){O.snaps=[];O.err=e.message}try{if(typeof draw==="function"&&document.querySelector("[data-a=snapNow]"))draw()}catch(e){}}
+function proc(){
+ const T=(window.THREADS&&window.THREADS.T)||{},C=(window.VAULT&&window.VAULT.cfg)||{},dm=(typeof gs!=="undefined"&&gs.dm)||{};
+ const run_=window.THREADS&&window.THREADS.state().running;
+ return[
+  ["Group chatter timer",gs.auto?"every "+gs.auto+" min, last run "+(O.lastTick?new Date(O.lastTick).toLocaleTimeString():"not yet"):"off"],
+  ["Conversation threads",T.on===false?"off":"on, up to "+(T.max|0)+" per hour"+(run_?", running now: "+run_.k:"")],
+  ["Messages to you (own chat)",dm.on===false?"off":"on, within your frequency and quiet-hour limits"],
+  ["Automatic GitHub backup",C.auto&&C.repo&&C.token?"on, last "+ago(C.lastOk):(C.repo?"set up, paused":"not set up")],
+  ["Local snapshots","last "+ago(OC.lastSnap)+", "+O.snaps.length+" kept"],
+  ["Memory consolidation","last run "+ago(OC.lastMaint)]]}
+function dash(){
+ const rows=proc().map(r=>"<tr><td>"+esc2(r[0])+"</td><td>"+esc2(r[1])+"</td></tr>").join("");
+ const mem=A.map(a=>{const b=br[a.id],R=b.reflect||{},rel=Object.keys((b.social||{}).rel||{}).length;let sz=0;try{sz=(localStorage.getItem("ls6:b:"+a.id)||"").length}catch(e){}
+  return "<tr><td>"+esc2(a.n)+"</td><td>"+kb(sz)+"</td><td>"+(b.hist||[]).filter(x=>x.r==="u").length+"</td><td>"+((R.facts||[]).length)+"</td><td>"+rel+"</td><td><button class='sm' data-a='memView' data-i='"+a.id+"'>View</button></td></tr>"}).join("");
+ let view="";if(O.view){const R=br[O.view].reflect||{facts:[],notes:[]};view="<div class='box'><b>"+esc2(A.find(a=>a.id===O.view).n)+"’s own memory notes</b> (only from their chats with you)"+((R.facts||[]).length?"<ul>"+R.facts.slice(-12).map(f=>"<li>"+esc2(f)+"</li>").join("")+"</ul>":"<p class='st'>Nothing consolidated yet.</p>")+((R.notes||[]).length?"<p class='st'>"+esc2(R.notes[R.notes.length-1].text)+"</p>":"")+"</div>"}
+ const sn=O.snaps.slice(0,8).map(r=>"<option value='"+r.ts+"'>"+new Date(r.ts).toLocaleString()+" · "+r.label+" · "+r.items+" items</option>").join("");
+ return `<h3>System status</h3><div class="box wide"><p class="st">The assistants only act while this page is open. Nothing below runs when the page is closed.</p><table>${rows}</table></div>
+<h3>Memory center</h3><div class="box wide"><p class="st">Each assistant keeps its own memory. Consolidation only reads that assistant’s own chats and never changes or deletes them.</p><table><tr><th>Assistant</th><th>Memory size</th><th>Your messages</th><th>Facts kept</th><th>Relationships</th><th></th></tr>${mem}</table><button class="sm" data-a="memNow">Consolidate memories now</button></div>${view}
+<h3>Local snapshots (no internet needed)</h3><div class="box"><p class="st">Versioned copies of everything on this device, kept in the browser’s own database, separate from GitHub. A new one is saved automatically once a day when something changed.</p><button data-a="snapNow">Save a snapshot now</button>${sn?`<label>Restore a snapshot</label><select id="snapSel">${sn}</select><button class="sm" data-a="snapVer">Check it</button> <button class="sm" data-a="snapRes">Restore</button>`:`<p class="st">${O.idb?"No snapshots yet.":"Not available in this browser."}</p>`}</div>`}
+act.snapNow=async()=>{const r=await take("manual");alert(r.ok?"Snapshot saved ("+r.items+" items).":r.why)};
+act.snapVer=async()=>{const v=await verify(+document.getElementById("snapSel").value);alert(v.ok?"Snapshot is intact ("+v.items+" items).":"Snapshot FAILED its integrity check.")};
+act.snapRes=async()=>{try{await restore(+document.getElementById("snapSel").value)}catch(e){alert(e.message)}};
+act.memNow=()=>{const n=maintain(true);alert(n?"Consolidated "+n+" assistant memories.":"Nothing new to consolidate.");draw()};
+act.memView=i=>{O.view=i||O.view;draw()};
+const _vc=V.ctl;V.ctl=function(){return _vc.call(V)+dash()};
+/* ---------- schedule: real timers, page open only ---------- */
+setTimeout(async()=>{try{await refresh();const last=O.snaps[0];if(!last||Date.now()-last.ts>24*HOUR)await take("auto")}catch(e){}},12000);
+setInterval(async()=>{try{await take("auto")}catch(e){}},6*HOUR);
+setTimeout(()=>{try{maintain(false)}catch(e){}},15000);
+setInterval(()=>{try{maintain(false)}catch(e){}},10*60000);
+window.SNAPS={take,list,verify,restore,refresh};
+window.ORCH={O,consolidate,maintain,proc,collect};
 })();
 </script>
 
